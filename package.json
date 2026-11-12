@@ -1,0 +1,24 @@
+{
+  "name": "digital-explorer-academy",
+  "version": "1.0.0",
+  "description": "數位小探險家學院 — Kids Laptop, Typing (English + Zhuyin), Internet & AI Interactive Learning App",
+  "scripts": {
+    "start": "npx serve . -l 3000",
+    "dev": "python3 -m http.server 3000",
+    "build": "node scripts/build-bundle.js",
+    "test": "node tests/run-all-tests.js"
+  },
+  "keywords": [
+    "kids-education",
+    "typing-tutor",
+    "bopomofo",
+    "zhuyin",
+    "windows-11",
+    "digital-literacy",
+    "ai-for-kids"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "jsdom": "^31.0.0"
+  }
+}
