@@ -17,13 +17,14 @@ digital-explorer-academy/
 │   └── curriculum.js        # ⭐ EDIT THIS to add new lessons or new Worlds!
 ├── js/
 │   ├── ui-modal.js          # In-page custom modal dialogs & toasts (iframe/sandbox-safe)
-│   ├── typing-dojo.js       # 19-stage Bopomofo + English Typing Dojo engine (IME-safe)
-│   ├── simulators.js        # Interactive labs (Win 11, Search Detective, AI Studios)
+│   ├── typing-dojo.js       # 22-drill Bopomofo + English Typing Dojo engine (IME-safe)
+│   ├── simulators.js        # Interactive labs (Win 11, Search Detective, AI Studios, Maps, Slides, Scratch, Story)
+│   ├── island-scene.js      # Three.js 3D Floating Islands & Avatar navigation across 4 Worlds
 │   └── app.js               # Profile manager, World Map, Vocab voice, Certificate
 ├── scripts/
 │   └── build-bundle.js      # Bundles modular project into self-contained HTML artifact
 └── tests/
-    └── run-all-tests.js     # Automated DOM & interaction test suite (378 assertions)
+    └── run-all-tests.js     # Automated DOM & interaction test suite (473 assertions)
 ```
 
 ---
@@ -68,7 +69,7 @@ The visual keyboard, finger guide colors, WPM counter, and star tracker will aut
 
 ### 2. Adding a New Lesson or a Whole New World (`data/curriculum.js`)
 Open `data/curriculum.js`:
-* To add a new **World** (for example, `World 4: 簡報與創作小達人 Canva & Slides` or `World 5: 程式設計入門 Scratch & Python`), append an item to `window.CURRICULUM_WORLDS`.
+* To add a new **World** (for example, `World 5: 3D 建模與虛擬世界` or `World 6: 機器人與物聯網探險`), append an item to `window.CURRICULUM_WORLDS`.
 * To add a new **Lesson** to an existing or new World, append an object to `window.CURRICULUM_LESSONS`:
 
 ```javascript

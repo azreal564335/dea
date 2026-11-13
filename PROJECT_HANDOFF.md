@@ -74,34 +74,43 @@ digital-explorer-academy/
 - [x] **Platform Features:** Dual kid profiles (`kid-10`, `kid-8`) with working in-page Rename (`✏️ 改名`), Export/Import progress codes, custom `UIModal` (iframe-safe), IME-safe Typing Dojo, Graduation Certificate, and 378-assertion automated test suite.
 - [x] **Google Drive Workspace:** `G-Agent-folder` structured with `01`–`05` subfolders and `PROJECT_HANDOFF.md`.
 
-### 🔜 Phase 2: Planned Future Expansions (BACKLOG)
+### ✅ Phase 2: MVP Completion (COMPLETED)
 - [x] **More Typing Drills (`data/typing-drills.js`):** Added Stage 6 (`phase2-stories`) with Number Row drill (`nr-1`), Everyday English conversation (`en-1`), and Zhuyin short-story typing (`zy-5`), bringing total drills to 22.
-- [ ] **World 2 Expansion:** Lesson `2.5` — *Using Google Maps for Family Trips* (directions, Street View, checking reviews).
-- [ ] **World 4 (`數位創作與程式入門` — Future World):**
-  - Lesson `4.1` — *Presentation Magic* (Google Slides / Canva basics for school reports).
-  - Lesson `4.2` — *Scratch Coding Playground* (events, loops, making a simple catch-the-apple game).
-  - Lesson `4.3` — *Audio & Visual Storytelling* (combining AI story + AI image prompts).
+- [x] **World 2 Expansion:** Lesson `2.5` — *Using Google Maps for Family Trips* (directions, Street View, checking reviews) with `maps-navigator` simulator.
+- [x] **World 4 (`數位創作與程式入門` — Future World):**
+  - [x] Lesson `4.1` — *Presentation Magic* (Google Slides / Canva basics for school reports) with `slide-studio` messy slide rescue.
+  - [x] Lesson `4.2` — *Scratch Coding Playground* (events, loops, making a simple catch-the-apple game) with `scratch-blocks` simulator.
+  - [x] Lesson `4.3` — *Audio & Visual Storytelling* (combining AI story + AI image prompts + TTS) with `story-studio` simulator.
 - [x] **Live Cloud Deployment (GitHub Repo Ready):** Pushed clean modular codebase to `https://github.com/azreal564335/dea` (`main` branch), ready to connect to Vercel or Cloudflare Pages.
 
 ---
 
 ## 5. 📊 Current Status & Changelog
 
-* **Last Updated:** 2026-11-12
-* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **405 / 405 PASS (100%)**
+* **Last Updated:** 2026-11-13
+* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **473 / 473 PASS (100%)**
 * **GitHub Repository:** https://github.com/azreal564335/dea (`main` branch)
 * **Recent Changes:**
+  * **Complete 4-World, 18-Lesson, 22-Drill MVP Delivered:**
+    * **World 2 Expansion:** Added Lesson 2.5 (`w2-l5`: 用 Google 地圖規劃家庭小旅行) with interactive `maps-navigator` simulator (transit/walk/drive route calculations, Street View Pegman 360 preview, and real vs. fake review discrimination).
+    * **World 4 Launch (`數位創作與程式入門`):**
+      * Lesson 4.1 (`w4-l1`: 學校報告的簡報魔法) with `slide-studio` messy-slide rescue applying the Rule of 3, high-contrast themes, and hero visuals.
+      * Lesson 4.2 (`w4-l2`: Scratch 積木遊戲工坊) with `scratch-blocks` event/loop/score block assembly and live playable catch-the-apple game.
+      * Lesson 4.3 (`w4-l3`: 圖文冒險故事工坊) with `story-studio` 3-act story builder combining AI hero/setting/plot-twist prompts, dynamic SVG scene visuals, and Web Speech API audio narration.
+    * **3D Island Map Expansion:** Added World 4 3D Creative Studio Island with glowing creative crystal, orbiting code blocks, rocket prop, and multi-modal navigation waypoints (`travelToWorld('world-4', true)`).
+    * **Comprehensive Automated Test Suite:** Expanded `tests/run-all-tests.js` to 473 assertions covering all 18 lessons, 4 worlds, 4 new simulators (including Scratch nav-away lifecycle timer safety and Story Studio TTS speech synthesis error resilience), and Three.js World 4 waypoints.
+    * **Google Drive & Git Synchronization:** In-place updates pushed to `G-Agent-folder` (`digital_explorer_academy.html`, `digital-explorer-academy.zip`, `PROJECT_HANDOFF.md`) and GitHub repository `azreal564335/dea` on `main`.
   * **GitHub Repository & Build Portability:** Created `azreal564335/digital-explorer-academy` on GitHub, added `.gitignore` (excluding `node_modules/` and `dist/`), updated `scripts/build-bundle.js` and `tests/run-all-tests.js` to use portable relative `dist/` paths instead of hardcoded sandbox paths, and pushed all code to `main`.
   * **Phase 2 Typing Expansion (Stage 6):** Added 3 new drills (`nr-1` Number Row, `en-1` Everyday English, `zy-5` Zhuyin Short Story) to `data/typing-drills.js` (22 drills total) and made the Certificate total drill count dynamic in `js/app.js`.
   * Upgraded `js/island-scene.js` & `js/app.js` into a **3D Gamified Avatar Adventure Map** (Clash Quest / One Piece Skypiea style):
     * **3D Explorer Avatar (`🦁` / `🦊`)** matching the active kid profile, starting on their furthest unlocked world.
     * **Multi-Modal Pathing (`travelToWorld`):** Hops across 3D stepping stones, swims across open ocean with expanding splash rings, and performs a **super high jump** with star sparkles up into the clouds to reach the floating **World 3 AI Sky Island** (`y = 2.35`).
     * **Treasure Chests** between worlds that glow gold upon world completion, plus animated ocean waves and drifting clouds.
-  * Added **Three.js 3D Floating Islands** (`js/island-scene.js` + bundled `js/vendor/three.min.js`) on the World Map, where each of the 3 Worlds has its own lively 3D animations and click-to-jump navigation.
+  * Added **Three.js 3D Floating Islands** (`js/island-scene.js` + bundled `js/vendor/three.min.js`) on the World Map, where each of the 4 Worlds has its own lively 3D animations and click-to-jump navigation.
   * Added a **Dynamic Island (`💊 靈動探險島`)** status pill in the hero header.
   * Replaced all `alert()` / `prompt()` / `confirm()` with custom `window.UIModal` so renaming (`✏️ 改名`) and progress import/export work in sandboxed iframes.
   * Fixed `TypingDojo` IME composition (`compositionstart`/`compositionend`) so Microsoft Bopomofo candidate selection is never interrupted.
-  * Removed all laptop brand names (`ASUS` / `華碩`) across all files.
+  * Maintained strict generic laptop rules (zero hardware brand names).
   * Organized `G-Agent-folder` into `01`–`05` subfolders and initialized `PROJECT_HANDOFF.md`.
 
 ---

@@ -21,6 +21,8 @@
   --w2-light: #d1fae5;
   --w3-color: #d97706;
   --w3-light: #fef3c7;
+  --w4-color: #7c3aed;
+  --w4-light: #ede9fe;
 
   /* Action & Status */
   --primary: #0284c7;
@@ -1213,6 +1215,24 @@ body.show-en .en-sub {
 .island-quick-chip.w1 { color: #0369a1; }
 .island-quick-chip.w2 { color: #047857; }
 .island-quick-chip.w3 { color: #b45309; }
+.island-quick-chip.w4 { color: #7c3aed; }
+
+/* Simulator Polish for M1 */
+.sim-box .step-tab {
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.sim-box .step-tab:hover {
+  background: var(--bg-subtle);
+}
+
+.sim-box .step-tab.active {
+  background: #f5f3ff;
+  border-color: #7c3aed;
+  color: #5b21b6;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.15);
+}
 
 .island-fallback-banner {
   background: linear-gradient(135deg, #e0f2fe 0%, #d1fae5 100%);

@@ -70,7 +70,38 @@ window.Simulators = {
     imgBgIdx: 0,
     imgStyleIdx: 0,
     imgLightIdx: 0,
-    imgRendered: true
+    imgRendered: true,
+
+    // Google Maps Navigator (Lesson 2.5)
+    mapsTripMode: 'transit', // 'walk' | 'transit' | 'drive'
+    mapsStreetViewOpen: false,
+    mapsReviewFilter: 'all', // 'all' | 'fake' | 'real'
+    mapsSelectedReviewId: null,
+
+    // Slide Studio (Lesson 4.1)
+    slideRescueStep1: false, // Rule of 3 applied
+    slideRescueStep2: false, // High contrast theme applied
+    slideRescueStep3: false, // Hero visual added
+    slideShowMode: false,
+
+    // Scratch Blocks & Apple Catch Game (Lesson 4.2)
+    scratchBlockBowl: false,
+    scratchBlockApple: false,
+    scratchBlockScore: false,
+    scratchGamePlaying: false,
+    scratchScore: 0,
+    scratchWin: false,
+    scratchBowlX: 180,
+    scratchAppleX: 150,
+    scratchAppleY: 20,
+
+    // Story Studio (Lesson 4.3)
+    storyHeroIdx: 0,
+    storyCompanionIdx: 0,
+    storySettingIdx: 0,
+    storyTwistIdx: 0,
+    storyCurrentScene: 0,
+    storyAudioPlaying: false
   },
 
   render(simConfig, containerId) {
@@ -92,12 +123,20 @@ window.Simulators = {
         return this.renderSearchDetective(el, containerId);
       case 'scam-shield':
         return this.renderScamShield(el, containerId);
+      case 'maps-navigator':
+        return this.renderMapsNavigator(el, containerId);
       case 'ai-prompt-builder':
         return this.renderAiPromptBuilder(el, containerId);
       case 'ai-skill-coach':
         return this.renderAiSkillCoach(el, containerId);
       case 'ai-image-studio':
         return this.renderAiImageStudio(el, containerId);
+      case 'slide-studio':
+        return this.renderSlideStudio(el, containerId);
+      case 'scratch-blocks':
+        return this.renderScratchBlocks(el, containerId);
+      case 'story-studio':
+        return this.renderStoryStudio(el, containerId);
       default:
         el.innerHTML = `
           <div class="sim-box" style="text-align:center;">
@@ -1035,5 +1074,1049 @@ window.Simulators = {
   setImgPart(key, val, cid) {
     this.state[key] = val;
     this.renderAiImageStudio(document.getElementById(cid), cid);
+  },
+
+  // ==========================================================================
+  // 2.5 GOOGLE MAPS NAVIGATOR (FAMILY TRIP, STREET VIEW & REAL REVIEWS)
+  // ==========================================================================
+  renderMapsNavigator(el, cid) {
+    const s = this.state;
+    const routes = {
+      walk: {
+        modeName: '🚶 步行 (Walking)',
+        time: '1 小時 25 分鐘',
+        dist: '6.8 公里 (約 9,200 步)',
+        traffic: '一路暢行 (人行道)',
+        trafficColor: '#059669',
+        tip: '短途散步很健康，但帶小孩長距離出遊會腳痠，建議搭捷運！',
+        steps: ['從台北車站東三門出發', '沿著承德路人行道向北走', '經百齡橋抵達兒童新樂園']
+      },
+      transit: {
+        modeName: '🚌 捷運＋接駁公車 (Transit)',
+        time: '28 分鐘',
+        dist: '淡水信義線 (紅線) ＋ 兒樂接駁車',
+        traffic: '每 5 分鐘一班車，順暢準時！',
+        trafficColor: '#0284c7',
+        tip: '最適合全家出遊！車廂涼爽有冷氣，刷悠遊卡超方便！',
+        steps: ['台北車站搭乘【淡水信義線 (紅線)】往淡水方向', '搭乘 5 站至【捷運劍潭站】1 號出口', '轉乘【兒樂 1 號線接駁車】直達園區門口']
+      },
+      drive: {
+        modeName: '🚗 開車 (Driving)',
+        time: '22 分鐘 (路況順暢時)',
+        dist: '7.2 公里',
+        traffic: '🟡 承德路三段局部車多 (慢行)・周邊停車位剩餘 15%',
+        trafficColor: '#d97706',
+        tip: '開車出門前先看路況顏色！橘色黃色代表車多，記得預留找車位時間！',
+        steps: ['由市民大道切入承德路', '直行承德路經文林北路', '依指標轉入兒童新樂園地下停車場']
+      }
+    };
+    const currentRoute = routes[s.mapsTripMode] || routes.transit;
+
+    const reviews = [
+      {
+        id: 'rev-1',
+        author: '快樂小探險家家長 (在地嚮導 第 6 級)',
+        stars: 5,
+        time: '2 週前',
+        isFake: false,
+        text: '上週末帶 8 歲與 10 歲兩個孩子去玩，摩天輪和雲霄飛車排隊大約 15 分鐘。園區美食街座位很多，洗手間非常乾淨！強烈推薦在入口先拿紙本地圖！',
+        photos: '🎡 摩天輪景觀照・🍦 彩虹冰淇淋照',
+        tag: '🏆 真實詳細評論 (附照片與具體建議)'
+      },
+      {
+        id: 'rev-2',
+        author: '幸運大吉星 (新註冊帳號，僅發表過 1 則評論)',
+        stars: 5,
+        time: '昨天',
+        isFake: true,
+        text: '太棒了老闆人超好五星好評送可樂讚讚讚！',
+        photos: '無照片',
+        tag: '🚨 疑似刷星廣告 (五星換好康、無具體細節)'
+      },
+      {
+        id: 'rev-3',
+        author: '林老師 (學校戶外教學帶隊組長)',
+        stars: 4,
+        time: '1 個月前',
+        isFake: false,
+        text: '門票非常親民，悠遊卡感應入園超方便。缺點是中午戶外遮蔭處較少，建議爸爸媽媽一定要幫小朋友準備水壺和防曬遮陽帽！整體 4.5 顆星！',
+        photos: '🌳 園區遮陽棚配置照・🚰 飲水機位置圖',
+        tag: '🏆 誠實客觀評價 (給出實用提醒)'
+      }
+    ];
+
+    const filteredReviews = reviews.filter(r => {
+      if (s.mapsReviewFilter === 'fake') return r.isFake;
+      if (s.mapsReviewFilter === 'real') return !r.isFake;
+      return true;
+    });
+
+    el.innerHTML = `
+      <div class="sim-box">
+        <!-- Top Toolbar -->
+        <div style="background:#0f172a; color:white; border-radius:14px; padding:0.9rem 1.2rem; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem;">
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <span style="font-size:1.4rem;">🗺️</span>
+            <div>
+              <div style="font-weight:900; font-size:1.05rem;">Google Maps 出遊領航員</div>
+              <div style="font-size:0.8rem; color:#94a3b8;">起點：台北車站 📍 ➔ 目的地：台北市立兒童新樂園 🎡</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:0.4rem;">
+            <button class="btn-secondary" style="padding:0.35rem 0.75rem; font-size:0.82rem; background:${s.mapsStreetViewOpen ? '#fef08a' : '#334155'}; color:${s.mapsStreetViewOpen ? '#854d0e' : '#f8fafc'}; border:none;"
+                    onclick="window.Simulators.toggleMapsStreetView('${cid}')">
+              ${s.mapsStreetViewOpen ? '✕ 關閉 360° 街景' : '🚶‍♂️ 街景小黃人 (Street View)'}
+            </button>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:1rem;">
+          <!-- Left: Route Planner & Map View -->
+          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.1rem;">
+            <div style="font-size:0.92rem; font-weight:800; color:#0369a1; margin-bottom:0.6rem;">
+              1️⃣ 選擇交通導航方式 (Directions)：
+            </div>
+            <div style="display:flex; gap:0.4rem; margin-bottom:0.85rem;">
+              <button class="step-tab ${s.mapsTripMode === 'transit' ? 'active' : ''}" style="flex:1; justify-content:center;"
+                      onclick="window.Simulators.setMapsMode('transit', '${cid}')">
+                🚌 捷運公車
+              </button>
+              <button class="step-tab ${s.mapsTripMode === 'drive' ? 'active' : ''}" style="flex:1; justify-content:center;"
+                      onclick="window.Simulators.setMapsMode('drive', '${cid}')">
+                🚗 開車
+              </button>
+              <button class="step-tab ${s.mapsTripMode === 'walk' ? 'active' : ''}" style="flex:1; justify-content:center;"
+                      onclick="window.Simulators.setMapsMode('walk', '${cid}')">
+                🚶 步行
+              </button>
+            </div>
+
+            <!-- Route Details Card -->
+            <div style="background:#f8fafc; border:2px solid #bae6fd; border-radius:12px; padding:0.9rem; margin-bottom:0.9rem;">
+              <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.3rem;">
+                <span style="font-size:1.15rem; font-weight:900; color:#0284c7;">⏱️ 預估時間：${currentRoute.time}</span>
+                <span style="font-size:0.85rem; font-weight:700; color:#475569;">${currentRoute.dist}</span>
+              </div>
+              <div style="font-size:0.85rem; font-weight:800; color:${currentRoute.trafficColor}; margin-bottom:0.5rem;">
+                🚦 即時路況：${currentRoute.traffic}
+              </div>
+              <div style="font-size:0.84rem; background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:0.55rem; color:#334155;">
+                💡 <strong>探險家小提示</strong>：${currentRoute.tip}
+              </div>
+            </div>
+
+            <!-- Simulated Interactive Map Screen -->
+            <div style="background:linear-gradient(135deg, #e0f2fe 0%, #dcfce7 100%); border:2px solid #94a3b8; border-radius:12px; height:180px; position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; padding:0.75rem;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <span style="background:rgba(15,23,42,0.85); color:white; font-size:0.78rem; font-weight:800; padding:0.25rem 0.6rem; border-radius:6px;">
+                  📍 路線圖預覽（藍色順暢導航線）
+                </span>
+                <button onclick="window.Simulators.toggleMapsStreetView('${cid}')"
+                        style="background:#f59e0b; color:#0f172a; border:none; border-radius:999px; padding:0.3rem 0.7rem; font-size:0.8rem; font-weight:900; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+                  🚶‍♂️ 丟下小黃人看街景
+                </button>
+              </div>
+
+              <!-- SVG Route Map Graphic -->
+              <div style="position:absolute; inset:0; pointer-events:none;">
+                <svg width="100%" height="100%" viewBox="0 0 300 180" preserveAspectRatio="none">
+                  <path d="M 30 150 Q 120 120, 150 80 T 260 30" fill="none" stroke="${currentRoute.trafficColor}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${s.mapsTripMode === 'walk' ? '6,6' : 'none'}"/>
+                  <circle cx="30" cy="150" r="7" fill="#0284c7" />
+                  <circle cx="260" cy="30" r="8" fill="#ef4444" />
+                </svg>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:flex-end; font-size:0.8rem; font-weight:800; z-index:2;">
+                <span style="background:white; padding:0.2rem 0.5rem; border-radius:6px; border:1px solid #cbd5e1;">📍 台北車站</span>
+                <span style="background:white; padding:0.2rem 0.5rem; border-radius:6px; border:1px solid #cbd5e1;">🎡 兒童新樂園門口</span>
+              </div>
+            </div>
+
+            <!-- Step by Step Directions List -->
+            <div style="margin-top:0.75rem; font-size:0.82rem; color:#475569;">
+              <div style="font-weight:800; color:#0f172a; margin-bottom:0.25rem;">詳細行車指引：</div>
+              ${currentRoute.steps.map((st, i) => `<div>${i + 1}. ${st}</div>`).join('')}
+            </div>
+          </div>
+
+          <!-- Right: Street View or Review Detective -->
+          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.1rem; display:flex; flex-direction:column; justify-content:space-between;">
+            ${s.mapsStreetViewOpen ? `
+              <!-- 360° Street View Screen -->
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+                  <span style="font-size:0.95rem; font-weight:900; color:#b45309;">
+                    🚶‍♂️ 街景服務 (Street View)：園區正門 360° 全景
+                  </span>
+                  <span style="font-size:0.78rem; background:#fef3c7; color:#92400e; padding:0.2rem 0.5rem; border-radius:4px; font-weight:800;">
+                    時光機：2026 年最新影像
+                  </span>
+                </div>
+                <div style="background:radial-gradient(circle at center, #60a5fa 0%, #1e3a8a 100%); border-radius:12px; height:220px; position:relative; overflow:hidden; border:2px solid #1e293b; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; text-align:center; padding:1rem;">
+                  <div style="font-size:3.5rem; margin-bottom:0.3rem; animation:pulse 2s infinite;">🎡</div>
+                  <div style="font-size:1.05rem; font-weight:900; text-shadow:0 2px 4px rgba(0,0,0,0.6);">
+                    台北市立兒童新樂園・正門售票口
+                  </div>
+                  <div style="font-size:0.8rem; color:#bae6fd; margin-top:0.3rem;">
+                    💡 地標辨識：認明右手邊彩虹拱門與左手邊紅樹林接駁公車站牌！
+                  </div>
+                  <div style="position:absolute; bottom:8px; left:8px; background:rgba(0,0,0,0.6); padding:2px 8px; border-radius:4px; font-size:0.72rem;">
+                    🔄 滑鼠拖曳可環景 360° 旋轉踩點
+                  </div>
+                </div>
+                <div style="margin-top:0.75rem; padding:0.6rem; background:#ecfdf5; border-radius:8px; font-size:0.84rem; font-weight:800; color:#065f46;">
+                  ✅ 街景踩點成功！先看過大門口建築招牌，到現場全家完全不會迷路！
+                </div>
+              </div>
+            ` : `
+              <!-- Review Detective -->
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; flex-wrap:wrap; gap:0.4rem;">
+                  <div style="font-size:0.95rem; font-weight:900; color:#0f172a;">
+                    🕵️ 評論小偵探：揪出洗星假評價，挑選真實好店！
+                  </div>
+                </div>
+
+                <div style="display:flex; gap:0.35rem; margin-bottom:0.75rem;">
+                  <button class="step-tab ${s.mapsReviewFilter === 'all' ? 'active' : ''}" style="padding:0.3rem 0.6rem; font-size:0.8rem;"
+                          onclick="window.Simulators.setMapsReviewFilter('all', '${cid}')">
+                    全部評價 (${reviews.length})
+                  </button>
+                  <button class="step-tab ${s.mapsReviewFilter === 'real' ? 'active' : ''}" style="padding:0.3rem 0.6rem; font-size:0.8rem;"
+                          onclick="window.Simulators.setMapsReviewFilter('real', '${cid}')">
+                    🏆 真實心得 (2)
+                  </button>
+                  <button class="step-tab ${s.mapsReviewFilter === 'fake' ? 'active' : ''}" style="padding:0.3rem 0.6rem; font-size:0.8rem;"
+                          onclick="window.Simulators.setMapsReviewFilter('fake', '${cid}')">
+                    🚨 疑似刷星 (1)
+                  </button>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:0.6rem; max-height:260px; overflow-y:auto; padding-right:4px;">
+                  ${filteredReviews.map(r => `
+                    <div onclick="window.Simulators.inspectMapsReview('${r.id}', '${cid}')"
+                         style="background:#f8fafc; border:2px solid ${s.mapsSelectedReviewId === r.id ? (r.isFake ? '#ef4444' : '#16a34a') : (r.isFake ? '#fecaca' : '#cbd5e1')}; border-radius:10px; padding:0.65rem 0.85rem; cursor:pointer;">
+                      <div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:0.2rem;">
+                        <span style="font-weight:900; color:#0f172a;">${r.author}</span>
+                        <span style="color:#d97706; font-weight:800;">${'★'.repeat(r.stars)}</span>
+                      </div>
+                      <div style="font-size:0.82rem; color:#334155; line-height:1.4; margin-bottom:0.3rem;">
+                        ${r.text}
+                      </div>
+                      <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem;">
+                        <span style="color:#64748b;">📷 ${r.photos}</span>
+                        <span style="font-weight:800; color:${r.isFake ? '#dc2626' : '#16a34a'};">${r.tag}</span>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            `}
+
+            <!-- Bottom Action Tips -->
+            <div style="margin-top:0.85rem; padding-top:0.75rem; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:0.82rem; font-weight:800; color:#059669;">
+                📍 已將「兒童新樂園」加入全家週末出遊清單 ★
+              </span>
+              <button class="btn-primary" style="font-size:0.82rem; padding:0.35rem 0.75rem;"
+                      onclick="window.UIModal ? window.UIModal.toast('🎉 成功將兒童新樂園儲存到 Google Maps「想去的地點」！') : alert('🎉 儲存成功！')">
+                ❤️ 儲存地點
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  setMapsMode(mode, cid) {
+    this.state.mapsTripMode = mode;
+    this.renderMapsNavigator(document.getElementById(cid), cid);
+  },
+  toggleMapsStreetView(cid) {
+    this.state.mapsStreetViewOpen = !this.state.mapsStreetViewOpen;
+    this.renderMapsNavigator(document.getElementById(cid), cid);
+  },
+  setMapsReviewFilter(filter, cid) {
+    this.state.mapsReviewFilter = filter;
+    this.renderMapsNavigator(document.getElementById(cid), cid);
+  },
+  inspectMapsReview(rid, cid) {
+    this.state.mapsSelectedReviewId = rid;
+    this.renderMapsNavigator(document.getElementById(cid), cid);
+  },
+
+  // ==========================================================================
+  // 4.1 SLIDE STUDIO (MESSY SLIDE RESCUE & RULE OF 3)
+  // ==========================================================================
+  renderSlideStudio(el, cid) {
+    const s = this.state;
+    const allFixed = s.slideRescueStep1 && s.slideRescueStep2 && s.slideRescueStep3;
+
+    el.innerHTML = `
+      <div class="sim-box">
+        <!-- Control Header -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+          <div>
+            <h3 style="font-size:1.15rem; font-weight:900; color:#5b21b6; margin-bottom:0.2rem;">
+              📊 簡報魔法改造實驗室：拯救混亂投影片
+            </h3>
+            <div style="font-size:0.84rem; color:#64748b;">
+              完成 3 大排版改造，讓學校報告從「不及格大魔王」變身「全班最高分」！
+            </div>
+          </div>
+          <button class="btn-primary" style="background:#7c3aed; padding:0.45rem 1rem; font-size:0.9rem;"
+                  onclick="window.Simulators.toggleSlideShow('${cid}')">
+            ${s.slideShowMode ? '⏹️ 退出放映' : '▶️ 全螢幕放映預覽 (Slideshow)'}
+          </button>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:1rem;">
+          <!-- Left: Rescue Action Toolbox -->
+          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.15rem;">
+            <div style="font-size:0.95rem; font-weight:900; color:#4c1d95; margin-bottom:0.75rem;">
+              🛠️ 簡報醫師工具箱 (3 步急救大改造)：
+            </div>
+
+            <!-- Fix Step 1 -->
+            <div style="margin-bottom:0.85rem; padding:0.8rem; border-radius:10px; background:${s.slideRescueStep1 ? '#f5f3ff' : '#f8fafc'}; border:2px solid ${s.slideRescueStep1 ? '#8b5cf6' : '#cbd5e1'};">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                <span style="font-weight:900; font-size:0.9rem; color:#0f172a;">
+                  1️⃣ 套用「三重點法則 (Rule of 3)」
+                </span>
+                <span style="font-size:0.8rem; font-weight:800; color:${s.slideRescueStep1 ? '#16a34a' : '#64748b'};">
+                  ${s.slideRescueStep1 ? '✅ 已濃縮' : '未處理'}
+                </span>
+              </div>
+              <p style="font-size:0.82rem; color:#475569; margin-bottom:0.5rem;">
+                把原本 15 行落落長的維基百科全文，濃縮成 3 條好讀的重點條列！
+              </p>
+              <button class="btn-secondary" style="width:100%; justify-content:center; font-size:0.85rem;"
+                      onclick="window.Simulators.toggleSlideStep('slideRescueStep1', '${cid}')">
+                ${s.slideRescueStep1 ? '↩️ 還原成混亂長文' : '✨ 一鍵套用 3 大條列重點'}
+              </button>
+            </div>
+
+            <!-- Fix Step 2 -->
+            <div style="margin-bottom:0.85rem; padding:0.8rem; border-radius:10px; background:${s.slideRescueStep2 ? '#f5f3ff' : '#f8fafc'}; border:2px solid ${s.slideRescueStep2 ? '#8b5cf6' : '#cbd5e1'};">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                <span style="font-weight:900; font-size:0.9rem; color:#0f172a;">
+                  2️⃣ 修正顏色對比度 (High Contrast)
+                </span>
+                <span style="font-size:0.8rem; font-weight:800; color:${s.slideRescueStep2 ? '#16a34a' : '#64748b'};">
+                  ${s.slideRescueStep2 ? '✅ 高對比' : '看不清'}
+                </span>
+              </div>
+              <p style="font-size:0.82rem; color:#475569; margin-bottom:0.5rem;">
+                告別深紫色底配黑字的致命地雷，切換成乾淨清爽的高對比學院風！
+              </p>
+              <button class="btn-secondary" style="width:100%; justify-content:center; font-size:0.85rem;"
+                      onclick="window.Simulators.toggleSlideStep('slideRescueStep2', '${cid}')">
+                ${s.slideRescueStep2 ? '↩️ 還原成暗黑模糊色' : '🎨 套用乾淨高對比主題'}
+              </button>
+            </div>
+
+            <!-- Fix Step 3 -->
+            <div style="padding:0.8rem; border-radius:10px; background:${s.slideRescueStep3 ? '#f5f3ff' : '#f8fafc'}; border:2px solid ${s.slideRescueStep3 ? '#8b5cf6' : '#cbd5e1'};">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+                <span style="font-weight:900; font-size:0.9rem; color:#0f172a;">
+                  3️⃣ 插入焦點英雄大圖與圖說 (Hero Image)
+                </span>
+                <span style="font-size:0.8rem; font-weight:800; color:${s.slideRescueStep3 ? '#16a34a' : '#64748b'};">
+                  ${s.slideRescueStep3 ? '✅ 已配置' : '無焦點'}
+                </span>
+              </div>
+              <p style="font-size:0.82rem; color:#475569; margin-bottom:0.5rem;">
+                一張圖勝過千言萬語！插入清晰大圖與圖說，吸引全班同學目光！
+              </p>
+              <button class="btn-secondary" style="width:100%; justify-content:center; font-size:0.85rem;"
+                      onclick="window.Simulators.toggleSlideStep('slideRescueStep3', '${cid}')">
+                ${s.slideRescueStep3 ? '↩️ 移除焦點大圖' : '🖼️ 插入焦點大圖與圖說'}
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Live Slide Preview Canvas -->
+          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.15rem; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+                <span style="font-size:0.88rem; font-weight:800; color:#5b21b6;">
+                  📺 投影片 16:9 實時預覽
+                </span>
+                <span style="font-size:0.8rem; font-weight:800; color:${allFixed ? '#16a34a' : '#dc2626'};">
+                  ${allFixed ? '🎉 報告品質：100 分特優！' : '⚠️ 還有排版地雷需要救援'}
+                </span>
+              </div>
+
+              <!-- Slide Canvas Box -->
+              <div style="background:${s.slideRescueStep2 ? '#ffffff' : '#312e81'}; color:${s.slideRescueStep2 ? '#0f172a' : '#1e1b4b'}; border:3px solid ${s.slideRescueStep2 ? '#7c3aed' : '#1e1b4b'}; border-radius:12px; min-height:260px; padding:1.4rem; position:relative; box-shadow:0 6px 20px rgba(0,0,0,0.12); display:flex; flex-direction:column; justify-content:space-between; transition:all 0.3s ease;">
+                <!-- Slide Header -->
+                <div>
+                  <div style="font-size:0.75rem; font-weight:800; color:${s.slideRescueStep2 ? '#7c3aed' : '#4338ca'}; text-transform:uppercase; margin-bottom:0.25rem;">
+                    三年級自然與生活科技・期末專題發表
+                  </div>
+                  <h2 style="font-size:1.35rem; font-weight:900; color:${s.slideRescueStep2 ? '#1e1b4b' : '#0f172a'}; margin-bottom:0.75rem;">
+                    🌋 台灣的大屯火山群：會噴發嗎？
+                  </h2>
+                </div>
+
+                <!-- Slide Body Content -->
+                <div style="display:grid; grid-template-columns:${s.slideRescueStep3 ? '1.2fr 0.8fr' : '1fr'}; gap:1rem; align-items:center;">
+                  <div>
+                    ${s.slideRescueStep1 ? `
+                      <ul style="padding-left:1.2rem; font-size:0.92rem; font-weight:700; line-height:1.6; color:${s.slideRescueStep2 ? '#334155' : '#0f172a'};">
+                        <li><strong>休眠中的活火山</strong>：地底下依然有岩漿庫活動，被列為活火山！</li>
+                        <li><strong>天然地熱溫泉</strong>：雨水受地底岩漿加熱，形成北投與陽明山溫泉！</li>
+                        <li><strong>全天候科學監測</strong>：中央地質調查所設有地震儀與氣體觀測站，非常安全！</li>
+                      </ul>
+                    ` : `
+                      <div style="font-size:0.76rem; line-height:1.35; color:${s.slideRescueStep2 ? '#334155' : '#0f172a'}; font-family:serif;">
+                        大屯火山群位於台灣北部，是由大屯山、七星山等二十餘座火山所組成的火山群。在以前的教科書中常被歸類為休眠火山或死火山，然而近年經由中央研究院地質科學家透過精密地震儀器研究發現，金山、萬里到陽明山地底深處約二十公里處存在著巨大的岩漿庫，因此地質學界已正式將其正名為活火山。雖然如此大家不必過度恐慌，因為火山噴發前會有明顯頻繁的群震與地熱氣體釋放...
+                      </div>
+                    `}
+                  </div>
+
+                  ${s.slideRescueStep3 ? `
+                    <div style="background:#f5f3ff; border:2px dashed #8b5cf6; border-radius:10px; padding:0.6rem; text-align:center;">
+                      <div style="font-size:2.8rem; margin-bottom:0.2rem;">🌋</div>
+                      <div style="font-size:0.75rem; font-weight:800; color:#5b21b6;">
+                        ▲ 大屯火山群地熱噴氣孔觀測站
+                      </div>
+                    </div>
+                  ` : ''}
+                </div>
+
+                <!-- Slide Footer Page Indicator -->
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:${s.slideRescueStep2 ? '#94a3b8' : '#3730a3'}; border-top:1px solid ${s.slideRescueStep2 ? '#f1f5f9' : '#3730a3'}; padding-top:0.4rem; margin-top:0.6rem;">
+                  <span>報告人：數位小探險家 Leo</span>
+                  <span>第 3 頁 / 共 8 頁</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide Show Full Screen Modal preview -->
+            ${s.slideShowMode ? `
+              <div style="position:fixed; inset:0; background:rgba(15,23,42,0.92); z-index:999999; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:2rem;">
+                <div style="width:100%; max-width:820px; background:${s.slideRescueStep2 ? '#ffffff' : '#312e81'}; color:${s.slideRescueStep2 ? '#0f172a' : '#1e1b4b'}; border-radius:16px; padding:2rem; box-shadow:0 25px 50px rgba(0,0,0,0.5);">
+                  <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                    <span style="font-weight:900; color:#7c3aed;">▶️ Google Slides 全螢幕放映中 (按 ESC 或右上角關閉)</span>
+                    <button class="btn-secondary" style="padding:0.25rem 0.65rem;" onclick="window.Simulators.toggleSlideShow('${cid}')">✕ 結束放映</button>
+                  </div>
+                  <h1 style="font-size:1.8rem; margin-bottom:1rem; color:${s.slideRescueStep2 ? '#1e1b4b' : '#ffffff'};">
+                    🌋 台灣的大屯火山群：會噴發嗎？
+                  </h1>
+                  <div style="font-size:1.15rem; line-height:1.8; color:${s.slideRescueStep2 ? '#334155' : '#ffffff'};">
+                    ${s.slideRescueStep1 ? `
+                      <ul style="padding-left:1.5rem;">
+                        <li><strong>休眠中的活火山</strong>：地底下依然有岩漿庫活動！</li>
+                        <li><strong>天然地熱溫泉</strong>：雨水加熱形成北投與陽明山溫泉！</li>
+                        <li><strong>全天候科學監測</strong>：設有地震儀與觀測站，請安心！</li>
+                      </ul>
+                    ` : `
+                      <p>（長篇文字字體太小，全螢幕放映時最後一排同學完全看不見！）</p>
+                    `}
+                  </div>
+                </div>
+              </div>
+            ` : ''}
+
+            <!-- Bottom Evaluation Card -->
+            <div style="margin-top:0.85rem; padding:0.6rem 0.9rem; border-radius:8px; background:${allFixed ? '#dcfce7' : '#fef3c7'}; font-size:0.85rem; font-weight:800; color:${allFixed ? '#166534' : '#92400e'};">
+              ${allFixed ? '🏆 太棒了！三重點法則 ＋ 高對比色調 ＋ 焦點大圖，學校老師一定會給你 100 分！' : '💡 請在左邊工具箱把 3 個急救步驟全部打勾，完成簡報拯救大考驗！'}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  toggleSlideStep(stepKey, cid) {
+    this.state[stepKey] = !this.state[stepKey];
+    this.renderSlideStudio(document.getElementById(cid), cid);
+  },
+  toggleSlideShow(cid) {
+    this.state.slideShowMode = !this.state.slideShowMode;
+    this.renderSlideStudio(document.getElementById(cid), cid);
+  },
+
+  // ==========================================================================
+  // 4.2 SCRATCH BLOCKS & CATCH-THE-APPLE GAME PLAYGROUND
+  // ==========================================================================
+  renderScratchBlocks(el, cid) {
+    if (!el) return;
+    const s = this.state;
+    const allSnapped = s.scratchBlockBowl && s.scratchBlockApple && s.scratchBlockScore;
+
+    el.innerHTML = `
+      <div class="sim-box">
+        <!-- Header -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+          <div>
+            <h3 style="font-size:1.15rem; font-weight:900; color:#c026d3; margin-bottom:0.2rem;">
+              🐱 Scratch 積木程式實驗室：拼裝並試玩「接蘋果遊戲」！
+            </h3>
+            <div style="font-size:0.84rem; color:#64748b;">
+              把程式邏輯拼裝成積木，在右側遊戲畫布啟動實戰！接住 10 顆蘋果破關！
+            </div>
+          </div>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <span style="font-size:0.88rem; font-weight:800; color:#0f172a; background:#f5d0fe; padding:0.35rem 0.8rem; border-radius:999px;">
+              🍎 得分 (Score)：<strong>${s.scratchScore}</strong> / 10
+            </span>
+            <button class="btn-primary" style="background:${allSnapped ? '#16a34a' : '#94a3b8'}; padding:0.4rem 0.9rem; font-size:0.88rem;"
+                    onclick="window.Simulators.toggleScratchGame('${cid}')">
+              ${s.scratchGamePlaying ? '⏹️ 停止遊戲' : '🚩 點擊綠旗 (執行遊戲)'}
+            </button>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:1rem;">
+          <!-- Left: Scratch Block Snapping Bench -->
+          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.15rem;">
+            <div style="font-size:0.92rem; font-weight:900; color:#86198f; margin-bottom:0.75rem;">
+              🧩 積木工作台 (點擊積木卡片，拼入主程式中)：
+            </div>
+
+            <!-- Block 1: Event & Bowl -->
+            <div onclick="window.Simulators.toggleScratchBlock('scratchBlockBowl', '${cid}')"
+                 style="background:#fef08a; border:2px solid ${s.scratchBlockBowl ? '#ca8a04' : '#eab308'}; border-radius:10px; padding:0.65rem 0.85rem; margin-bottom:0.65rem; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.06);">
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; font-weight:800; color:#854d0e; margin-bottom:0.2rem;">
+                <span>🚩 事件與小碗移動 (Events & Movement)</span>
+                <span>${s.scratchBlockBowl ? '✅ 已拼裝' : '➕ 點擊拼入'}</span>
+              </div>
+              <div style="font-family:monospace; font-size:0.85rem; font-weight:900; color:#713f12;">
+                [當 綠旗 🚩 被點擊] ➔ [重複無限次] ➔ [將 X 設為 滑鼠 X]
+              </div>
+            </div>
+
+            <!-- Block 2: Apple Falling Loop -->
+            <div onclick="window.Simulators.toggleScratchBlock('scratchBlockApple', '${cid}')"
+                 style="background:#fed7aa; border:2px solid ${s.scratchBlockApple ? '#ea580c' : '#f97316'}; border-radius:10px; padding:0.65rem 0.85rem; margin-bottom:0.65rem; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.06);">
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; font-weight:800; color:#9a3412; margin-bottom:0.2rem;">
+                <span>🍎 蘋果重力掉落迴圈 (Falling Loop)</span>
+                <span>${s.scratchBlockApple ? '✅ 已拼裝' : '➕ 點擊拼入'}</span>
+              </div>
+              <div style="font-family:monospace; font-size:0.85rem; font-weight:900; color:#7c2d12;">
+                [重複無限次] ➔ [將 Y 座標改變 -5] ➔ [如果 Y < -140 回到上方]
+              </div>
+            </div>
+
+            <!-- Block 3: Collision & Scoring -->
+            <div onclick="window.Simulators.toggleScratchBlock('scratchBlockScore', '${cid}')"
+                 style="background:#bbf7d0; border:2px solid ${s.scratchBlockScore ? '#16a34a' : '#22c55e'}; border-radius:10px; padding:0.65rem 0.85rem; margin-bottom:0.75rem; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.06);">
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; font-weight:800; color:#166534; margin-bottom:0.2rem;">
+                <span>🎯 碰撞偵測與變數得分 (Collision & Variable)</span>
+                <span>${s.scratchBlockScore ? '✅ 已拼裝' : '➕ 點擊拼入'}</span>
+              </div>
+              <div style="font-family:monospace; font-size:0.85rem; font-weight:900; color:#14532d;">
+                [如果 碰到 &lt;碗&gt;?] ➔ [變數 得分 改變 1] ➔ [播放 叮咚 音效]
+              </div>
+            </div>
+
+            <!-- Assembled Program Preview -->
+            <div style="background:#f8fafc; border:2px dashed #cbd5e1; border-radius:10px; padding:0.75rem;">
+              <div style="font-size:0.78rem; font-weight:800; color:#64748b; margin-bottom:0.35rem;">
+                📜 拼裝完成的主程式碼預覽：
+              </div>
+              <div style="font-family:monospace; font-size:0.8rem; color:#334155; line-height:1.45;">
+                ${allSnapped ? `
+                  <span style="color:#ca8a04;">當 綠旗 點擊</span><br/>
+                  <span style="color:#ea580c;">　重複無限次</span><br/>
+                  <span style="color:#0284c7;">　　小碗.X = 滑鼠.X</span><br/>
+                  <span style="color:#ea580c;">　　蘋果.Y -= 5</span><br/>
+                  <span style="color:#16a34a;">　　如果 &lt;蘋果 碰到 碗&gt; 那麼</span><br/>
+                  <span style="color:#c026d3;">　　　[得分] 增加 1 並且 蘋果回到頂端</span>
+                ` : `
+                  <span style="color:#94a3b8;">（請點擊上方三組積木，把程式拼裝完整！）</span>
+                `}
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Playable HTML5 2D Canvas Game Area -->
+          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.15rem; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+                <span style="font-size:0.88rem; font-weight:800; color:#86198f;">
+                  🎮 HTML5 遊戲舞台 (Canvas Stage)
+                </span>
+                <span style="font-size:0.8rem; font-weight:700; color:#64748b;">
+                  可用滑鼠左右滑動、鍵盤 ← →、或下方按鈕操作！
+                </span>
+              </div>
+
+              <!-- Canvas / Stage Container -->
+              <div id="${cid}-canvas-box"
+                   style="background:linear-gradient(180deg, #67e8f9 0%, #bae6fd 60%, #86efac 100%); border:3px solid #0f172a; border-radius:12px; height:240px; position:relative; overflow:hidden; cursor:crosshair; user-select:none;"
+                   onmousemove="window.Simulators.handleScratchMouseMove(event, '${cid}')">
+                <!-- HTML5 Canvas Element -->
+                <canvas id="${cid}-scratch-canvas" width="340" height="240" style="width:100%; height:100%; display:block;"></canvas>
+
+                <!-- In-stage Win Celebration Overlay -->
+                ${s.scratchWin ? `
+                  <div style="position:absolute; inset:0; background:rgba(15,23,42,0.85); color:white; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:10; padding:1rem; text-align:center;">
+                    <div style="font-size:3rem; margin-bottom:0.25rem;">🏆</div>
+                    <div style="font-size:1.25rem; font-weight:900; color:#fde047;">恭喜破關！接住 10 顆蘋果！</div>
+                    <div style="font-size:0.85rem; color:#e2e8f0; margin-top:0.35rem;">
+                      你已經掌握事件、迴圈、條件判斷與變數的四大精髓！
+                    </div>
+                    <button class="btn-primary" style="margin-top:0.75rem; background:#ca8a04; font-size:0.85rem;"
+                            onclick="window.Simulators.resetScratchGame('${cid}')">
+                      🔄 再玩一次
+                    </button>
+                  </div>
+                ` : ''}
+
+                <!-- Status if not snapped -->
+                ${!allSnapped ? `
+                  <div style="position:absolute; inset:0; background:rgba(15,23,42,0.7); color:white; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:5; padding:1rem; text-align:center;">
+                    <div style="font-size:2rem; margin-bottom:0.3rem;">🧩</div>
+                    <div style="font-size:0.95rem; font-weight:800;">程式積木尚未拼裝完成</div>
+                    <div style="font-size:0.8rem; color:#cbd5e1; margin-top:0.2rem;">
+                      請在左側點選三組積木完成組裝，綠旗才會亮起喔！
+                    </div>
+                  </div>
+                ` : ''}
+              </div>
+
+              <!-- Fallback Touch / Button Controls -->
+              <div style="display:flex; justify-content:center; gap:0.6rem; margin-top:0.6rem;">
+                <button class="btn-secondary" style="padding:0.4rem 1.1rem; font-weight:900;"
+                        onclick="window.Simulators.moveScratchBowl(-35, '${cid}')">
+                  ⬅️ 向左移動
+                </button>
+                <button class="btn-secondary" style="padding:0.4rem 1.1rem; font-weight:900;"
+                        onclick="window.Simulators.moveScratchBowl(35, '${cid}')">
+                  向右移動 ➡️
+                </button>
+                <button class="btn-secondary" style="padding:0.4rem 0.8rem; font-size:0.82rem;"
+                        onclick="window.Simulators.catchAppleDirect('${cid}')">
+                  🍎 瞬間接住 (+1)
+                </button>
+              </div>
+            </div>
+
+            <!-- Bottom Note -->
+            <div style="margin-top:0.65rem; font-size:0.8rem; color:#64748b; text-align:center;">
+              ⭐ 提示：滑鼠在畫布內左右移動，小碗就會自動跟著滑鼠跑！
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Attempt to draw canvas frame
+    this.drawScratchCanvas(cid);
+  },
+
+  toggleScratchBlock(blockKey, cid) {
+    this.state[blockKey] = !this.state[blockKey];
+    this.renderScratchBlocks(document.getElementById(cid), cid);
+  },
+  toggleScratchGame(cid) {
+    if (!this.state.scratchBlockBowl || !this.state.scratchBlockApple || !this.state.scratchBlockScore) {
+      if (window.UIModal && window.UIModal.toast) {
+        window.UIModal.toast('💡 請先把左側的 3 組積木全部拼入，才能啟動遊戲喔！');
+      }
+      return;
+    }
+    this.state.scratchGamePlaying = !this.state.scratchGamePlaying;
+    if (this.state.scratchGamePlaying) {
+      this.startScratchGameLoop(cid);
+    }
+    this.renderScratchBlocks(document.getElementById(cid), cid);
+  },
+  resetScratchGame(cid) {
+    this.state.scratchScore = 0;
+    this.state.scratchWin = false;
+    this.state.scratchGamePlaying = true;
+    this.state.scratchAppleY = 20;
+    this.startScratchGameLoop(cid);
+    this.renderScratchBlocks(document.getElementById(cid), cid);
+  },
+  moveScratchBowl(delta, cid) {
+    this.state.scratchBowlX = Math.max(30, Math.min(310, this.state.scratchBowlX + delta));
+    this.checkScratchCollision(cid);
+    this.drawScratchCanvas(cid);
+  },
+  catchAppleDirect(cid) {
+    this.state.scratchScore += 1;
+    if (this.state.scratchScore >= 10) {
+      this.state.scratchWin = true;
+      this.state.scratchGamePlaying = false;
+    }
+    this.state.scratchAppleY = 20;
+    this.state.scratchAppleX = Math.floor(Math.random() * 260) + 40;
+    this.renderScratchBlocks(document.getElementById(cid), cid);
+  },
+  handleScratchMouseMove(evt, cid) {
+    const box = document.getElementById(`${cid}-canvas-box`);
+    if (!box) return;
+    const rect = box.getBoundingClientRect();
+    const mouseX = evt.clientX - rect.left;
+    const ratio = 340 / (rect.width || 340);
+    this.state.scratchBowlX = Math.max(30, Math.min(310, mouseX * ratio));
+    this.checkScratchCollision(cid);
+    this.drawScratchCanvas(cid);
+  },
+  checkScratchCollision(cid) {
+    const s = this.state;
+    // Bowl is at (s.scratchBowlX, 205), width ~50, height ~18. Apple is at (s.scratchAppleX, s.scratchAppleY), radius ~12.
+    if (s.scratchAppleY >= 190 && s.scratchAppleY <= 220) {
+      if (Math.abs(s.scratchAppleX - s.scratchBowlX) < 35) {
+        s.scratchScore += 1;
+        s.scratchAppleY = 20;
+        s.scratchAppleX = Math.floor(Math.random() * 260) + 40;
+        if (s.scratchScore >= 10) {
+          s.scratchWin = true;
+          s.scratchGamePlaying = false;
+        }
+        const el = document.getElementById(cid);
+        if (el) {
+          this.renderScratchBlocks(el, cid);
+        }
+      }
+    }
+  },
+  startScratchGameLoop(cid) {
+    if (this._scratchTimer) clearInterval(this._scratchTimer);
+    this._scratchTimer = setInterval(() => {
+      const el = document.getElementById(cid);
+      if (!el) {
+        clearInterval(this._scratchTimer);
+        this._scratchTimer = null;
+        return;
+      }
+      const s = this.state;
+      if (!s.scratchGamePlaying || s.scratchWin) {
+        clearInterval(this._scratchTimer);
+        this._scratchTimer = null;
+        return;
+      }
+      s.scratchAppleY += 7;
+      if (s.scratchAppleY > 230) {
+        // missed apple, loop back
+        s.scratchAppleY = 20;
+        s.scratchAppleX = Math.floor(Math.random() * 260) + 40;
+      }
+      this.checkScratchCollision(cid);
+      this.drawScratchCanvas(cid);
+    }, 45);
+  },
+  drawScratchCanvas(cid) {
+    const canvas = document.getElementById(`${cid}-scratch-canvas`);
+    if (!canvas || typeof canvas.getContext !== 'function') return;
+    let ctx = null;
+    try {
+      ctx = canvas.getContext('2d');
+    } catch (e) {
+      ctx = null;
+    }
+    if (!ctx) return; // Clean JSDOM guard
+
+    const s = this.state;
+    ctx.clearRect(0, 0, 340, 240);
+
+    // Draw background grass & sky
+    ctx.fillStyle = '#67e8f9';
+    ctx.fillRect(0, 0, 340, 195);
+    ctx.fillStyle = '#22c55e';
+    ctx.fillRect(0, 195, 340, 45);
+
+    // Draw falling Apple
+    ctx.font = '24px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🍎', s.scratchAppleX, s.scratchAppleY);
+
+    // Draw Catcher Bowl
+    ctx.fillStyle = '#d97706';
+    ctx.beginPath();
+    ctx.ellipse(s.scratchBowlX, 215, 30, 12, 0, 0, Math.PI);
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#78350f';
+    ctx.stroke();
+
+    // Score overlay on canvas
+    ctx.fillStyle = '#0f172a';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`得分：${s.scratchScore} / 10`, 10, 20);
+  },
+
+  // ==========================================================================
+  // 4.3 AUDIO & VISUAL STORY STUDIO (3-SCENE PICTURE BOOK & TTS NARRATION)
+  // ==========================================================================
+  renderStoryStudio(el, cid) {
+    const s = this.state;
+
+    const heroes = [
+      { id: 'leo', name: '小探險家 Leo', desc: '戴紅色飛行護目鏡的勇敢少年', icon: '👦' },
+      { id: 'mia', name: '智多星 Mia', desc: '手拿平板電腦與指南針的科學少女', icon: '👧' },
+      { id: 'robo', name: '機器人嗶波 (Bibo)', desc: '胸前有太陽能發光寶石的 AI 機器人', icon: '🤖' }
+    ];
+
+    const companions = [
+      { id: 'fox', name: '彩虹小狐狸', desc: '尾巴會指引方向的森林守護精靈', icon: '🦊' },
+      { id: 'owl', name: '百科全書貓頭鷹', desc: '博學多聞的夜間飛行導師', icon: '🦉' },
+      { id: 'drone', name: '迷你偵察無人機', desc: '具備 360 度空中照相掃描功能', icon: '🛸' }
+    ];
+
+    const settings = [
+      { id: 'forest', name: '發光水晶森林', desc: '樹木長滿藍綠色發光果實的神秘山谷', icon: '🌲', bg: '#064e3b' },
+      { id: 'space', name: '星際浮島空間站', desc: '漂浮在土星環旁邊的未來太空基地', icon: '🌌', bg: '#1e1b4b' },
+      { id: 'undersea', name: '亞特蘭提斯水下城', desc: '海豚與珊瑚圍繞的遠古高科技王國', icon: '🌊', bg: '#0c4a6e' }
+    ];
+
+    const twists = [
+      { id: 'lost', title: '星光指南針突然失靈', resolve: '利用筆電查出北極星天文方位順利脫困' },
+      { id: 'puzzle', title: '古老石門需要輸入秘密密碼', resolve: '用 Scratch 積木邏輯拼出解鎖代碼' },
+      { id: 'baby', title: '受困在樹上的幼鳥寶寶', resolve: '呼叫無人機安全降下能量吊籃平安救援' }
+    ];
+
+    const curHero = heroes[s.storyHeroIdx];
+    const curComp = companions[s.storyCompanionIdx];
+    const curSetting = settings[s.storySettingIdx];
+    const curTwist = twists[s.storyTwistIdx];
+
+    // Build 3 Story Scenes
+    const scenes = [
+      {
+        sceneNum: 1,
+        title: '第一幕：出發冒險 (The Journey Begins)',
+        zhText: `在晴朗清晨，${curHero.name} 背起探險背包，與最好的搭檔 ${curComp.name} 一同踏入了傳說中的「${curSetting.name}」。空氣中飄著冒險的氣息，他們的目標是尋找傳奇數位之石！`,
+        enText: `On a crisp morning, ${curHero.name} and loyal friend ${curComp.name} set foot into the legendary ${curSetting.name}. An exciting adventure is about to unfold!`,
+        artPromptZh: `皮克斯 3D 動畫風格，${curHero.name} 和 ${curComp.name} 站在 ${curSetting.name} 入口，晨光灑落，充滿希望，電影級光影。`,
+        artPromptEn: `Pixar 3D animation style, ${curHero.name} and ${curComp.name} standing at entrance of ${curSetting.name}, morning golden sunlight, cinematic lighting, ultra-detailed 8k.`,
+        sceneIcon: curSetting.icon
+      },
+      {
+        sceneNum: 2,
+        title: '第二幕：考驗難關 (The Sudden Challenge)',
+        zhText: `突然間，天空閃過一道奇異光芒！${curTwist.title}！四週的一切變得安靜無聲，${curComp.name} 緊張地拉了拉 ${curHero.name} 的衣角。`,
+        enText: `Suddenly, a mysterious beam lit the sky! ${curTwist.title}! ${curHero.name} kept calm and analyzed the situation carefully.`,
+        artPromptZh: `皮克斯 3D 動畫風格，${curHero.name} 與 ${curComp.name} 在 ${curSetting.name} 面對考驗，緊張神秘氛圍，戲劇性光影對比。`,
+        artPromptEn: `Pixar 3D style, dramatic moment when ${curHero.name} and ${curComp.name} face a challenge in ${curSetting.name}, mystical glow, dramatic shadows.`,
+        sceneIcon: '⚡'
+      },
+      {
+        sceneNum: 3,
+        title: '第三幕：智慧化解與榮耀 (Victory & Celebration)',
+        zhText: `「別怕，我有數位探險家的智慧！」${curHero.name} 與夥伴同心協力，${curTwist.resolve}！難題瞬間化解，天空中綻放起絢麗煙火，榮譽勳章閃閃發光！`,
+        enText: `"Together we can solve anything!" With courage and wisdom, ${curTwist.resolve}. Fireworks burst in celebration!`,
+        artPromptZh: `皮克斯 3D 渲染，${curHero.name} 和 ${curComp.name} 歡呼慶祝勝利，天空綻放彩虹煙火，溫暖快樂大團圓，超精細。`,
+        artPromptEn: `Pixar 3D render, joyful celebration, ${curHero.name} and ${curComp.name} cheering triumphantly, colorful fireworks, heartwarming happy ending, masterpieces.`,
+        sceneIcon: '🎉'
+      }
+    ];
+
+    const activeScene = scenes[s.storyCurrentScene] || scenes[0];
+
+    el.innerHTML = `
+      <div class="sim-box">
+        <!-- Header -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+          <div>
+            <h3 style="font-size:1.15rem; font-weight:900; color:#0284c7; margin-bottom:0.2rem;">
+              🎬 AI 圖文與有聲故事實驗室：創作你的 3 幕冒險繪本！
+            </h3>
+            <div style="font-size:0.84rem; color:#64748b;">
+              選擇主角與情節，自動生成起承轉合 3 幕分鏡插圖提詞與雙語有聲書旁白！
+            </div>
+          </div>
+          <div style="display:flex; gap:0.4rem;">
+            <button class="btn-primary" style="background:#0284c7; padding:0.4rem 0.9rem; font-size:0.86rem;"
+                    onclick="window.Simulators.speakStoryScene(${s.storyCurrentScene}, '${cid}')">
+              🔊 聽有聲書朗讀 (Web Speech API)
+            </button>
+            <button class="btn-secondary" style="padding:0.4rem 0.8rem; font-size:0.86rem;"
+                    onclick="window.UIModal ? window.UIModal.toast('🎉 故事繪本已成功儲存至你的數位作品集！') : alert('🎉 儲存成功！')">
+              💾 儲存繪本
+            </button>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:1rem;">
+          <!-- Left: Story Elements Configuration -->
+          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.15rem;">
+            <div style="font-size:0.92rem; font-weight:900; color:#0369a1; margin-bottom:0.75rem;">
+              🎨 繪本故事工坊 (選擇你的 4 大故事要素)：
+            </div>
+
+            <!-- Hero Selector -->
+            <div style="margin-bottom:0.75rem;">
+              <div style="font-size:0.82rem; font-weight:800; color:#475569; margin-bottom:0.3rem;">1️⃣ 故事主角 (Hero)：</div>
+              <div class="prompt-chip-group" style="margin-bottom:0;">
+                ${heroes.map((h, i) => `
+                  <button class="prompt-chip ${s.storyHeroIdx === i ? 'selected' : ''}"
+                          onclick="window.Simulators.setStoryPart('storyHeroIdx', ${i}, '${cid}')">
+                    ${h.icon} ${h.name}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Companion Selector -->
+            <div style="margin-bottom:0.75rem;">
+              <div style="font-size:0.82rem; font-weight:800; color:#475569; margin-bottom:0.3rem;">2️⃣ 冒險同伴 (Companion)：</div>
+              <div class="prompt-chip-group" style="margin-bottom:0;">
+                ${companions.map((c, i) => `
+                  <button class="prompt-chip ${s.storyCompanionIdx === i ? 'selected' : ''}"
+                          onclick="window.Simulators.setStoryPart('storyCompanionIdx', ${i}, '${cid}')">
+                    ${c.icon} ${c.name}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Setting Selector -->
+            <div style="margin-bottom:0.75rem;">
+              <div style="font-size:0.82rem; font-weight:800; color:#475569; margin-bottom:0.3rem;">3️⃣ 冒險舞台 (Setting)：</div>
+              <div class="prompt-chip-group" style="margin-bottom:0;">
+                ${settings.map((st, i) => `
+                  <button class="prompt-chip ${s.storySettingIdx === i ? 'selected' : ''}"
+                          onclick="window.Simulators.setStoryPart('storySettingIdx', ${i}, '${cid}')">
+                    ${st.icon} ${st.name}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Twist Selector -->
+            <div>
+              <div style="font-size:0.82rem; font-weight:800; color:#475569; margin-bottom:0.3rem;">4️⃣ 考驗與解題難題 (Plot Twist)：</div>
+              <div class="prompt-chip-group" style="margin-bottom:0;">
+                ${twists.map((tw, i) => `
+                  <button class="prompt-chip ${s.storyTwistIdx === i ? 'selected' : ''}"
+                          onclick="window.Simulators.setStoryPart('storyTwistIdx', ${i}, '${cid}')">
+                    ⚡ ${tw.title}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: 3-Scene Storyboard Viewer -->
+          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.15rem; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <!-- Scene Tabs -->
+              <div style="display:flex; gap:0.4rem; margin-bottom:0.75rem;">
+                ${scenes.map((sc, idx) => `
+                  <button class="step-tab ${s.storyCurrentScene === idx ? 'active' : ''}" style="flex:1; justify-content:center; padding:0.35rem 0.5rem; font-size:0.82rem;"
+                          onclick="window.Simulators.setStoryScene(${idx}, '${cid}')">
+                    第 ${idx + 1} 幕
+                  </button>
+                `).join('')}
+              </div>
+
+              <!-- Scene Stage Canvas -->
+              <div style="background:linear-gradient(135deg, ${curSetting.bg} 0%, #0f172a 100%); border-radius:12px; min-height:190px; padding:1.2rem; color:white; display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden; border:2px solid #334155; margin-bottom:0.85rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span style="background:rgba(255,255,255,0.2); backdrop-filter:blur(4px); padding:0.25rem 0.65rem; border-radius:999px; font-size:0.78rem; font-weight:900;">
+                    ${activeScene.title}
+                  </span>
+                  <span style="font-size:1.5rem;">${activeScene.sceneIcon}</span>
+                </div>
+
+                <div style="text-align:center; margin:0.8rem 0;">
+                  <span style="font-size:3.5rem; filter:drop-shadow(0 0 16px rgba(255,255,255,0.4));">
+                    ${curHero.icon} ${curComp.icon}
+                  </span>
+                </div>
+
+                <div style="background:rgba(15,23,42,0.85); border-radius:8px; padding:0.65rem 0.85rem; font-size:0.86rem; line-height:1.5;">
+                  <strong>${activeScene.zhText}</strong><br/>
+                  <span style="color:#93c5fd; font-size:0.78rem;">${activeScene.enText}</span>
+                </div>
+              </div>
+
+              <!-- AI Image Prompt Box for Current Scene -->
+              <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:0.65rem 0.85rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
+                  <span style="font-size:0.78rem; font-weight:900; color:#0369a1;">
+                    🎨 第 ${activeScene.sceneNum} 幕 AI 繪圖提示詞 (一致性風格)：
+                  </span>
+                  <button class="btn-secondary" style="padding:2px 8px; font-size:0.75rem;"
+                          onclick="window.Simulators.copyText('${cid}-scene-prompt')">
+                    📋 複製
+                  </button>
+                </div>
+                <input type="text" id="${cid}-scene-prompt" readonly value="${activeScene.artPromptZh} (${activeScene.artPromptEn})"
+                       style="width:100%; padding:0.35rem 0.5rem; font-size:0.78rem; font-weight:700; border:1px solid #cbd5e1; border-radius:6px; background:white; color:#334155;" />
+              </div>
+            </div>
+
+            <!-- Bottom Scene Nav & Narration -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem; border-top:1px solid #e2e8f0; padding-top:0.65rem;">
+              <button class="btn-secondary" style="padding:0.35rem 0.75rem; font-size:0.82rem;"
+                      ${s.storyCurrentScene === 0 ? 'disabled style="opacity:0.5;"' : `onclick="window.Simulators.setStoryScene(${s.storyCurrentScene - 1}, '${cid}')"`}>
+                ← 上一幕
+              </button>
+              <span style="font-size:0.82rem; font-weight:800; color:#475569;">
+                第 ${s.storyCurrentScene + 1} 幕 / 共 3 幕
+              </span>
+              <button class="btn-secondary" style="padding:0.35rem 0.75rem; font-size:0.82rem;"
+                      ${s.storyCurrentScene === 2 ? 'disabled style="opacity:0.5;"' : `onclick="window.Simulators.setStoryScene(${s.storyCurrentScene + 1}, '${cid}')"`}>
+                下一幕 →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  setStoryPart(key, val, cid) {
+    this.state[key] = val;
+    this.renderStoryStudio(document.getElementById(cid), cid);
+  },
+  setStoryScene(sceneIdx, cid) {
+    this.state.storyCurrentScene = sceneIdx;
+    this.renderStoryStudio(document.getElementById(cid), cid);
+  },
+  speakStoryScene(sceneIdx, cid) {
+    const s = this.state;
+    const heroes = [
+      { name: '小探險家 Leo' }, { name: '智多星 Mia' }, { name: '機器人嗶波' }
+    ];
+    const companions = [
+      { name: '彩虹小狐狸' }, { name: '百科全書貓頭鷹' }, { name: '迷你偵察無人機' }
+    ];
+    const settings = [
+      { name: '發光水晶森林' }, { name: '星際浮島空間站' }, { name: '亞特蘭提斯水下城' }
+    ];
+    const twists = [
+      { title: '星光指南針突然失靈', resolve: '利用筆電查出北極星天文方位順利脫困' },
+      { title: '古老石門需要輸入秘密密碼', resolve: '用 Scratch 積木邏輯拼出解鎖代碼' },
+      { title: '受困在樹上的幼鳥寶寶', resolve: '呼叫無人機安全降下能量吊籃平安救援' }
+    ];
+    const curHero = heroes[s.storyHeroIdx];
+    const curComp = companions[s.storyCompanionIdx];
+    const curSetting = settings[s.storySettingIdx];
+    const curTwist = twists[s.storyTwistIdx];
+
+    const texts = [
+      `在晴朗清晨，${curHero.name} 背起探險背包，與最好的搭檔 ${curComp.name} 一同踏入了傳說中的「${curSetting.name}」。`,
+      `突然間，天空閃過一道奇異光芒！${curTwist.title}！${curHero.name} 冷靜觀察。`,
+      `別怕，我有數位探險家的智慧！${curHero.name} 與夥伴同心協力，${curTwist.resolve}！成功過關！`
+    ];
+    const textToSpeak = texts[sceneIdx] || texts[0];
+
+    if (typeof window.speechSynthesis !== 'undefined') {
+      try {
+        window.speechSynthesis.cancel();
+        const u = new window.SpeechSynthesisUtterance(textToSpeak);
+        u.lang = 'zh-TW';
+        u.rate = 0.9;
+        window.speechSynthesis.speak(u);
+      } catch (e) {
+        console.warn('SpeechSynthesis unavailable:', e);
+      }
+    }
+
+    if (window.UIModal && window.UIModal.toast) {
+      window.UIModal.toast(`🔊 正在為你朗讀第 ${sceneIdx + 1} 幕故事有聲書...`, 3000);
+    }
   }
 };

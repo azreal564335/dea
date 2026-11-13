@@ -93,7 +93,7 @@ window.IslandScene = {
     if (!hasWebGL) {
       container.innerHTML = `
         <div class="island-fallback-banner">
-          <span>🏝️ 3D 浮空島嶼冒險地圖已就緒（點選下方三個世界開始闖關！）</span>
+          <span>🏝️ 3D 浮空島嶼冒險地圖已就緒（點選下方四個世界開始闖關！）</span>
         </div>
       `;
       return;
@@ -103,14 +103,16 @@ window.IslandScene = {
     const w1Done = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-1' && profile.completedLessons[l.id]).length;
     const w1Total = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-1').length || 4;
     const w2Done = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-2' && profile.completedLessons[l.id]).length;
-    const w2Total = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-2').length || 4;
+    const w2Total = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-2').length || 5;
     const w3Done = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-3' && profile.completedLessons[l.id]).length;
     const w3Total = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-3').length || 6;
+    const w4Done = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-4' && profile.completedLessons[l.id]).length;
+    const w4Total = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-4').length || 3;
 
     container.innerHTML = `
       <div class="three-island-stage" id="${containerId}-stage" style="height: 390px;">
         <div class="three-hud-top">
-          <span class="three-pill-badge">🎮 點擊島嶼讓 ${profile.avatar} 跳石頭、游泳、或超級大跳躍前往天空島！</span>
+          <span class="three-pill-badge">🎮 點擊島嶼讓 ${profile.avatar} 跳石頭、游泳、或超級大跳躍前往天空島與創意島！</span>
           <span id="${containerId}-hover-label" class="three-hover-pill">✨ 拖曳可旋轉 3D 冒險地圖</span>
         </div>
         <div class="three-island-labels">
@@ -122,6 +124,9 @@ window.IslandScene = {
           </button>
           <button class="island-quick-chip w3" onclick="window.IslandScene.travelToWorld('world-3', true)">
             ☁️ 3. AI 天空島・超級大跳躍! (⭐${w3Done}/${w3Total})
+          </button>
+          <button class="island-quick-chip w4" onclick="window.IslandScene.travelToWorld('world-4', true)">
+            🚀 4. 創意程式島 (⭐${w4Done}/${w4Total})
           </button>
         </div>
       </div>
@@ -135,8 +140,8 @@ window.IslandScene = {
     // Scene, Camera, Renderer
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 120);
-    camera.position.set(0, 4.4, 13.8);
-    camera.lookAt(0, 0.8, 0);
+    camera.position.set(0, 4.5, 14.6);
+    camera.lookAt(0, 0.85, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
@@ -232,11 +237,11 @@ window.IslandScene = {
     // ISLAND 1: 💻 筆電小達人島 (Sea Island)
     // =========================================================================
     const island1 = createSeaIsland(0x4ade80, 0xfde68a);
-    island1.position.set(-4.8, 0, 0.6);
+    island1.position.set(-5.4, 0, 0.6);
     island1.userData = {
       worldId: 'world-1',
       label: '💻 World 1: 筆電小達人島 (點擊跳過去！)',
-      standPos: new THREE.Vector3(-4.8, 0.42, 1.35)
+      standPos: new THREE.Vector3(-5.4, 0.42, 1.35)
     };
 
     const laptopGroup = new THREE.Group();
@@ -282,11 +287,11 @@ window.IslandScene = {
     // ISLAND 2: 🌐 網路探險家島 (Sea Island)
     // =========================================================================
     const island2 = createSeaIsland(0x10b981, 0xfcd34d);
-    island2.position.set(0, 0, -0.3);
+    island2.position.set(-1.8, 0, -0.3);
     island2.userData = {
       worldId: 'world-2',
       label: '🌐 World 2: 網路探險家島 (跳石頭＋游泳過去！)',
-      standPos: new THREE.Vector3(0, 0.42, 0.75)
+      standPos: new THREE.Vector3(-1.8, 0.42, 0.75)
     };
 
     const globe = new THREE.Mesh(
@@ -327,11 +332,11 @@ window.IslandScene = {
     // ISLAND 3: ☁️ AI 魔法師天空島 (One Piece Skypiea-style Air Island!)
     // =========================================================================
     const island3 = createSkyIsland(0xfbbf24, 0x92400e);
-    island3.position.set(4.8, 2.35, -0.1);
+    island3.position.set(1.8, 2.35, -0.1);
     island3.userData = {
       worldId: 'world-3',
       label: '☁️ World 3: AI 魔法師天空島 (超級大跳躍直達雲端！)',
-      standPos: new THREE.Vector3(4.8, 2.77, 0.75)
+      standPos: new THREE.Vector3(1.8, 2.77, 0.75)
     };
 
     const pedestal = new THREE.Mesh(
@@ -361,14 +366,105 @@ window.IslandScene = {
     island3.add(pedestal, aiCrystal, magicOrbit);
     scene.add(island3);
 
-    this.islands = [island1, island2, island3];
+    // =========================================================================
+    // ISLAND 4: 🚀 創意程式島 (Future Creative Coding & AI Studio Island)
+    // =========================================================================
+    const createFutureIsland = (topColor, ringColor) => {
+      const group = new THREE.Group();
+      // Cyber floating tech disc
+      const disc = new THREE.Mesh(
+        new THREE.CylinderGeometry(2.1, 1.7, 0.45, 8),
+        new THREE.MeshStandardMaterial({ color: topColor, roughness: 0.3, metalness: 0.2, flatShading: true })
+      );
+      disc.position.y = 0.2;
+      // Energy core under the island
+      const core = new THREE.Mesh(
+        new THREE.ConeGeometry(1.6, 1.3, 8),
+        new THREE.MeshStandardMaterial({ color: 0x4c1d95, roughness: 0.5, flatShading: true })
+      );
+      core.rotation.x = Math.PI;
+      core.position.y = -0.65;
+      // Neon glow ring around platform
+      const neonRing = new THREE.Mesh(
+        new THREE.TorusGeometry(2.0, 0.06, 8, 24),
+        new THREE.MeshStandardMaterial({ color: ringColor, emissive: ringColor, emissiveIntensity: 0.6 })
+      );
+      neonRing.rotation.x = Math.PI / 2;
+      neonRing.position.y = 0.22;
+      group.add(disc, core, neonRing);
+      return group;
+    };
+
+    const island4 = createFutureIsland(0x7c3aed, 0xa855f7);
+    island4.position.set(5.4, 0.85, 0.2);
+    island4.userData = {
+      worldId: 'world-4',
+      label: '🚀 World 4: 創意程式島・Scratch與創作工坊 (點擊探索！)',
+      standPos: new THREE.Vector3(5.4, 1.27, 0.85)
+    };
+
+    // Creative studio props: Scratch coding blocks & Glowing creative crystal
+    const studioGroup = new THREE.Group();
+    studioGroup.position.set(0, 0.55, -0.2);
+
+    // Central Creative Crystal (Icosahedron glowing with creative energy)
+    const creativeCrystal = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.52, 0),
+      new THREE.MeshStandardMaterial({
+        color: 0xc084fc,
+        emissive: 0x7c3aed,
+        emissiveIntensity: 0.6,
+        roughness: 0.2,
+        flatShading: true
+      })
+    );
+    creativeCrystal.position.set(0, 0.9, 0);
+    studioGroup.add(creativeCrystal);
+
+    // Orbiting Scratch coding blocks ({ }, loop, event blocks)
+    const codeOrbit = new THREE.Group();
+    codeOrbit.position.set(0, 0.9, 0);
+    const codeBlocks = [];
+    const blockColors = [0xf59e0b, 0x10b981, 0xec4899, 0x06b6d4];
+    blockColors.forEach((color, i) => {
+      const block = new THREE.Mesh(
+        new THREE.BoxGeometry(0.35, 0.18, 0.22),
+        new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.35, roughness: 0.3 })
+      );
+      const ang = (i * Math.PI * 2) / blockColors.length;
+      block.position.set(Math.cos(ang) * 1.35, Math.sin(ang * 2) * 0.15, Math.sin(ang) * 1.35);
+      codeOrbit.add(block);
+      codeBlocks.push(block);
+    });
+    studioGroup.add(codeOrbit);
+
+    // Mini futuristic creative rocket
+    const rocketGroup = new THREE.Group();
+    rocketGroup.position.set(0, 0.8, 0);
+    const rocketBody = new THREE.Mesh(
+      new THREE.ConeGeometry(0.2, 0.65, 6),
+      new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 })
+    );
+    const rocketTip = new THREE.Mesh(
+      new THREE.ConeGeometry(0.12, 0.25, 6),
+      new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xb91c1c, emissiveIntensity: 0.3 })
+    );
+    rocketTip.position.y = 0.35;
+    rocketGroup.add(rocketBody, rocketTip);
+    rocketGroup.position.set(0.9, 0.4, -0.6);
+    studioGroup.add(rocketGroup);
+
+    island4.add(studioGroup);
+    scene.add(island4);
+
+    this.islands = [island1, island2, island3, island4];
 
     // =========================================================================
     // STEPPING STONES (Between Island 1 & Water Swim Channel to Island 2)
     // =========================================================================
     const stonePositions = [
-      new THREE.Vector3(-3.0, -0.32, 1.05),
-      new THREE.Vector3(-2.1, -0.32, 0.75)
+      new THREE.Vector3(-3.6, -0.32, 1.05),
+      new THREE.Vector3(-2.8, -0.32, 0.75)
     ];
     stonePositions.forEach((pos, idx) => {
       const stone = new THREE.Mesh(
@@ -405,8 +501,9 @@ window.IslandScene = {
       scene.add(chest);
       this.chests.push(chest);
     };
-    createChest(new THREE.Vector3(-2.45, -0.1, -0.5), w1Done >= w1Total);
-    createChest(new THREE.Vector3(2.4, -0.1, -0.5), w2Done >= w2Total);
+    createChest(new THREE.Vector3(-3.6, -0.1, -0.5), w1Done >= w1Total);
+    createChest(new THREE.Vector3(0.0, -0.1, -0.5), w2Done >= w2Total);
+    createChest(new THREE.Vector3(3.6, 0.3, -0.4), w3Done >= w3Total);
 
     // =========================================================================
     // 3D EXPLORER AVATAR (🦁 Lion or 🦊 Fox)
@@ -440,6 +537,7 @@ window.IslandScene = {
     let startWorld = 'world-1';
     if (w2Done > 0) startWorld = 'world-2';
     if (w3Done > 0) startWorld = 'world-3';
+    if (w4Done > 0) startWorld = 'world-4';
     this.currentWorldId = startWorld;
     const initIsl = this.islands.find(i => i.userData.worldId === startWorld) || island1;
     avatarGroup.position.copy(initIsl.userData.standPos);
@@ -535,11 +633,11 @@ window.IslandScene = {
       const t = clock.elapsedTime;
 
       // Gentle camera parallax + drag orbit
-      const camRadius = 13.8;
+      const camRadius = 14.6;
       const targetAngle = this.orbitAngle + this.mouse.x * 0.12;
       camera.position.x = Math.sin(targetAngle) * camRadius;
       camera.position.z = Math.cos(targetAngle) * camRadius;
-      camera.position.y = 4.4 + this.mouse.y * 0.45;
+      camera.position.y = 4.5 + this.mouse.y * 0.45;
       camera.lookAt(0, 0.85, 0);
 
       // Ocean waves
@@ -571,6 +669,19 @@ window.IslandScene = {
       magicOrbit.rotation.y = t * 1.2;
       magicOrbit.rotation.z = Math.sin(t * 0.8) * 0.18;
 
+      // Island 4 (Creative Coding & Studio Island) Animation
+      island4.position.y = 0.85 + Math.sin(t * 1.4 + 5.5) * 0.08;
+      creativeCrystal.rotation.y = t * 1.4;
+      creativeCrystal.rotation.x = Math.sin(t * 0.9) * 0.2;
+      creativeCrystal.position.y = 0.9 + Math.sin(t * 2.0) * 0.09;
+      codeOrbit.rotation.y = -t * 1.1;
+      codeBlocks.forEach((b, idx) => {
+        b.rotation.x = t * 1.5 + idx;
+        b.rotation.z = t * 1.2;
+      });
+      rocketGroup.position.y = 0.4 + Math.sin(t * 2.8) * 0.12;
+      rocketGroup.rotation.y = t * 0.8;
+
       // Chests bobbing
       this.chests.forEach((ch, idx) => {
         ch.position.y = -0.1 + Math.sin(t * 2.2 + idx) * 0.08;
@@ -583,9 +694,10 @@ window.IslandScene = {
         if (av.mode === 'idle') {
           const curIsl = this.islands.find(i => i.userData.worldId === this.currentWorldId) || island1;
           const baseStand = curIsl.userData.standPos;
+          const yOffset = baseStand.y - curIsl.position.y;
           this.avatar.position.x = baseStand.x;
           this.avatar.position.z = baseStand.z;
-          this.avatar.position.y = curIsl.position.y + 0.42 + Math.abs(Math.sin(t * 3.0)) * 0.08;
+          this.avatar.position.y = curIsl.position.y + yOffset + Math.abs(Math.sin(t * 3.0)) * 0.08;
           this.avatar.rotation.x = 0;
           this.avatar.rotation.y = Math.sin(t * 1.2) * 0.25;
         } else {
@@ -722,37 +834,74 @@ window.IslandScene = {
     }
 
     const p1 = this.islands[0].userData.standPos;
-    const s1 = new THREE.Vector3(-3.0, -0.1, 1.05);
-    const s2 = new THREE.Vector3(-2.1, -0.1, 0.75);
+    const s1 = new THREE.Vector3(-3.6, -0.1, 1.05);
+    const s2 = new THREE.Vector3(-2.8, -0.1, 0.75);
     const p2 = this.islands[1].userData.standPos;
     const p3 = this.islands[2].userData.standPos;
+    const p4 = this.islands[3].userData.standPos;
 
     const waypoints = [];
     const cur = this.currentWorldId;
 
-    // Build scenic multi-modal travel route (Hop on stones -> Swim in water -> Super Jump to Sky Island!)
+    // Helper functions for common travel segments
+    const add1to2 = () => {
+      waypoints.push({ from: p1, to: s1, type: 'hop' });
+      waypoints.push({ from: s1, to: s2, type: 'hop' });
+      waypoints.push({ from: s2, to: p2, type: 'swim' });
+    };
+    const add2to1 = () => {
+      waypoints.push({ from: p2, to: s2, type: 'swim' });
+      waypoints.push({ from: s2, to: s1, type: 'hop' });
+      waypoints.push({ from: s1, to: p1, type: 'hop' });
+    };
+    const add2to3 = () => {
+      waypoints.push({ from: p2, to: p3, type: 'superjump' });
+    };
+    const add3to2 = () => {
+      waypoints.push({ from: p3, to: p2, type: 'superjump' });
+    };
+    const add3to4 = () => {
+      // Super jump glide down from AI Sky Island to Creative Studio Island
+      waypoints.push({ from: p3, to: p4, type: 'superjump' });
+    };
+    const add4to3 = () => {
+      // Super jump rocket boost up to AI Sky Island
+      waypoints.push({ from: p4, to: p3, type: 'superjump' });
+    };
+
+    // Build scenic multi-modal travel routes between all 4 worlds:
     if (cur === 'world-1' && targetWorldId === 'world-2') {
-      waypoints.push({ from: p1, to: s1, type: 'hop' });
-      waypoints.push({ from: s1, to: s2, type: 'hop' });
-      waypoints.push({ from: s2, to: p2, type: 'swim' });
+      add1to2();
     } else if (cur === 'world-2' && targetWorldId === 'world-1') {
-      waypoints.push({ from: p2, to: s2, type: 'swim' });
-      waypoints.push({ from: s2, to: s1, type: 'hop' });
-      waypoints.push({ from: s1, to: p1, type: 'hop' });
+      add2to1();
     } else if (cur === 'world-2' && targetWorldId === 'world-3') {
-      waypoints.push({ from: p2, to: p3, type: 'superjump' });
+      add2to3();
     } else if (cur === 'world-3' && targetWorldId === 'world-2') {
-      waypoints.push({ from: p3, to: p2, type: 'superjump' });
+      add3to2();
+    } else if (cur === 'world-3' && targetWorldId === 'world-4') {
+      add3to4();
+    } else if (cur === 'world-4' && targetWorldId === 'world-3') {
+      add4to3();
     } else if (cur === 'world-1' && targetWorldId === 'world-3') {
-      waypoints.push({ from: p1, to: s1, type: 'hop' });
-      waypoints.push({ from: s1, to: s2, type: 'hop' });
-      waypoints.push({ from: s2, to: p2, type: 'swim' });
-      waypoints.push({ from: p2, to: p3, type: 'superjump' });
+      add1to2();
+      add2to3();
     } else if (cur === 'world-3' && targetWorldId === 'world-1') {
-      waypoints.push({ from: p3, to: p2, type: 'superjump' });
-      waypoints.push({ from: p2, to: s2, type: 'swim' });
-      waypoints.push({ from: s2, to: s1, type: 'hop' });
-      waypoints.push({ from: s1, to: p1, type: 'hop' });
+      add3to2();
+      add2to1();
+    } else if (cur === 'world-1' && targetWorldId === 'world-4') {
+      add1to2();
+      add2to3();
+      add3to4();
+    } else if (cur === 'world-4' && targetWorldId === 'world-1') {
+      add4to3();
+      add3to2();
+      add2to1();
+    } else if (cur === 'world-2' && targetWorldId === 'world-4') {
+      add2to3();
+      add3to4();
+    } else if (cur === 'world-4' && targetWorldId === 'world-2') {
+      add4to3();
+      add3to2();
     }
 
     if (waypoints.length === 0) {

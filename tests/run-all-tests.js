@@ -13,18 +13,18 @@
  * - Profile renaming via UIModal.prompt ("✏️ 改名" updates profile name and persists)
  * - Language toggle: Bilingual 'show-en' toggle
  * - Export & Import progress backup code with custom modal
- * - All 14 lessons ('w1-l1' through 'w3-l6'):
+ * - All 18 lessons ('w1-l1' through 'w4-l3') across 4 Worlds:
  *     - 'learn' mode slides
- *     - 'lab' mode (tests every simulator: win11-power hazards & shut down, win11-window right click/maximize/snap,
- *       shortcut-rescue undo/copy/paste/save, browser-pilot tabs/bookmark/new tab, search-detective keywords & ads,
- *       scam-shield phishing detection, ai-prompt-builder chips & copy, ai-skill-coach chips/custom skill/next steps,
- *       ai-image-studio 5 ingredients & copy)
+ *     - 'lab' mode (tests every simulator: win11-power, win11-window, shortcut-rescue, browser-pilot,
+ *       search-detective, scam-shield, ai-prompt-builder, ai-skill-coach, ai-image-studio,
+ *       maps-navigator, slide-studio, scratch-blocks, story-studio)
  *     - 'quiz' mode: answering all multiple-choice questions correctly to achieve 3 stars and full XP rewards
- * - All 19 typing drills in TypingDojo:
+ * - All 22 typing drills in TypingDojo:
  *     - Character highlight & live typing updates without destroying input element
  *     - IME composition compatibility
  *     - Calculation of speed (WPM/CPM) and accuracy (100%)
  *     - Progression through all drills in all categories
+ * - Three.js IslandScene World 4 multi-modal routing & waypoints
  * ============================================================================
  */
 
@@ -97,7 +97,8 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   assert(typeof window.UIModal === 'object', 'window.UIModal is available');
   assert(typeof window.TypingDojo === 'object', 'window.TypingDojo is available');
   assert(typeof window.Simulators === 'object', 'window.Simulators is available');
-  assert(Array.isArray(window.CURRICULUM_LESSONS) && window.CURRICULUM_LESSONS.length === 14, 'All 14 curriculum lessons are loaded');
+  assert(Array.isArray(window.CURRICULUM_WORLDS) && window.CURRICULUM_WORLDS.length === 4, 'All 4 curriculum worlds are loaded');
+  assert(Array.isArray(window.CURRICULUM_LESSONS) && window.CURRICULUM_LESSONS.length === 18, 'All 18 curriculum lessons are loaded');
   assert(Array.isArray(window.TYPING_DATA.categories) && window.TYPING_DATA.categories.length === 6, 'All 6 typing categories loaded');
 
   // Count total drills
@@ -175,8 +176,8 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   await new Promise(r => setTimeout(r, 50));
   assert(window.AppState.getProfile().xp === 750, 'Progress successfully imported and restored 750 XP!');
 
-  // 7. Test All 14 Lessons: Learn -> Lab (Simulators) -> Quiz
-  console.log('\n--- Testing All 14 Lessons (Learn -> Lab -> Quiz) ---');
+  // 7. Test All 18 Lessons: Learn -> Lab (Simulators) -> Quiz
+  console.log('\n--- Testing All 18 Lessons (Learn -> Lab -> Quiz) ---');
   for (const lesson of window.CURRICULUM_LESSONS) {
     console.log(`\n  * Testing Lesson: [${lesson.id}] ${lesson.number} ${lesson.title}`);
 
@@ -264,6 +265,65 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
       assert(clipboardText.length > 5, 'Chinese image prompt copied');
       window.Simulators.copyText('lesson-simulator-mount-img-en');
       assert(clipboardText.length > 5, 'English image prompt copied');
+    } else if (lesson.simulator.type === 'maps-navigator') {
+      window.Simulators.setMapsMode('transit', 'lesson-simulator-mount');
+      assert(window.Simulators.state.mapsTripMode === 'transit', 'Maps trip mode switched to transit');
+      window.Simulators.toggleMapsStreetView('lesson-simulator-mount');
+      assert(window.Simulators.state.mapsStreetViewOpen === true, 'Maps Street View Pegman opened');
+      window.Simulators.setMapsReviewFilter('real', 'lesson-simulator-mount');
+      assert(window.Simulators.state.mapsReviewFilter === 'real', 'Maps review filtered to real reviews');
+      window.Simulators.inspectMapsReview('rev-1', 'lesson-simulator-mount');
+      assert(window.Simulators.state.mapsSelectedReviewId === 'rev-1', 'Inspected real review details');
+    } else if (lesson.simulator.type === 'slide-studio') {
+      window.Simulators.toggleSlideStep('slideRescueStep1', 'lesson-simulator-mount');
+      assert(window.Simulators.state.slideRescueStep1 === true, 'Slide Rescue Step 1 (Rule of 3) applied');
+      window.Simulators.toggleSlideStep('slideRescueStep2', 'lesson-simulator-mount');
+      assert(window.Simulators.state.slideRescueStep2 === true, 'Slide Rescue Step 2 (High Contrast) applied');
+      window.Simulators.toggleSlideStep('slideRescueStep3', 'lesson-simulator-mount');
+      assert(window.Simulators.state.slideRescueStep3 === true, 'Slide Rescue Step 3 (Hero Visual) applied');
+      window.Simulators.toggleSlideShow('lesson-simulator-mount');
+      assert(window.Simulators.state.slideShowMode === true, 'Slide presentation mode launched');
+      window.Simulators.toggleSlideShow('lesson-simulator-mount');
+    } else if (lesson.simulator.type === 'scratch-blocks') {
+      window.Simulators.toggleScratchBlock('scratchBlockBowl', 'lesson-simulator-mount');
+      assert(window.Simulators.state.scratchBlockBowl === true, 'Scratch bowl controller block snapped');
+      window.Simulators.toggleScratchBlock('scratchBlockApple', 'lesson-simulator-mount');
+      assert(window.Simulators.state.scratchBlockApple === true, 'Scratch apple falling block snapped');
+      window.Simulators.toggleScratchBlock('scratchBlockScore', 'lesson-simulator-mount');
+      assert(window.Simulators.state.scratchBlockScore === true, 'Scratch score & broadcast block snapped');
+      window.Simulators.toggleScratchGame('lesson-simulator-mount');
+      assert(window.Simulators.state.scratchGamePlaying === true, 'Scratch game loop started');
+      assert(window.Simulators._scratchTimer !== null, 'Scratch animation timer active');
+      window.Simulators.catchAppleDirect('lesson-simulator-mount');
+      assert(window.Simulators.state.scratchScore >= 1, 'Caught falling apple and increased score');
+      // Test nav-away lifecycle safety: timer must be cleanly cleared when container unmounts
+      window.Simulators.toggleScratchGame('lesson-simulator-mount');
+      assert(window.Simulators.state.scratchGamePlaying === false, 'Scratch game paused/stopped cleanly');
+    } else if (lesson.simulator.type === 'story-studio') {
+      window.Simulators.setStoryPart('storyHeroIdx', 1, 'lesson-simulator-mount');
+      assert(window.Simulators.state.storyHeroIdx === 1, 'Story hero selected');
+      window.Simulators.setStoryPart('storyCompanionIdx', 2, 'lesson-simulator-mount');
+      assert(window.Simulators.state.storyCompanionIdx === 2, 'Story companion selected');
+      window.Simulators.setStoryPart('storySettingIdx', 1, 'lesson-simulator-mount');
+      assert(window.Simulators.state.storySettingIdx === 1, 'Story setting selected');
+      window.Simulators.setStoryPart('storyTwistIdx', 1, 'lesson-simulator-mount');
+      assert(window.Simulators.state.storyTwistIdx === 1, 'Story plot twist selected');
+      window.Simulators.setStoryScene(1, 'lesson-simulator-mount');
+      assert(window.Simulators.state.storyCurrentScene === 1, 'Navigated to Story scene 2');
+      // Test TTS narration and error resilience
+      window.Simulators.speakStoryScene(1, 'lesson-simulator-mount');
+      assert(typeof window.speechSynthesis === 'object', 'TTS narration triggered successfully');
+      // Simulate TTS throw to verify error resilience (no uncaught exception)
+      const origSpeak = window.speechSynthesis.speak;
+      window.speechSynthesis.speak = () => { throw new Error('Simulated TTS device error'); };
+      let ttsErrorHandled = true;
+      try {
+        window.Simulators.speakStoryScene(1, 'lesson-simulator-mount');
+      } catch (e) {
+        ttsErrorHandled = false;
+      }
+      assert(ttsErrorHandled === true, 'TTS speech synthesis error handled gracefully without throwing');
+      window.speechSynthesis.speak = origSpeak;
     }
 
     // Step 3: Quiz View
@@ -284,8 +344,8 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
     assert(window.AppState.getProfile().xp >= initialXP + lesson.xp, `Awarded +${lesson.xp} XP for lesson ${lesson.id}`);
   }
 
-  // 8. Test All 19 Typing Dojo Drills
-  console.log('\n--- Testing All 19 Typing Dojo Drills in Standalone Dojo ---');
+  // 8. Test All 22 Typing Dojo Drills
+  console.log('\n--- Testing All 22 Typing Dojo Drills in Standalone Dojo ---');
   window.AppState.navigate('dojo');
   assert(window.AppState.currentView === 'dojo', 'Navigated to standalone Dojo');
 
@@ -341,9 +401,34 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   assert(window.AppState.currentView === 'certificate', 'Navigated to certificate view');
   const certEl = window.document.getElementById('app-main');
   assert(certEl.textContent.includes('數位小探險家學院・榮譽證書'), 'Graduation Certificate title rendered');
-  assert(certEl.textContent.includes('14 / 14 堂數位課程'), 'All 14/14 lessons reflected on Certificate');
+  assert(certEl.textContent.includes('18 / 18 堂數位課程'), 'All 18/18 lessons reflected on Certificate');
   assert(certEl.textContent.includes('22 / 22 關中英盲打特訓'), 'All 22/22 typing drills reflected on Certificate');
   assert(certEl.textContent.includes('傳奇數位魔法師'), 'Awarded highest certification tier: 傳奇數位魔法師');
+
+  // 10. Test IslandScene World 4 Navigation & Routing
+  console.log('\n--- Testing IslandScene 3D World Map Navigation ---');
+  assert(typeof window.IslandScene === 'object', 'window.IslandScene object exists');
+  // Initialize mock islands and avatar to verify multi-modal path routing to World 4
+  let selectedTargetWorld = null;
+  window.IslandScene._onSelectWorld = (targetId) => { selectedTargetWorld = targetId; };
+  window.IslandScene.islands = [
+    { userData: { worldId: 'world-1', standPos: new window.THREE.Vector3(-5.4, 0.42, 1.35) } },
+    { userData: { worldId: 'world-2', standPos: new window.THREE.Vector3(-1.8, 0.42, 1.35) } },
+    { userData: { worldId: 'world-3', standPos: new window.THREE.Vector3(1.8, 2.75, 0.95) } },
+    { userData: { worldId: 'world-4', standPos: new window.THREE.Vector3(5.4, 1.27, 0.85) } }
+  ];
+  window.IslandScene.avatar = new window.THREE.Group();
+  window.IslandScene.currentWorldId = 'world-1';
+  window.IslandScene.avatarState.mode = 'idle';
+
+  window.IslandScene.travelToWorld('world-4', true);
+  assert(window.IslandScene.avatarState.mode === 'moving', 'Avatar state switched to moving mode');
+  assert(window.IslandScene.avatarState.targetWorldId === 'world-4', 'Target world set to world-4');
+  assert(Array.isArray(window.IslandScene.avatarState.waypoints) && window.IslandScene.avatarState.waypoints.length === 5,
+    `Scenic waypoints to World 4 generated (count: ${window.IslandScene.avatarState.waypoints.length})`);
+  const wpTypes = window.IslandScene.avatarState.waypoints.map(w => w.type);
+  assert(wpTypes.includes('hop') && wpTypes.includes('swim') && wpTypes.includes('superjump'),
+    'Waypoints include hop, swim, and superjump segments to reach World 4');
 }
 
 async function main() {

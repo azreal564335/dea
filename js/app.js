@@ -169,6 +169,9 @@ window.AppState = {
     const p = this.getProfile();
     const completedCount = Object.keys(p.completedLessons).length;
     const totalLessons = window.CURRICULUM_LESSONS.length;
+    const totalDrills = (window.TYPING_DATA && window.TYPING_DATA.categories)
+      ? window.TYPING_DATA.categories.reduce((sum, c) => sum + c.drills.length, 0)
+      : 22;
 
     navEl.innerHTML = `
       <div class="brand-area" onclick="window.AppState.navigate('map')">
@@ -186,7 +189,7 @@ window.AppState = {
         </button>
         <button class="nav-tab ${this.currentView === 'dojo' ? 'active' : ''}"
                 onclick="window.AppState.navigate('dojo')">
-          🎹 中英打字道館 (19關)
+          🎹 中英打字道館 (${totalDrills}關)
         </button>
         <button class="nav-tab ${this.currentView === 'vocab' ? 'active' : ''}"
                 onclick="window.AppState.navigate('vocab')">
@@ -252,6 +255,9 @@ window.AppState = {
     const completedLessonsCount = Object.keys(p.completedLessons).length;
     const completedDrillsCount = Object.keys(p.completedDrills).length;
     const totalLessons = window.CURRICULUM_LESSONS.length;
+    const totalDrills = (window.TYPING_DATA && window.TYPING_DATA.categories)
+      ? window.TYPING_DATA.categories.reduce((sum, c) => sum + c.drills.length, 0)
+      : 22;
 
     mainEl.innerHTML = `
       <section class="hero-banner">
@@ -271,7 +277,7 @@ window.AppState = {
             <div class="stat-label">已完成課程</div>
           </div>
           <div class="stat-box">
-            <div class="stat-num">${completedDrillsCount} / 19</div>
+            <div class="stat-num">${completedDrillsCount} / ${totalDrills}</div>
             <div class="stat-label">打字道館通關</div>
           </div>
           <div class="stat-box">
@@ -539,14 +545,18 @@ window.AppState = {
   },
 
   // ==========================================================================
-  // VIEW 3: STANDALONE 19-STAGE TYPING DOJO
+  // VIEW 3: STANDALONE TYPING DOJO
   // ==========================================================================
   renderStandaloneDojo(mainEl) {
+    const totalDrills = (window.TYPING_DATA && window.TYPING_DATA.categories)
+      ? window.TYPING_DATA.categories.reduce((sum, c) => sum + c.drills.length, 0)
+      : 22;
+
     mainEl.innerHTML = `
       <div class="card-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
           <div>
-            <h1 style="font-size:1.5rem; font-weight:900;">🎹 老鷹變獵鷹：中英盲打與注音特訓道館 (共 19 關)</h1>
+            <h1 style="font-size:1.5rem; font-weight:900;">🎹 老鷹變獵鷹：中英盲打與注音特訓道館 (共 ${totalDrills} 關)</h1>
             <p style="color:#475569; font-weight:700;">
               從最基礎的 <code>fff jjj</code>、<code>as asd</code>、<code>aaa bbb ccc</code>，一路練到「微軟注音四聲」與「Shift 中英切換」！每天練 10 分鐘，手指就會長出記憶喔！
             </p>
@@ -740,11 +750,15 @@ window.AppState = {
 
   speakEnglish(text) {
     if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'en-US';
-      utter.rate = 0.88;
-      window.speechSynthesis.speak(utter);
+      try {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'en-US';
+        utter.rate = 0.88;
+        window.speechSynthesis.speak(utter);
+      } catch (e) {
+        console.warn('SpeechSynthesis error:', e);
+      }
       if (window.UIModal && window.UIModal.toast) {
         window.UIModal.toast(`🔊 英文發音：${text}`);
       }
