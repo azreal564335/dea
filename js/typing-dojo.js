@@ -197,7 +197,7 @@ window.TypingDojo = {
         </div>
 
         <!-- Visual Taiwan Keyboard (English + Zhuyin + Home Row Bumps) -->
-        <div class="asus-keyboard" id="${containerId}-keyboard">
+        <div class="taiwan-keyboard" id="${containerId}-keyboard">
           ${this.renderKeyboardHtml(nextExpectedChar)}
         </div>
       </div>
