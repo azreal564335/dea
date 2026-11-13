@@ -84,6 +84,9 @@ ${appJs}
 </html>
 `;
 
+const indexDistPath = path.join(distDir, 'index.html');
 fs.writeFileSync(artifactPath, bundledHtml, 'utf8');
+fs.writeFileSync(indexDistPath, bundledHtml, 'utf8');
 console.log(`✅ Successfully bundled self-contained HTML artifact (${bundledHtml.length} bytes) to:`);
 console.log(`   ${artifactPath}`);
+console.log(`   ${indexDistPath}`);
