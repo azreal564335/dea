@@ -81,7 +81,7 @@ digital-explorer-academy/
   - Lesson `4.1` — *Presentation Magic* (Google Slides / Canva basics for school reports).
   - Lesson `4.2` — *Scratch Coding Playground* (events, loops, making a simple catch-the-apple game).
   - Lesson `4.3` — *Audio & Visual Storytelling* (combining AI story + AI image prompts).
-- [x] **Live Cloud Deployment (GitHub Repo Ready):** Pushed clean modular codebase to `https://github.com/azreal564335/digital-explorer-academy` (`main` branch), ready to connect to Vercel or Cloudflare Pages.
+- [x] **Live Cloud Deployment (GitHub Repo Ready):** Pushed clean modular codebase to `https://github.com/azreal564335/dea` (`main` branch), ready to connect to Vercel or Cloudflare Pages.
 
 ---
 
@@ -89,7 +89,7 @@ digital-explorer-academy/
 
 * **Last Updated:** 2026-11-12
 * **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **405 / 405 PASS (100%)**
-* **GitHub Repository:** https://github.com/azreal564335/digital-explorer-academy (`main` branch)
+* **GitHub Repository:** https://github.com/azreal564335/dea (`main` branch)
 * **Recent Changes:**
   * **GitHub Repository & Build Portability:** Created `azreal564335/digital-explorer-academy` on GitHub, added `.gitignore` (excluding `node_modules/` and `dist/`), updated `scripts/build-bundle.js` and `tests/run-all-tests.js` to use portable relative `dist/` paths instead of hardcoded sandbox paths, and pushed all code to `main`.
   * **Phase 2 Typing Expansion (Stage 6):** Added 3 new drills (`nr-1` Number Row, `en-1` Everyday English, `zy-5` Zhuyin Short Story) to `data/typing-drills.js` (22 drills total) and made the Certificate total drill count dynamic in `js/app.js`.
