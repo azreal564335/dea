@@ -8,24 +8,29 @@
 ```text
 digital-explorer-academy/
 ├── index.html               # Main entry point (loads data & modules)
-├── package.json             # Optional local server scripts
+├── package.json             # Build & automated test scripts (`npm test`, `npm run build`)
 ├── vercel.json              # Zero-config Vercel / Cloudflare Pages routing
 ├── css/
-│   └── styles.css           # Kid-friendly UI & ASUS Zhuyin/English keyboard styling
+│   └── styles.css           # Kid-friendly UI, modal dialogs & keyboard styling
 ├── data/
 │   ├── typing-drills.js     # ⭐ EDIT THIS to add new typing drills & stages!
 │   └── curriculum.js        # ⭐ EDIT THIS to add new lessons or new Worlds!
-└── js/
-    ├── typing-dojo.js       # 19-stage ASUS Bopomofo + English Typing Dojo engine
-    ├── simulators.js        # Interactive labs (Win 11, Search Detective, AI Studios)
-    └── app.js               # Profile manager, World Map, Vocab voice, Certificate
+├── js/
+│   ├── ui-modal.js          # In-page custom modal dialogs & toasts (iframe/sandbox-safe)
+│   ├── typing-dojo.js       # 19-stage Bopomofo + English Typing Dojo engine (IME-safe)
+│   ├── simulators.js        # Interactive labs (Win 11, Search Detective, AI Studios)
+│   └── app.js               # Profile manager, World Map, Vocab voice, Certificate
+├── scripts/
+│   └── build-bundle.js      # Bundles modular project into self-contained HTML artifact
+└── tests/
+    └── run-all-tests.js     # Automated DOM & interaction test suite (378 assertions)
 ```
 
 ---
 
 ## ☁️ How to Host Online for FREE (GitHub + Vercel or Cloudflare Pages)
 
-Because this app is built as a **100% static, zero-cost web application**, you can host it online for free in under 2 minutes so each of your kids (ages 8 & 10) can open it on their own ASUS laptop:
+Because this app is built as a **100% static, zero-cost web application**, you can host it online for free in under 2 minutes so each of your kids (ages 8 & 10) can open it on their own laptop:
 
 ### Option A: GitHub + Vercel (Recommended — 60 Seconds)
 1. Create a new repository on [GitHub](https://github.com/new) (e.g., `kids-digital-academy`) and push the files in `/home/antigravity/digital-explorer-academy`.
@@ -59,7 +64,7 @@ Open `data/typing-drills.js`. Inside `window.TYPING_DATA.categories`, you can ad
   text: 'i love learning new skills on my laptop'
 }
 ```
-The visual ASUS keyboard, finger guide colors, WPM counter, and star tracker will automatically pick it up!
+The visual keyboard, finger guide colors, WPM counter, and star tracker will automatically pick it up!
 
 ### 2. Adding a New Lesson or a Whole New World (`data/curriculum.js`)
 Open `data/curriculum.js`:

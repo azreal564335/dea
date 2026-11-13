@@ -5,7 +5,7 @@
  * Renders rich hands-on practice labs for World 1, World 2, and World 3:
  * - win11-power: Desktop hazard removal & Windows 11 Start Menu -> Shut down
  * - win11-window: Right-click secret menu, Maximize, and Snap Left/Right
- * - typing-dojo: Embedded 19-stage ASUS Zhuyin + English Typing Dojo
+ * - typing-dojo: Embedded 19-stage Zhuyin + English Typing Dojo
  * - shortcut-rescue: Interactive Ctrl+Z, Ctrl+C/V, and File Naming rescues
  * - browser-pilot: Tab cleanup, Bookmark star, and URL navigation
  * - search-detective: Local food search keywords & school research + spotting Ads
@@ -622,7 +622,7 @@ window.Simulators = {
         explain: '🛑 100% 是詐騙！真正的網站不會無緣無故送你 iPad 或免費遊戲幣，更不會跟你要密碼！直接關閉分頁！'
       },
       {
-        title: '🚨 彈出視窗 2：「逼逼！警告！你的 ASUS 電腦發現 29 個嚴重病毒！請在 60 秒內點擊下載 SuperClean.exe 修復！」',
+        title: '🚨 彈出視窗 2：「逼逼！警告！你的 Windows 電腦發現 29 個嚴重病毒！請在 60 秒內點擊下載 SuperClean.exe 修復！」',
         isScam: true,
         explain: '🛑 100% 是假病毒警報！網頁不能掃描你的電腦，它想騙你下載真正的病毒檔案 (.exe)！千萬別點！'
       },

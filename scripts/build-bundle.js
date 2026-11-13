@@ -13,9 +13,15 @@ const fs = require('fs');
 const path = require('path');
 
 const srcDir = path.resolve(__dirname, '..');
-const artifactPath = '/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p/8223c394-dab1-4c16-8db7-43c01f53f7c1/digital_explorer_academy.html';
+const distDir = path.join(srcDir, 'dist');
+if (!fs.existsSync(distDir)) {
+  fs.mkdirSync(distDir, { recursive: true });
+}
+const artifactPath = path.join(distDir, 'digital_explorer_academy.html');
 
 const cssContent = fs.readFileSync(path.join(srcDir, 'css', 'styles.css'), 'utf8');
+const threeJs = fs.readFileSync(path.join(srcDir, 'js', 'vendor', 'three.min.js'), 'utf8').replace(/<\/script>/gi, '<\\/script>');
+const islandSceneJs = fs.readFileSync(path.join(srcDir, 'js', 'island-scene.js'), 'utf8');
 const uiModalJs = fs.readFileSync(path.join(srcDir, 'js', 'ui-modal.js'), 'utf8');
 const typingDrillsJs = fs.readFileSync(path.join(srcDir, 'data', 'typing-drills.js'), 'utf8');
 const curriculumJs = fs.readFileSync(path.join(srcDir, 'data', 'curriculum.js'), 'utf8');
@@ -28,8 +34,8 @@ const bundledHtml = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>數位小探險家學院 (Digital Explorer Academy) — ASUS 筆電・中英盲打・網路與 AI 互動學園</title>
-  <meta name="description" content="專為 8 歲與 10 歲兒童設計的 ASUS Windows 11 筆電操作、中英注音十指盲打道館、網路黃金關鍵字搜尋與 AI 魔法提示詞互動學習網站。" />
+  <title>數位小探險家學院 (Digital Explorer Academy) — 筆電・中英盲打・網路與 AI 互動學園</title>
+  <meta name="description" content="專為 8 歲與 10 歲兒童設計的 Windows 11 筆電操作、中英注音十指盲打道館、網路黃金關鍵字搜尋與 AI 魔法提示詞互動學習網站。" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet" />
@@ -46,10 +52,16 @@ ${cssContent}
 
   <!-- Footer -->
   <footer style="text-align:center; padding:1.2rem; color:#64748b; font-size:0.84rem; font-weight:700; border-top:1px solid #e2e8f0; background:#ffffff;">
-    🚀 數位小探險家學院 (Digital Explorer Academy) ・ 專為 8 歲與 10 歲孩子打造的 ASUS Windows 11、中英注音盲打、網路搜尋與 AI 互動學園
+    🚀 數位小探險家學院 (Digital Explorer Academy) ・ 專為 8 歲與 10 歲孩子打造的 Windows 11、中英注音盲打、網路搜尋與 AI 互動學園
   </footer>
 
   <!-- Scripts Inlined in Order -->
+  <script>
+${threeJs}
+  </script>
+  <script>
+${islandSceneJs}
+  </script>
   <script>
 ${uiModalJs}
   </script>

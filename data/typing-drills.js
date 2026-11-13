@@ -10,7 +10,7 @@
  */
 
 window.TYPING_DATA = {
-  // Full ASUS Taiwan Keyboard Map (English Key -> Zhuyin Symbol + Finger Assignment)
+  // Full Taiwan Keyboard Map (English Key -> Zhuyin Symbol + Finger Assignment)
   // Fingers: 'L5' (Left Pinky), 'L4' (Left Ring), 'L3' (Left Middle), 'L2' (Left Index),
   //          'R2' (Right Index), 'R3' (Right Middle), 'R4' (Right Ring), 'R5' (Right Pinky), 'THUMB' (Space)
   keyboardLayout: [
@@ -199,10 +199,10 @@ window.TYPING_DATA = {
     },
     {
       id: 'zhuyin-dojo',
-      title: '階段 4：ASUS 注音符號與四聲選字 (Zhuyin Bopomofo Dojo)',
+      title: '階段 4：注音符號與四聲選字 (Zhuyin Bopomofo Dojo)',
       titleEn: 'Stage 4: Zhuyin (Bopomofo) & Tone Keys',
       badge: '🇹🇼 注音特訓',
-      description: '華碩鍵盤上的注音是由左到右排列的！學會「一聲空白鍵、二聲6、三聲3、四聲4、輕聲7」！',
+      description: '標準注音鍵盤上的注音是由左到右排列的！學會「一聲空白鍵、二聲6、三聲3、四聲4、輕聲7」！',
       drills: [
         {
           id: 'zy-1',
@@ -294,6 +294,43 @@ window.TYPING_DATA = {
             { char: '我的 Windows 筆電超酷', py: 'ㄨㄛˇ ㄉㄜ˙ [Shift] Windows [Shift] ㄅㄧˇ ㄉㄧㄢˋ ㄔㄠ ㄎㄨˋ' }
           ],
           text: '我的 Windows 筆電超酷'
+        }
+      ]
+    },
+    {
+      id: 'phase2-stories',
+      title: '階段 6：數字排與生活實戰故事 (Phase 2 進階)',
+      titleEn: 'Stage 6: Number Row, Everyday English & Zhuyin Stories',
+      badge: '🌟 進階實戰',
+      description: '挑戰鍵盤最上方的數字排、常用英文對話，還有注音短故事連打！',
+      drills: [
+        {
+          id: 'nr-1',
+          name: '第 20 關：數字排探險 (12345 67890)',
+          nameEn: 'Level 20: Number Row Adventure (1-0)',
+          tip: '數字鍵在鍵盤最上面一排！記得按完數字後，手指要回到基準鍵 (A S D F / J K L ;) 喔！',
+          mode: 'english',
+          text: '12345 67890 2026 100 365'
+        },
+        {
+          id: 'en-1',
+          name: '第 21 關：英語對話小達人 (Everyday English)',
+          nameEn: 'Level 21: Everyday English Conversation',
+          tip: '練習打出一整句日常英文問候！問號 ? 要按住 Shift + /，驚嘆號 ! 要按住 Shift + 1。',
+          mode: 'english',
+          text: 'Hello! How are you? I am fine, thank you!'
+        },
+        {
+          id: 'zy-5',
+          name: '第 22 關：注音短故事挑戰 (小探險家的早晨)',
+          nameEn: 'Level 22: Zhuyin Short Story Challenge',
+          tip: '切換成「微軟注音」模式，一口氣打出完整的小故事！注意標點符號可以按 Ctrl + , 或切換全形輸入。',
+          mode: 'chinese-real',
+          zhuyinBreakdown: [
+            { char: '今天天氣真好', py: 'ㄐㄧㄣ ㄊㄧㄢ ㄊㄧㄢ ㄑㄧˋ ㄓㄣ ㄏㄠˇ' },
+            { char: '我打開筆電練習打字', py: 'ㄨㄛˇ ㄉㄚˇ ㄎㄞ ㄅㄧˇ ㄉㄧㄢˋ ㄌㄧㄢˋ ㄒㄧˊ ㄉㄚˇ ㄗˋ' }
+          ],
+          text: '今天天氣真好 我打開筆電練習打字 準備探索 AI 世界'
         }
       ]
     }

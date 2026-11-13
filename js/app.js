@@ -175,7 +175,7 @@ window.AppState = {
         <div class="brand-logo">🚀</div>
         <div>
           <div class="brand-title">數位小探險家學院</div>
-          <div class="brand-subtitle">ASUS Windows 11・中英盲打・網路與 AI 魔法學園</div>
+          <div class="brand-subtitle">Windows 11・中英盲打・網路與 AI 魔法學園</div>
         </div>
       </div>
 
@@ -225,6 +225,10 @@ window.AppState = {
     const mainEl = document.getElementById('app-main');
     if (!mainEl) return;
 
+    if (this.currentView !== 'map' && window.IslandScene) {
+      window.IslandScene.destroy();
+    }
+
     if (this.currentView === 'map') {
       this.renderWorldMap(mainEl);
     } else if (this.currentView === 'lesson') {
@@ -253,7 +257,13 @@ window.AppState = {
       <section class="hero-banner">
         <div class="hero-info">
           <h1>👋 歡迎回來，${p.avatar} ${p.name}！</h1>
-          <p>從認識你的全新 ASUS Windows 11 筆電、學會中英十指盲打，一路成為聰明又安全的網路與 AI 小大師！</p>
+          <p>從認識你的全新 Windows 11 筆電、學會中英十指盲打，一路成為聰明又安全的網路與 AI 小大師！</p>
+          <div class="dynamic-island-bar">
+            <span class="dynamic-island-dot"></span>
+            <span>💊 靈動探險島：${p.avatar} ${p.name} 連線中</span>
+            <span>｜</span>
+            <span>👀 20-20-20 護眼提醒：每 20 分鐘看遠方 20 秒！</span>
+          </div>
         </div>
         <div class="hero-stats">
           <div class="stat-box">
@@ -271,11 +281,14 @@ window.AppState = {
         </div>
       </section>
 
+      <!-- 🏝️ Three.js 3D Floating Islands Interactive Stage -->
+      <div id="island-3d-canvas"></div>
+
       ${window.CURRICULUM_WORLDS.map(world => {
         const wLessons = window.CURRICULUM_LESSONS.filter(l => l.worldId === world.id);
         const wDoneCount = wLessons.filter(l => p.completedLessons[l.id]).length;
         return `
-          <section class="world-section">
+          <section class="world-section" id="section-${world.id}">
             <div class="world-header">
               <div class="world-title-group">
                 <div class="world-icon-badge" style="background:${world.themeColor}18; border:2px solid ${world.themeColor};">
@@ -321,6 +334,21 @@ window.AppState = {
         `;
       }).join('')}
     `;
+
+    if (window.IslandScene) {
+      window.IslandScene.mount('island-3d-canvas', {
+        onSelectWorld: (worldId) => {
+          const sec = document.getElementById(`section-${worldId}`);
+          if (sec) {
+            sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            sec.classList.add('island-highlight');
+            setTimeout(() => sec.classList.remove('island-highlight'), 1400);
+          }
+        },
+        profile: p,
+        worlds: window.CURRICULUM_WORLDS
+      });
+    }
   },
 
   // ==========================================================================
@@ -518,7 +546,7 @@ window.AppState = {
       <div class="card-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
           <div>
-            <h1 style="font-size:1.5rem; font-weight:900;">🎹 老鷹變獵鷹：ASUS 中英盲打與注音特訓道館 (共 19 關)</h1>
+            <h1 style="font-size:1.5rem; font-weight:900;">🎹 老鷹變獵鷹：中英盲打與注音特訓道館 (共 19 關)</h1>
             <p style="color:#475569; font-weight:700;">
               從最基礎的 <code>fff jjj</code>、<code>as asd</code>、<code>aaa bbb ccc</code>，一路練到「微軟注音四聲」與「Shift 中英切換」！每天練 10 分鐘，手指就會長出記憶喔！
             </p>
@@ -592,8 +620,8 @@ window.AppState = {
             ${p.avatar} ${p.name}
           </div>
           <p style="font-size:1.05rem; color:#334155; max-width:600px; margin:0 auto 1.5rem; line-height:1.8;">
-            已成功在 <strong>ASUS Windows 11 筆電</strong> 上完成：
-            <strong>${doneLessons} / ${totalLessons} 堂數位課程</strong> 與 <strong>${doneDrills} / 19 關中英盲打特訓</strong>，
+            已成功在 <strong>Windows 11 筆電</strong> 上完成：
+            <strong>${doneLessons} / ${totalLessons} 堂數位課程</strong> 與 <strong>${doneDrills} / ${window.TYPING_DATA.categories.reduce((sum, c) => sum + c.drills.length, 0)} 關中英盲打特訓</strong>，
             累積獲得 <strong>⭐ ${p.xp} XP</strong>！具備優秀的筆電操作、網路搜尋防詐與 AI 魔法應用能力！
           </p>
           <div style="display:flex; justify-content:space-around; flex-wrap:wrap; gap:1rem; margin-top:1.5rem; padding-top:1rem; border-top:2px dashed #fde68a; font-weight:800; color:#64748b;">
@@ -625,11 +653,11 @@ window.AppState = {
       <div class="card-panel">
         <h1 style="font-size:1.55rem; font-weight:900; margin-bottom:0.5rem;">👨‍👩‍👧 家長專屬指南：陪 8 歲與 10 歲孩子開啟數位與 AI 之旅</h1>
         <p style="color:#475569; font-weight:700; margin-bottom:1.25rem;">
-          這份指南整理了 ASUS Windows 11 筆電的快速設定、如何陪孩子練習中英盲打與 AI，以及如何免費部署到 GitHub / Vercel / Cloudflare Pages 與未來擴充課程的方法。
+          這份指南整理了 Windows 11 筆電的快速設定、如何陪孩子練習中英盲打與 AI，以及如何免費部署到 GitHub / Vercel / Cloudflare Pages 與未來擴充課程的方法。
         </p>
 
         <div class="slide-card">
-          <h3>💻 1. 新買的 ASUS Windows 11 筆電：5 分鐘家長設定清單</h3>
+          <h3>💻 1. 新買的 Windows 11 筆電：5 分鐘家長設定清單</h3>
           <div class="slide-body">1. <strong>確認微軟注音 (Microsoft Bopomofo) 設定</strong>：
    • 進入 Windows「設定 (Settings)」→「時間與語言 (Time & language)」→「語言與區域 (Language & region)」。
    • 確認「中文 (台灣)」底下有「微軟注音」。按一下 <code>Shift</code> 即可切換「中 / 英」，按 <code>Win + 空白鍵</code> 可切換不同語言。

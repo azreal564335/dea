@@ -98,12 +98,12 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   assert(typeof window.TypingDojo === 'object', 'window.TypingDojo is available');
   assert(typeof window.Simulators === 'object', 'window.Simulators is available');
   assert(Array.isArray(window.CURRICULUM_LESSONS) && window.CURRICULUM_LESSONS.length === 14, 'All 14 curriculum lessons are loaded');
-  assert(Array.isArray(window.TYPING_DATA.categories) && window.TYPING_DATA.categories.length === 5, 'All 5 typing categories loaded');
+  assert(Array.isArray(window.TYPING_DATA.categories) && window.TYPING_DATA.categories.length === 6, 'All 6 typing categories loaded');
 
   // Count total drills
   let drillCount = 0;
   window.TYPING_DATA.categories.forEach(c => drillCount += c.drills.length);
-  assert(drillCount === 19, `Total 19 typing drills defined (found: ${drillCount})`);
+  assert(drillCount === 22, `Total 22 typing drills defined (found: ${drillCount})`);
 
   // 2. Test Top Navigation Tabs
   console.log('\n--- Testing Top Navigation Tabs ---');
@@ -342,13 +342,13 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   const certEl = window.document.getElementById('app-main');
   assert(certEl.textContent.includes('數位小探險家學院・榮譽證書'), 'Graduation Certificate title rendered');
   assert(certEl.textContent.includes('14 / 14 堂數位課程'), 'All 14/14 lessons reflected on Certificate');
-  assert(certEl.textContent.includes('19 / 19 關中英盲打特訓'), 'All 19/19 typing drills reflected on Certificate');
+  assert(certEl.textContent.includes('22 / 22 關中英盲打特訓'), 'All 22/22 typing drills reflected on Certificate');
   assert(certEl.textContent.includes('傳奇數位魔法師'), 'Awarded highest certification tier: 傳奇數位魔法師');
 }
 
 async function main() {
-  const repoDir = '/home/antigravity/digital-explorer-academy';
-  const artifactPath = '/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p/8223c394-dab1-4c16-8db7-43c01f53f7c1/digital_explorer_academy.html';
+  const repoDir = path.resolve(__dirname, '..');
+  const artifactPath = path.join(repoDir, 'dist', 'digital_explorer_academy.html');
 
   // 1. Build fresh bundle first
   console.log('📦 Building bundled artifact...');

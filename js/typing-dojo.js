@@ -2,7 +2,7 @@
  * ============================================================================
  * 🎹 TYPING DOJO ENGINE (js/typing-dojo.js)
  * ============================================================================
- * Renders the interactive ASUS Windows 11 Keyboard with both English letters
+ * Renders the interactive Windows 11 Keyboard with both English letters
  * and Traditional Chinese Zhuyin (注音符號), color-coded finger guides,
  * F/J tactile bump indicators, real-time WPM & accuracy calculation, and
  * 19 progressive drills (from fff jjj, as asd, aaa bbb ccc to Zhuyin & Shift!).
@@ -196,7 +196,7 @@ window.TypingDojo = {
           </div>
         </div>
 
-        <!-- Visual ASUS Taiwan Keyboard (English + Zhuyin + Home Row Bumps) -->
+        <!-- Visual Taiwan Keyboard (English + Zhuyin + Home Row Bumps) -->
         <div class="asus-keyboard" id="${containerId}-keyboard">
           ${this.renderKeyboardHtml(nextExpectedChar)}
         </div>
@@ -347,7 +347,7 @@ window.TypingDojo = {
   renderKeyboardHtml(nextExpectedChar) {
     return `
       <div style="text-align:center; font-size:0.82rem; font-weight:800; color:#475569; margin-bottom:0.5rem;">
-        💻 ASUS 台灣雙語鍵盤導引（黃色發光鍵 ＝ 下一個要按的鍵；F 與 J 底下有藍色定位凸點！）
+        💻 台灣注音雙語鍵盤導引（黃色發光鍵 ＝ 下一個要按的鍵；F 與 J 底下有藍色定位凸點！）
       </div>
       ${window.TYPING_DATA.keyboardLayout.map((row, rIdx) => `
         <div class="kb-row" style="padding-left:${rIdx * 14}px;">

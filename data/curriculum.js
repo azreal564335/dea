@@ -26,7 +26,7 @@ window.CURRICULUM_WORLDS = [
     id: 'world-1',
     number: 'World 1',
     title: '筆電小達人',
-    titleEn: 'ASUS Windows 11 & Touch Typing',
+    titleEn: 'Windows 11 & Touch Typing',
     subtitle: '學會照顧筆電、視窗魔法、告別「老鷹一指神功」中英盲打與神級快捷鍵！',
     icon: '💻',
     themeColor: '#0284c7',
@@ -56,18 +56,18 @@ window.CURRICULUM_WORLDS = [
 
 window.CURRICULUM_LESSONS = [
   // ==========================================================================
-  // WORLD 1: 筆電小達人 (ASUS WINDOWS 11 & TYPING)
+  // WORLD 1: 筆電小達人 (WINDOWS 11 & TYPING)
   // ==========================================================================
   {
     id: 'w1-l1',
     worldId: 'world-1',
     number: '1.1',
     title: '保護筆電與正確開關機',
-    titleEn: 'Laptop Care, ASUS Fn Keys & Safe Shut Down',
+    titleEn: 'Laptop Care, Fn Keys & Safe Shut Down',
     icon: '🛡️',
     duration: '8 分鐘',
     xp: 100,
-    summary: '學會保護你的全新 ASUS 筆電、認識睡眠與關機的差別，以及音量與亮度調整！',
+    summary: '學會保護你的全新 筆電、認識睡眠與關機的差別，以及音量與亮度調整！',
     vocab: [
       { en: 'Power', zh: '電源', desc: '開機與關機的電源標誌 (圓圈加一條直線)' },
       { en: 'Shut down', zh: '關機', desc: '今天不再用電腦時，把所有程式收好並完全關閉電源' },
@@ -77,8 +77,8 @@ window.CURRICULUM_LESSONS = [
     ],
     cards: [
       {
-        title: '🎉 歡迎來到你的專屬 ASUS 筆電！四個黃金保護守則',
-        titleEn: '4 Golden Rules to Protect Your New ASUS Laptop',
+        title: '🎉 歡迎來到你的專屬 筆電！四個黃金保護守則',
+        titleEn: '4 Golden Rules to Protect Your New Laptop',
         body: `恭喜你擁有了自己的專屬筆電！筆電就像精密的太空船，要讓它陪你很久，請記住這 **4 個超重要習慣**：
 1. **雙手抱穩穩 (Two Hands Always)**：移動筆電時，先把螢幕蓋起來，用雙手像捧寶物一樣拿，絕對不單手抓螢幕！
 2. **飲料離遠遠 (Drinks Far Away)**：水杯、珍奶、果汁一定要放在離筆電至少一個手臂遠的地方（鍵盤喝水就會生重病！）。
@@ -87,8 +87,8 @@ window.CURRICULUM_LESSONS = [
         highlight: '💡 小口訣：「雙手捧、水放遠、蓋前看一看、桌上好散熱！」'
       },
       {
-        title: '🔆 認識 ASUS 鍵盤最上面一排：音量與亮度魔法鍵',
-        titleEn: 'ASUS Function Row: Volume, Brightness & Wi-Fi',
+        title: '🔆 認識 筆電鍵盤最上面一排：音量與亮度魔法鍵',
+        titleEn: 'Function Row: Volume, Brightness & Wi-Fi',
         body: `看看你鍵盤最上面那排小按鍵（寫著 \`F1\` 到 \`F12\`）：
 * 🔈 **喇叭圖案**：調整聲音大小（Volume Down / Up）或靜音（Mute）。
 * ☀️ **太陽圖案**：調整螢幕暗一點或亮一點（Brightness）。
@@ -174,7 +174,7 @@ window.CURRICULUM_LESSONS = [
 2. **左鍵快快點兩下 (Double Click)**：在桌面圖示或資料夾上「噠噠」連點兩下 = **「打開它」**（如果點太慢會變成改名字喔！）。
 3. **右鍵秘密選單 (Right Click)**：按觸控板右下角（或是**兩根手指同時輕點一下觸控板**）= **叫出「右鍵秘密選單」**！裡面有新增資料夾、複製、改名字等超多功能！
 4. **雙指上下滑動 (Two-Finger Scroll)**：**兩根手指併攏**在觸控板上往上或往下滑，網頁就會乖乖上下捲動！`,
-        highlight: '🎯 馬上試試看：現在用「兩根手指」在你的 ASUS 觸控板上輕輕上下滑動，看看這個畫面會不會上下移動！'
+        highlight: '🎯 馬上試試看：現在用「兩根手指」在你的 觸控板上輕輕上下滑動，看看這個畫面會不會上下移動！'
       },
       {
         title: '🪟 每個視窗右上角的「三兄弟按鈕」(— □ ✕)',
@@ -208,7 +208,7 @@ window.CURRICULUM_LESSONS = [
           '把螢幕倒過來拿'
         ],
         correct: 0,
-        explain: '太聰明了！兩指併攏上下滑動就是 ASUS Windows 11 觸控板的捲動手勢！'
+        explain: '太聰明了！兩指併攏上下滑動就是 Windows 11 觸控板的捲動手勢！'
       },
       {
         q: '視窗右上角的「— (一條橫線 Minimize)」按下去會發生什麼事？',
@@ -240,7 +240,7 @@ window.CURRICULUM_LESSONS = [
     title: '告別老鷹一指神功：中英鍵盤與盲打道館',
     titleEn: 'Bye-Bye Eagle Typing! Home Row, Zhuyin & Shift的中/英 Switch',
     icon: '🦅',
-    duration: '20 分鐘 (含 19 關打字道館)',
+    duration: '25 分鐘 (含 22 關打字道館)',
     xp: 250,
     summary: '找到 F 與 J 定位點、學會 10 指分工、一秒切換「中/英」輸入法、注音四聲與選字技巧！',
     vocab: [
@@ -265,7 +265,7 @@ window.CURRICULUM_LESSONS = [
       },
       {
         title: '🔄 超重要！為什麼我想打中文，走出來的卻是英文字母？(中/英切換秘訣)',
-        titleEn: 'How to Switch Between Chinese (中) and English (英) on ASUS Windows 11',
+        titleEn: 'How to Switch Between Chinese (中) and English (英) on Windows 11',
         body: `這是每個小朋友剛用 Windows 11 筆電最常卡住的地方！請記住這 **3 個通關密語**：
 1. **看螢幕最右下角**：找到右下角時間旁邊，看它寫著 **\`中\`** 還是 **\`英\`**（旁邊通常還有一個 \`ㄅ\` 圖示）。
 2. **按一下 \`Shift\` 鍵秒切換「中 / 英」**：
@@ -280,7 +280,7 @@ window.CURRICULUM_LESSONS = [
       {
         title: '🇹🇼 微軟注音打字與「選字」四大神技',
         titleEn: 'Zhuyin Tone Keys (Space, 6, 3, 4, 7) & Choosing Words',
-        body: `在 ASUS 鍵盤上打繁體中文超簡單：
+        body: `在 筆電鍵盤上打繁體中文超簡單：
 1. **注音位置規律**：從最左邊一排往下看是 \`ㄅ ㄆ ㄇ ㄈ\`，第二排是 \`ㄉ ㄊ ㄋ ㄌ\`，由左到右非常有規律！
 2. **五個聲調怎麼按？（打完注音一定要按聲調才會出字喔！）**
    * **一聲（陰平）**：按最長的 **\`空白鍵 (Space)\`**！（例如：媽 = \`ㄇ(A)\` + \`ㄚ(8)\` + \`空白鍵\`）
@@ -291,12 +291,12 @@ window.CURRICULUM_LESSONS = [
 3. **出現錯別字（同音字）怎麼選字？**
    * 當文字下面還有 **虛線 (底線)** 時，按一下鍵盤右下角的 **\`↓\` (往下方向鍵)** 或再按一下 **空白鍵**，就會跳出 **1. 2. 3. 選字清單**！
    * 按數字鍵選對的字，最後一定要按 **\`Enter\` 鍵**，把底線變不見才算真正打完喔！`,
-        highlight: '🎹 接下來我們準備了 5 大階段、共 19 關循序漸進的「中英打字道館」（從 fff jjj、as asd、aaa bbb ccc 一路練到注音與中英切換）！'
+        highlight: '🎹 接下來我們準備了 6 大階段、共 22 關循序漸進的「中英打字道館」（從 fff jjj、as asd、aaa bbb ccc 一路練到注音、數字排與短故事）！'
       }
     ],
     simulator: {
       type: 'typing-dojo',
-      title: '🥋 老鷹變獵鷹：19 關中英盲打與注音特訓道館',
+      title: '🥋 老鷹變獵鷹：22 關中英盲打與注音特訓道館',
       instruction: '選擇下方的階段與關卡（建議從第 1 關 fff jjj 開始！），照著螢幕上的發光鍵盤與手指提示敲擊鍵盤。隨時可以點上方導覽列的「🎹 打字道館」回來練習！'
     },
     quiz: [
@@ -1097,7 +1097,7 @@ window.CURRICULUM_LESSONS = [
         title: '🎓 恭喜你！準備領取「數位小探險家學院」榮譽畢業證書！',
         titleEn: 'Congratulations! You Are Ready for Graduation!',
         body: `太了不起了！你已經一路從：
-* 💻 **World 1 筆電小達人**：學會照顧 ASUS 筆電、視窗控制、中英盲打與注音切換、以及 ` + '`Ctrl+C/V/Z/S`' + ` 快捷鍵！
+* 💻 **World 1 筆電小達人**：學會照顧 筆電、視窗控制、中英盲打與注音切換、以及 ` + '`Ctrl+C/V/Z/S`' + ` 快捷鍵！
 * 🌐 **World 2 網路探險家**：學會瀏覽器分頁書籤、找在地美食與查資料的黃金關鍵字、識破廣告與防詐騙護盾！
 * 🤖 **World 3 AI 魔法師**：學會四大提示詞公式、用 AI 學英文、請 AI 一步步教你新技能、AI 繪圖五要素與安全查證！
 

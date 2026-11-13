@@ -31,7 +31,7 @@
   --danger: #dc2626;
   --danger-bg: #fee2e2;
 
-  /* Finger Colors for ASUS Keyboard Dojo */
+  /* Finger Colors for Keyboard Dojo */
   --finger-L5: #ef4444; /* Left Pinky - Coral Red */
   --finger-L4: #f97316; /* Left Ring - Orange */
   --finger-L3: #eab308; /* Left Middle - Gold */
@@ -536,7 +536,7 @@ body.show-en .en-sub {
 }
 
 /* ============================================================================
- * 🎹 ASUS TAIWAN ZHUYIN + ENGLISH KEYBOARD DOJO
+ * 🎹 TAIWAN ZHUYIN + ENGLISH KEYBOARD DOJO
  * ============================================================================ */
 .dojo-wrapper {
   background: #ffffff;
@@ -664,7 +664,7 @@ body.show-en .en-sub {
   margin-top: 0.65rem;
 }
 
-/* Visual ASUS Zhuyin + English Keyboard */
+/* Visual Zhuyin + English Keyboard */
 .asus-keyboard {
   background: #e2e8f0;
   padding: 1rem;
@@ -1121,11 +1121,138 @@ body.show-en .en-sub {
 
 /* Print Rules */
 @media print {
-  .top-nav, footer, .ui-toast-container, .ui-modal-overlay {
+  .top-nav, footer, .ui-toast-container, .ui-modal-overlay, .three-island-stage, .dynamic-island-bar {
     display: none !important;
   }
   .main-container {
     padding: 0 !important;
   }
 }
+
+/* ============================================================================
+ * 🏝️ THREE.JS 3D FLOATING ISLANDS & DYNAMIC ISLAND UI
+ * ============================================================================ */
+.three-island-stage {
+  position: relative;
+  width: 100%;
+  height: 340px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #0ea5e9 0%, #7dd3fc 58%, #e0f2fe 100%);
+  border: 2px solid #bae6fd;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.three-hud-top {
+  position: absolute;
+  top: 0.85rem;
+  left: 1rem;
+  right: 1rem;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  pointer-events: none;
+}
+
+.three-pill-badge {
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.three-hover-pill {
+  background: rgba(255, 255, 255, 0.92);
+  color: #0369a1;
+  font-size: 0.84rem;
+  font-weight: 900;
+  padding: 0.35rem 0.95rem;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+}
+
+.three-island-labels {
+  position: absolute;
+  bottom: 0.85rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 96%;
+}
+
+.island-quick-chip {
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.14);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.island-quick-chip:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.2);
+}
+
+.island-quick-chip.w1 { color: #0369a1; }
+.island-quick-chip.w2 { color: #047857; }
+.island-quick-chip.w3 { color: #b45309; }
+
+.island-fallback-banner {
+  background: linear-gradient(135deg, #e0f2fe 0%, #d1fae5 100%);
+  border: 2px solid #7dd3fc;
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.2rem;
+  margin-bottom: 1.25rem;
+  text-align: center;
+  font-weight: 800;
+  color: #0369a1;
+}
+
+.world-section.island-highlight {
+  box-shadow: 0 0 0 4px #38bdf8, var(--shadow-md);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Floating Dynamic Island Status Pill (靈動島) */
+.dynamic-island-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 0.38rem 1rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  margin-top: 0.5rem;
+}
+
+.dynamic-island-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  display: inline-block;
+  box-shadow: 0 0 8px #4ade80;
+}
+
 

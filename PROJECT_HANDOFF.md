@@ -1,0 +1,119 @@
+# 🚀 數位小探險家學院 (Digital Explorer Academy) — Agent Master Handoff & Project Tracker
+
+> [!IMPORTANT]
+> **TO EVERY AI AGENT PICKING UP THIS PROJECT:**
+> 1. **Read this entire file first** before making any changes.
+> 2. **Follow the Checkpoint-First Rule:** Update the **Current Status** and **Changelog** sections of this file *immediately after completing each milestone* (and always before ending your turn or if running low on context/quota). Never wait until the very end to update status!
+> 3. **Re-upload updated artifacts** to Google Drive (`G-Agent-folder`) whenever you modify code or docs, and run `npm run build && npm test` to verify 100% pass rate before shipping.
+
+---
+
+## 1. 🎯 Project Identity & Core Constraints
+
+* **Project Name:** 數位小探險家學院 (Digital Explorer Academy)
+* **Target Learners:** Two kids, **ages 8 and 10**, each with their own **Windows 11 laptop**.
+* **Language & Localization:**
+  * Primary UI & instructions: **Traditional Chinese (繁體中文 / Taiwan)**.
+  * Bilingual support: Essential **English tech/internet/AI vocabulary** (`Click`, `Tab`, `Prompt`, `Scroll`, etc.) with Web Speech API pronunciation (`🔊 發音`) and a toggleable `中+EN` helper mode.
+  * Typing Input Method: **English Touch-Typing + Microsoft Bopomofo (微軟注音 / Zhuyin)** with `Shift` / `Win + Space` language switching.
+* **Important Brand Rule:** **Do NOT include any laptop hardware brand names** (e.g., no `ASUS` or `華碩`). Keep all laptop instructions generic to **Windows 11** laptops.
+* **Hosting & Delivery:**
+  * **Offline Single-File Mode:** `digital_explorer_academy.html` (100% self-contained, zero external dependencies required at runtime, works in sandboxed iframes and offline browsers).
+  * **Online Free Hosting Mode:** Modular static site ready for **GitHub + Vercel / Cloudflare Pages**.
+
+---
+
+## 2. 📂 Google Drive Folder Structure (`G-Agent-folder`)
+
+* **Root Folder (`G-Agent-folder`):** `1j3Vyy8QhwHEW2fev9I-3VLKwY8lJzjlx`
+  * Link: https://drive.google.com/drive/folders/1j3Vyy8QhwHEW2fev9I-3VLKwY8lJzjlx
+
+| Subfolder / File | Google Drive ID | Purpose |
+| :--- | :--- | :--- |
+| **`PROJECT_HANDOFF.md`** | *(Root of G-Agent-folder)* | This master tracker. Read first, update at every milestone! |
+| **`01_Kids_App_Latest/`** | `1Xhiusxzcl8K0jTSN8ZWrqlOOkCISqg3-` | Always holds the latest `digital_explorer_academy.html` for kids to download & double-click. |
+| ↳ `digital_explorer_academy.html` | `1Fmy0eDXyoFilQ70nkaLi3fFWztbP5DPh` | Current latest standalone HTML app. |
+| **`02_Source_Code_&_Releases/`** | `1Oc6w0cT3MBSwUNgxrr8hbvets6INrETB` | Holds the latest full modular source `.zip` (`digital-explorer-academy.zip`) & changelogs. |
+| ↳ `digital-explorer-academy.zip` | `1eyUYme8tCAwytYePqqrwU8X0p-HTIadm` | Full project repo archive (code, `data/`, `scripts/`, `tests/`). |
+| **`03_Lesson_Modules_&_Ideas/`** | `1IkZ-5RcNXY-W9fF6puSkHa7a_YD0Atg3` | Parent's lesson ideas, drafts, and future World expansions (`World_1`..`World_4`). |
+| **`04_Parent_Guides_&_Checklists/`** | `1vqdEsUzcObUFaf2T7XXOR4r-ULkv7ByH` | `Curriculum_Plan_&_Parent_Guide.md` & Windows 11 parent setup checklists. |
+| **`05_Kids_Work_&_Certificates/`** | `1YHZClEFVO0mf8vC11yB5yG7nVVsocHHc` | `10yo_Explorer/` & `8yo_Explorer/` folders for saving kids' certificates & creations. |
+
+---
+
+## 3. 🧩 Codebase Architecture (Modular & Easy to Extend)
+
+```text
+digital-explorer-academy/
+├── index.html               # Modular entry point (for GitHub / Vercel / Cloudflare Pages)
+├── vercel.json              # Zero-config static deployment config
+├── package.json             # `npm run build` and `npm test` scripts
+├── PROJECT_HANDOFF.md       # Copy of this master handoff file inside the repo
+├── README.md                # Free hosting & curriculum expansion guide
+├── css/styles.css           # Kid-friendly UI, modal/toast styles & Taiwan Zhuyin keyboard CSS
+├── data/
+│   ├── typing-drills.js     # ⭐ Add new typing stages/drills here
+│   └── curriculum.js        # ⭐ Add new Worlds & Lessons here
+├── js/
+│   ├── ui-modal.js          # Custom in-page Modal & Toast (replaces blocked alert/prompt/confirm)
+│   ├── typing-dojo.js       # Non-destructive DOM + IME-safe Typing Dojo engine
+│   ├── simulators.js        # Interactive labs (Win11, Shortcuts, Browser, Search, Scam, AI Studios)
+│   └── app.js               # Multi-kid profiles, World Map, Vocab audio, Certificate, Parent Guide
+├── scripts/build-bundle.js  # Bundles everything into standalone `digital_explorer_academy.html`
+└── tests/run-all-tests.js   # Automated JSDOM test suite (378 assertions)
+```
+
+---
+
+## 4. 🗺️ Implementation Plan & Roadmap
+
+### ✅ Phase 1: Core Platform & Worlds 1–3 (COMPLETED)
+- [x] **World 1 (`筆電小達人` — 4 Lessons):** Laptop Care & Power, Touchpad & Windows 11 Controls, 19-Stage Touch Typing Dojo (Home Row `fff jjj` / `as asd`, Top Row, Bottom Row `aaa bbb ccc...zzz`, Zhuyin layout & 5 tones, `Shift` 中/英 switching), Folders & `Ctrl+C/V/Z/S`.
+- [x] **World 2 (`網路探險家` — 4 Lessons):** Browser Cockpit (Tabs, URL, Bookmarks), Search Detective (Golden Keyword Formula for local food & school research + spotting "贊助/Ad"), Online Safety & Anti-Scam Shield, Netiquette & 20-20-20 Eye Rule.
+- [x] **World 3 (`AI 魔法師` — 6 Lessons):** What AI Is & Hallucinations, 4-Part Prompt Formula + English Buddy, **Ask AI to Teach Any Skill Step-by-Step**, **5-Ingredient AI Image Prompt Studio**, Homework Ethics (Coach Not Cheater), AI Fact-Checking & Privacy.
+- [x] **Platform Features:** Dual kid profiles (`kid-10`, `kid-8`) with working in-page Rename (`✏️ 改名`), Export/Import progress codes, custom `UIModal` (iframe-safe), IME-safe Typing Dojo, Graduation Certificate, and 378-assertion automated test suite.
+- [x] **Google Drive Workspace:** `G-Agent-folder` structured with `01`–`05` subfolders and `PROJECT_HANDOFF.md`.
+
+### 🔜 Phase 2: Planned Future Expansions (BACKLOG)
+- [x] **More Typing Drills (`data/typing-drills.js`):** Added Stage 6 (`phase2-stories`) with Number Row drill (`nr-1`), Everyday English conversation (`en-1`), and Zhuyin short-story typing (`zy-5`), bringing total drills to 22.
+- [ ] **World 2 Expansion:** Lesson `2.5` — *Using Google Maps for Family Trips* (directions, Street View, checking reviews).
+- [ ] **World 4 (`數位創作與程式入門` — Future World):**
+  - Lesson `4.1` — *Presentation Magic* (Google Slides / Canva basics for school reports).
+  - Lesson `4.2` — *Scratch Coding Playground* (events, loops, making a simple catch-the-apple game).
+  - Lesson `4.3` — *Audio & Visual Storytelling* (combining AI story + AI image prompts).
+- [x] **Live Cloud Deployment (GitHub Repo Ready):** Pushed clean modular codebase to `https://github.com/azreal564335/digital-explorer-academy` (`main` branch), ready to connect to Vercel or Cloudflare Pages.
+
+---
+
+## 5. 📊 Current Status & Changelog
+
+* **Last Updated:** 2026-11-12
+* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **405 / 405 PASS (100%)**
+* **GitHub Repository:** https://github.com/azreal564335/digital-explorer-academy (`main` branch)
+* **Recent Changes:**
+  * **GitHub Repository & Build Portability:** Created `azreal564335/digital-explorer-academy` on GitHub, added `.gitignore` (excluding `node_modules/` and `dist/`), updated `scripts/build-bundle.js` and `tests/run-all-tests.js` to use portable relative `dist/` paths instead of hardcoded sandbox paths, and pushed all code to `main`.
+  * **Phase 2 Typing Expansion (Stage 6):** Added 3 new drills (`nr-1` Number Row, `en-1` Everyday English, `zy-5` Zhuyin Short Story) to `data/typing-drills.js` (22 drills total) and made the Certificate total drill count dynamic in `js/app.js`.
+  * Upgraded `js/island-scene.js` & `js/app.js` into a **3D Gamified Avatar Adventure Map** (Clash Quest / One Piece Skypiea style):
+    * **3D Explorer Avatar (`🦁` / `🦊`)** matching the active kid profile, starting on their furthest unlocked world.
+    * **Multi-Modal Pathing (`travelToWorld`):** Hops across 3D stepping stones, swims across open ocean with expanding splash rings, and performs a **super high jump** with star sparkles up into the clouds to reach the floating **World 3 AI Sky Island** (`y = 2.35`).
+    * **Treasure Chests** between worlds that glow gold upon world completion, plus animated ocean waves and drifting clouds.
+  * Added **Three.js 3D Floating Islands** (`js/island-scene.js` + bundled `js/vendor/three.min.js`) on the World Map, where each of the 3 Worlds has its own lively 3D animations and click-to-jump navigation.
+  * Added a **Dynamic Island (`💊 靈動探險島`)** status pill in the hero header.
+  * Replaced all `alert()` / `prompt()` / `confirm()` with custom `window.UIModal` so renaming (`✏️ 改名`) and progress import/export work in sandboxed iframes.
+  * Fixed `TypingDojo` IME composition (`compositionstart`/`compositionend`) so Microsoft Bopomofo candidate selection is never interrupted.
+  * Removed all laptop brand names (`ASUS` / `華碩`) across all files.
+  * Organized `G-Agent-folder` into `01`–`05` subfolders and initialized `PROJECT_HANDOFF.md`.
+
+---
+
+## 6. 🤖 Agent Handoff Protocol (MANDATORY)
+
+1. **Before Starting Work:**
+   * Read `PROJECT_HANDOFF.md` and check `03_Lesson_Modules_&_Ideas/` on Google Drive for any new parent notes or requests.
+2. **During Work (Checkpoint-First Rule):**
+   * After **each** completed feature or lesson, update Section 4 (Roadmap checkboxes) and Section 5 (Current Status & Changelog) in `PROJECT_HANDOFF.md` right away. Do not wait until the end of the conversation in case quota runs out!
+3. **Before Ending Any Job:**
+   * Run `npm run build && npm test` in `/home/antigravity/digital-explorer-academy` and confirm **0 failures**.
+   * Update `digital_explorer_academy.html` in `01_Kids_App_Latest/` (`gdrive mutate update 1Fmy0eDXyoFilQ70nkaLi3fFWztbP5DPh ...`).
+   * Re-zip and update `digital-explorer-academy.zip` in `02_Source_Code_&_Releases/` (`gdrive mutate update 1eyUYme8tCAwytYePqqrwU8X0p-HTIadm ...`).
+   * Update `PROJECT_HANDOFF.md` in `G-Agent-folder` (`gdrive mutate update ...`) with the latest status, test counts, and next steps.
