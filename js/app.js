@@ -407,6 +407,7 @@ window.AppState = {
                 <h3>${c.title}</h3>
                 <div class="en-sub" style="margin-bottom:0.5rem;">${c.titleEn || ''}</div>
                 <div class="slide-body">${this.formatMarkdownBold(c.body)}</div>
+                ${c.visualType ? this.renderCardVisual(c.visualType) : ''}
                 ${c.highlight ? `<div class="slide-highlight">${c.highlight}</div>` : ''}
               </div>
             `).join('')}
@@ -775,6 +776,413 @@ window.AppState = {
     return String(str)
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/`([^`]+)`/g, '<code style="background:#e0f2fe; color:#0369a1; padding:2px 6px; border-radius:6px; font-weight:800;">$1</code>');
+  },
+
+  renderCardVisual(visualType) {
+    const wrap = (svg, caption) => `
+      <div class="slide-visual-diagram" data-visual="${visualType}">
+        ${svg}
+        <div class="visual-caption">📸 <span>${caption}</span></div>
+      </div>
+    `;
+
+    switch (visualType) {
+      case 'rbx-viewport-nav':
+        return wrap(`
+          <svg viewBox="0 0 720 270" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="270" fill="#1e2228"/>
+            <!-- Top Menu Bar -->
+            <rect x="0" y="0" width="720" height="28" fill="#2d323b"/>
+            <text x="14" y="18" fill="#94a3b8" font-size="11" font-weight="700">File</text>
+            <rect x="46" y="4" width="48" height="24" rx="4" fill="#1e2228"/>
+            <text x="55" y="19" fill="#38bdf8" font-size="11" font-weight="800">Home</text>
+            <text x="108" y="18" fill="#94a3b8" font-size="11" font-weight="700">Model</text>
+            <text x="156" y="18" fill="#94a3b8" font-size="11" font-weight="700">Test</text>
+            <text x="198" y="18" fill="#94a3b8" font-size="11" font-weight="700">View</text>
+            <!-- Top Ribbon -->
+            <rect x="0" y="28" width="720" height="44" fill="#252930"/>
+            <rect x="12" y="34" width="44" height="32" rx="5" fill="#334155"/><text x="20" y="54" fill="#e2e8f0" font-size="10" font-weight="700">Select</text>
+            <rect x="62" y="34" width="44" height="32" rx="5" fill="#334155"/><text x="70" y="54" fill="#e2e8f0" font-size="10" font-weight="700">Move</text>
+            <rect x="112" y="34" width="44" height="32" rx="5" fill="#334155"/><text x="121" y="54" fill="#e2e8f0" font-size="10" font-weight="700">Scale</text>
+            <rect x="162" y="34" width="48" height="32" rx="5" fill="#334155"/><text x="169" y="54" fill="#e2e8f0" font-size="10" font-weight="700">Rotate</text>
+            <rect x="224" y="34" width="48" height="32" rx="5" fill="#1d4ed8"/><text x="237" y="54" fill="#ffffff" font-size="10" font-weight="800">Part</text>
+            <rect x="280" y="34" width="54" height="32" rx="5" fill="#15803d"/><text x="292" y="54" fill="#ffffff" font-size="10" font-weight="800">▶ Play</text>
+            <!-- 3D Viewport -->
+            <rect x="10" y="80" width="500" height="178" rx="6" fill="#7dd3fc"/>
+            <polygon points="10,205 510,205 510,258 10,258" fill="#64748b"/>
+            <line x1="10" y1="222" x2="510" y2="222" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 4"/>
+            <line x1="10" y1="240" x2="510" y2="240" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 4"/>
+            <text x="24" y="248" fill="#e2e8f0" font-size="11" font-weight="700">Baseplate (灰色地板)</text>
+            <!-- Selected 3D Part -->
+            <rect x="245" y="152" width="76" height="44" rx="4" fill="#38bdf8" stroke="#facc15" stroke-width="3"/>
+            <text x="268" y="178" fill="#0f172a" font-size="12" font-weight="900">Part</text>
+            <!-- Right Side Panels -->
+            <rect x="520" y="80" width="190" height="86" rx="6" fill="#252930" stroke="#475569"/>
+            <text x="530" y="97" fill="#f8fafc" font-size="11" font-weight="800">📂 Explorer (物件清單)</text>
+            <text x="536" y="116" fill="#94a3b8" font-size="10">▾ 🌐 Workspace</text>
+            <rect x="546" y="122" width="140" height="18" rx="3" fill="#2563eb"/>
+            <text x="554" y="135" fill="#ffffff" font-size="10" font-weight="700">🧱 Part (已選取)</text>
+            <text x="548" y="154" fill="#94a3b8" font-size="10">🧭 SpawnLocation</text>
+            <rect x="520" y="172" width="190" height="86" rx="6" fill="#252930" stroke="#475569"/>
+            <text x="530" y="189" fill="#f8fafc" font-size="11" font-weight="800">🎛️ Properties (屬性面板)</text>
+            <text x="536" y="210" fill="#cbd5e1" font-size="10">Color: Electric Blue</text>
+            <text x="536" y="227" fill="#cbd5e1" font-size="10">Material: Plastic</text>
+            <text x="536" y="244" fill="#4ade80" font-size="10" font-weight="800">Anchored: [✓]</text>
+            <!-- Callout 1: WASD + Right Click -->
+            <rect x="24" y="92" width="186" height="48" rx="8" fill="#0f172a" fill-opacity="0.88" stroke="#ef4444" stroke-width="2"/>
+            <circle cx="24" cy="92" r="11" fill="#ef4444"/><text x="20" y="96" fill="#fff" font-size="11" font-weight="900">1</text>
+            <text x="40" y="112" fill="#facc15" font-size="11" font-weight="800">WASD 飛行移動</text>
+            <text x="40" y="129" fill="#f8fafc" font-size="10">按住滑鼠右鍵拖曳轉視角</text>
+            <!-- Callout 2: F key -->
+            <rect x="336" y="102" width="160" height="38" rx="8" fill="#0f172a" fill-opacity="0.88" stroke="#f59e0b" stroke-width="2"/>
+            <circle cx="336" cy="102" r="11" fill="#f59e0b"/><text x="332" y="106" fill="#0f172a" font-size="11" font-weight="900">2</text>
+            <text x="352" y="125" fill="#fde047" font-size="11" font-weight="800">按 F 鍵飛到積木前！</text>
+            <line x1="350" y1="140" x2="310" y2="154" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4 3"/>
+            <!-- Callout 3: Right panels -->
+            <circle cx="520" cy="80" r="11" fill="#ef4444"/><text x="516" y="84" fill="#fff" font-size="11" font-weight="900">3</text>
+          </svg>
+        `, '介面地圖：① 中間是 3D 畫面 (WASD + 右鍵飛行) ② 按 F 鍵聚焦積木 ③ 右邊是 Explorer 清單與 Properties 屬性面板');
+
+      case 'rbx-ribbon-tools':
+        return wrap(`
+          <svg viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="230" fill="#1e2228"/>
+            <!-- Ribbon Header -->
+            <rect x="0" y="0" width="720" height="28" fill="#2d323b"/>
+            <rect x="46" y="4" width="52" height="24" rx="4" fill="#252930"/>
+            <text x="56" y="19" fill="#38bdf8" font-size="11" font-weight="800">Home</text>
+            <text x="114" y="19" fill="#94a3b8" font-size="11" font-weight="700">Model</text>
+            <!-- Tool Buttons Bar -->
+            <rect x="0" y="28" width="720" height="86" fill="#252930"/>
+            <!-- Move -->
+            <rect x="24" y="38" width="84" height="64" rx="8" fill="#334155" stroke="#ef4444" stroke-width="2.5"/>
+            <text x="54" y="65" fill="#ef4444" font-size="20" font-weight="900">✥</text>
+            <text x="46" y="90" fill="#f8fafc" font-size="12" font-weight="800">Move</text>
+            <circle cx="24" cy="38" r="11" fill="#ef4444"/><text x="20" y="42" fill="#fff" font-size="11" font-weight="900">2</text>
+            <!-- Scale -->
+            <rect x="122" y="38" width="84" height="64" rx="8" fill="#334155" stroke="#22c55e" stroke-width="2.5"/>
+            <text x="150" y="65" fill="#4ade80" font-size="20" font-weight="900">⤢</text>
+            <text x="145" y="90" fill="#f8fafc" font-size="12" font-weight="800">Scale</text>
+            <circle cx="122" cy="38" r="11" fill="#22c55e"/><text x="118" y="42" fill="#0f172a" font-size="11" font-weight="900">3</text>
+            <!-- Rotate -->
+            <rect x="220" y="38" width="84" height="64" rx="8" fill="#334155" stroke="#3b82f6" stroke-width="2.5"/>
+            <text x="250" y="65" fill="#60a5fa" font-size="20" font-weight="900">↻</text>
+            <text x="240" y="90" fill="#f8fafc" font-size="12" font-weight="800">Rotate</text>
+            <circle cx="220" cy="38" r="11" fill="#3b82f6"/><text x="216" y="42" fill="#fff" font-size="11" font-weight="900">4</text>
+            <!-- Part -->
+            <rect x="334" y="38" width="110" height="64" rx="8" fill="#1d4ed8" stroke="#facc15" stroke-width="3"/>
+            <text x="378" y="65" fill="#fde047" font-size="20" font-weight="900">🧱</text>
+            <text x="360" y="90" fill="#ffffff" font-size="12" font-weight="900">Part ▾</text>
+            <circle cx="334" cy="38" r="11" fill="#facc15"/><text x="330" y="42" fill="#0f172a" font-size="11" font-weight="900">1</text>
+            <!-- Part Dropdown Hint -->
+            <rect x="466" y="34" width="234" height="72" rx="8" fill="#0f172a" stroke="#475569"/>
+            <text x="478" y="54" fill="#fde047" font-size="11" font-weight="800">點 Part ▾ 可選 4 種形狀：</text>
+            <text x="478" y="75" fill="#e2e8f0" font-size="11">🟦 Block 方塊   ⚪ Sphere 球體</text>
+            <text x="478" y="95" fill="#e2e8f0" font-size="11">📐 Wedge 斜坡   🛢️ Cylinder 圓柱</text>
+            <!-- Bottom Axis Legend -->
+            <rect x="24" y="128" width="672" height="84" rx="10" fill="#0f172a" stroke="#334155"/>
+            <text x="42" y="152" fill="#38bdf8" font-size="12" font-weight="800">🌈 Move / Scale 彩色箭頭口訣：</text>
+            <circle cx="56" cy="182" r="8" fill="#ef4444"/><text x="72" y="186" fill="#fca5a5" font-size="12" font-weight="700">X 紅箭頭 = 左右</text>
+            <circle cx="240" cy="182" r="8" fill="#22c55e"/><text x="256" y="186" fill="#86efac" font-size="12" font-weight="700">Y 綠箭頭 = 上下高度</text>
+            <circle cx="460" cy="182" r="8" fill="#3b82f6"/><text x="476" y="186" fill="#93c5fd" font-size="12" font-weight="700">Z 藍箭頭 = 前後</text>
+          </svg>
+        `, '上方 Home 工具列位置：① 按 Part 新增積木 ② Move 移動 ③ Scale 縮放大小 ④ Rotate 旋轉角度');
+
+      case 'rbx-explorer-anchored':
+        return wrap(`
+          <svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="260" fill="#1e2228"/>
+            <!-- Top Ribbon -->
+            <rect x="0" y="0" width="720" height="58" fill="#252930"/>
+            <rect x="30" y="10" width="84" height="38" rx="6" fill="#334155" stroke="#facc15" stroke-width="2.5"/>
+            <text x="43" y="33" fill="#fde047" font-size="12" font-weight="900">⚓ Anchor</text>
+            <circle cx="30" cy="10" r="11" fill="#facc15"/><text x="26" y="14" fill="#0f172a" font-size="11" font-weight="900">1</text>
+            <rect x="136" y="10" width="84" height="38" rx="6" fill="#15803d" stroke="#4ade80" stroke-width="2"/>
+            <text x="155" y="33" fill="#ffffff" font-size="12" font-weight="900">▶ Play</text>
+            <circle cx="136" cy="10" r="11" fill="#22c55e"/><text x="132" y="14" fill="#0f172a" font-size="11" font-weight="900">3</text>
+            <!-- Left 3D Preview -->
+            <rect x="14" y="70" width="290" height="176" rx="8" fill="#0f172a" stroke="#334155"/>
+            <rect x="46" y="110" width="96" height="26" rx="4" fill="#22c55e" stroke="#facc15" stroke-width="2"/>
+            <text x="52" y="127" fill="#0f172a" font-size="10" font-weight="900">Anchored ✅</text>
+            <text x="36" y="154" fill="#86efac" font-size="10" font-weight="700">穩穩浮在空中！</text>
+            <rect x="180" y="176" width="92" height="26" rx="4" fill="#ef4444" transform="rotate(14 226 189)"/>
+            <text x="172" y="232" fill="#fca5a5" font-size="10" font-weight="700">❌ 沒打勾就會掉下去！</text>
+            <!-- Right Explorer + Properties -->
+            <rect x="320" y="70" width="175" height="176" rx="8" fill="#252930" stroke="#475569"/>
+            <text x="332" y="90" fill="#f8fafc" font-size="11" font-weight="800">📂 Explorer</text>
+            <text x="336" y="112" fill="#94a3b8" font-size="11">▾ 🌐 Workspace</text>
+            <rect x="344" y="120" width="138" height="22" rx="4" fill="#2563eb"/>
+            <text x="352" y="135" fill="#fff" font-size="11" font-weight="800">🧱 SkyPlatform</text>
+            <rect x="506" y="70" width="200" height="176" rx="8" fill="#252930" stroke="#475569"/>
+            <text x="518" y="90" fill="#f8fafc" font-size="11" font-weight="800">🎛️ Properties - Part</text>
+            <text x="520" y="114" fill="#94a3b8" font-size="10">▾ Behavior (物理行為)</text>
+            <!-- Highlighted Anchored row -->
+            <rect x="514" y="126" width="184" height="32" rx="6" fill="#713f12" stroke="#facc15" stroke-width="2.5"/>
+            <text x="526" y="146" fill="#fef08a" font-size="12" font-weight="900">Anchored</text>
+            <rect x="664" y="132" width="20" height="20" rx="4" fill="#22c55e"/>
+            <text x="669" y="147" fill="#0f172a" font-size="14" font-weight="900">✓</text>
+            <circle cx="514" cy="126" r="11" fill="#ef4444"/><text x="510" y="130" fill="#fff" font-size="11" font-weight="900">2</text>
+            <text x="526" y="182" fill="#cbd5e1" font-size="10">CanCollide: [✓]</text>
+            <text x="526" y="202" fill="#cbd5e1" font-size="10">CastShadow: [✓]</text>
+          </svg>
+        `, '固定空中積木的兩個位置：① 按上方工具列 ⚓ Anchor，或 ② 在右下角 Properties 把 Anchored 打勾 ✓ ➔ ③ 按 ▶ Play 測試！');
+
+      case 'rbx-obby-parts':
+        return wrap(`
+          <svg viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="230" fill="#1e2228"/>
+            <rect x="14" y="14" width="692" height="202" rx="10" fill="#0f172a" stroke="#334155"/>
+            <!-- SpawnLocation -->
+            <rect x="38" y="116" width="120" height="34" rx="6" fill="#94a3b8" stroke="#facc15" stroke-width="2.5"/>
+            <text x="56" y="137" fill="#0f172a" font-size="11" font-weight="900">🧭 SpawnLocation</text>
+            <circle cx="38" cy="116" r="11" fill="#facc15"/><text x="34" y="120" fill="#0f172a" font-size="11" font-weight="900">1</text>
+            <text x="42" y="172" fill="#cbd5e1" font-size="10" font-weight="700">在 Model ➔ Spawn 新增</text>
+            <!-- Safe Platform -->
+            <rect x="206" y="96" width="126" height="30" rx="6" fill="#22c55e" stroke="#86efac" stroke-width="2"/>
+            <text x="232" y="115" fill="#0f172a" font-size="11" font-weight="900">安全平台 (Part)</text>
+            <circle cx="206" cy="96" r="11" fill="#22c55e"/><text x="202" y="100" fill="#0f172a" font-size="11" font-weight="900">2</text>
+            <text x="212" y="148" fill="#86efac" font-size="10" font-weight="700">間距 6~10 Studs + Anchored ✓</text>
+            <!-- KillBrick / Lava -->
+            <rect x="386" y="110" width="144" height="32" rx="6" fill="#ef4444" stroke="#fca5a5" stroke-width="3"/>
+            <text x="404" y="130" fill="#ffffff" font-size="11" font-weight="900">🔥 KillBrick (岩漿)</text>
+            <circle cx="386" cy="110" r="11" fill="#ef4444"/><text x="382" y="114" fill="#fff" font-size="11" font-weight="900">3</text>
+            <text x="386" y="164" fill="#fca5a5" font-size="10" font-weight="700">Properties 設為 Material: Neon</text>
+            <!-- Goal -->
+            <rect x="576" y="82" width="106" height="34" rx="6" fill="#facc15"/>
+            <text x="594" y="103" fill="#0f172a" font-size="11" font-weight="900">🏆 終點獎盃</text>
+            <path d="M 162 110 Q 182 70 202 92" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4 3"/>
+            <path d="M 336 92 Q 360 64 384 102" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4 3"/>
+          </svg>
+        `, '跑酷關卡三寶：① 起點 SpawnLocation ② 綠色安全平台 (Anchored ✓) ③ 紅色發光 Neon 岩漿磚 (KillBrick)');
+
+      case 'rbx-obby-checkpoint':
+        return wrap(`
+          <svg viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="230" fill="#1e2228"/>
+            <!-- Left Toolbox Panel -->
+            <rect x="12" y="12" width="248" height="206" rx="8" fill="#252930" stroke="#475569"/>
+            <text x="26" y="34" fill="#f8fafc" font-size="12" font-weight="800">🧰 Toolbox (免費素材庫)</text>
+            <circle cx="12" cy="12" r="11" fill="#facc15"/><text x="8" y="16" fill="#0f172a" font-size="11" font-weight="900">1</text>
+            <rect x="24" y="46" width="222" height="28" rx="6" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+            <text x="34" y="64" fill="#38bdf8" font-size="11" font-weight="700">🔍 搜尋: Obby Checkpoint</text>
+            <circle cx="24" cy="46" r="11" fill="#38bdf8"/><text x="20" y="50" fill="#0f172a" font-size="11" font-weight="900">2</text>
+            <rect x="24" y="88" width="104" height="58" rx="6" fill="#334155"/><text x="40" y="120" fill="#fde047" font-size="11" font-weight="800">🚩 存檔旗幟</text>
+            <rect x="140" y="88" width="104" height="58" rx="6" fill="#334155"/><text x="154" y="120" fill="#93c5fd" font-size="11" font-weight="800">🟦 移動平台</text>
+            <text x="24" y="176" fill="#94a3b8" font-size="10">💡 點一下就能把官方範本放到地圖！</text>
+            <!-- Right 3D Stage -->
+            <rect x="274" y="12" width="434" height="206" rx="8" fill="#0f172a" stroke="#334155"/>
+            <rect x="304" y="126" width="110" height="32" rx="6" fill="#facc15" stroke="#fde047" stroke-width="2"/>
+            <text x="320" y="146" fill="#0f172a" font-size="11" font-weight="900">🚩 Checkpoint</text>
+            <circle cx="304" cy="126" r="11" fill="#ef4444"/><text x="300" y="130" fill="#fff" font-size="11" font-weight="900">3</text>
+            <rect x="486" y="114" width="150" height="30" rx="6" fill="#3b82f6" stroke="#93c5fd" stroke-width="2"/>
+            <text x="504" y="133" fill="#ffffff" font-size="11" font-weight="800">⬅ 移動平台 ➡</text>
+            <text x="304" y="188" fill="#cbd5e1" font-size="11" font-weight="700">每 4~5 關放一個存檔點，掉下去就從旗幟復活！</text>
+          </svg>
+        `, '① 打開 Home ➔ Toolbox ② 搜尋 Checkpoint 存檔旗幟 ③ 放到每 4~5 關後面，再搭配左右移動平台！');
+
+      case 'rbx-add-script':
+        return wrap(`
+          <svg viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="250" fill="#1e2228"/>
+            <!-- Explorer Panel -->
+            <rect x="14" y="14" width="230" height="222" rx="8" fill="#252930" stroke="#475569"/>
+            <text x="26" y="34" fill="#f8fafc" font-size="12" font-weight="800">📂 Explorer</text>
+            <text x="30" y="58" fill="#94a3b8" font-size="11">▾ 🌐 Workspace</text>
+            <rect x="38" y="68" width="194" height="28" rx="5" fill="#2563eb"/>
+            <text x="48" y="86" fill="#ffffff" font-size="11" font-weight="800">⚡ SpeedPad (Part)</text>
+            <!-- Plus button -->
+            <circle cx="214" cy="82" r="10" fill="#facc15"/>
+            <text x="209" y="86" fill="#0f172a" font-size="14" font-weight="900">+</text>
+            <circle cx="232" cy="68" r="11" fill="#ef4444"/><text x="228" y="72" fill="#fff" font-size="11" font-weight="900">1</text>
+            <!-- Popup Insert Menu -->
+            <rect x="260" y="42" width="170" height="156" rx="8" fill="#1e293b" stroke="#facc15" stroke-width="2.5"/>
+            <text x="272" y="62" fill="#94a3b8" font-size="10" font-weight="700">Insert Object (新增元件)</text>
+            <rect x="270" y="72" width="150" height="28" rx="5" fill="#16a34a"/>
+            <text x="282" y="90" fill="#ffffff" font-size="12" font-weight="900">📜 Script</text>
+            <circle cx="260" cy="72" r="11" fill="#22c55e"/><text x="256" y="76" fill="#0f172a" font-size="11" font-weight="900">2</text>
+            <text x="282" y="122" fill="#cbd5e1" font-size="11">👆 ClickDetector</text>
+            <text x="282" y="146" fill="#cbd5e1" font-size="11">💬 ProximityPrompt</text>
+            <text x="282" y="170" fill="#cbd5e1" font-size="11">💡 PointLight</text>
+            <!-- Script Editor Preview -->
+            <rect x="448" y="14" width="258" height="222" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+            <text x="462" y="36" fill="#38bdf8" font-size="11" font-weight="800">📜 Script 編輯器</text>
+            <circle cx="448" cy="14" r="11" fill="#38bdf8"/><text x="444" y="18" fill="#0f172a" font-size="11" font-weight="900">3</text>
+            <text x="462" y="66" fill="#f472b6" font-size="11" font-family="monospace">local part = script.Parent</text>
+            <text x="462" y="92" fill="#a7f3d0" font-size="11" font-family="monospace">part.Touched:Connect(</text>
+            <text x="476" y="114" fill="#fde047" font-size="11" font-family="monospace">function(hit)</text>
+            <text x="490" y="138" fill="#93c5fd" font-size="11" font-family="monospace">-- 檢查 Humanoid!</text>
+            <text x="462" y="162" fill="#fde047" font-size="11" font-family="monospace">end)</text>
+          </svg>
+        `, '新增程式步驟：① 在 Explorer 滑鼠移到 Part 上按 + 號 ② 點選綠色 Script ③ 在右側編輯器寫下觸碰邏輯！');
+
+      case 'rbx-script-editor':
+        return wrap(`
+          <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="220" fill="#1e2228"/>
+            <rect x="14" y="14" width="220" height="192" rx="8" fill="#252930" stroke="#475569"/>
+            <text x="26" y="36" fill="#f8fafc" font-size="11" font-weight="800">🎛️ Humanoid 屬性</text>
+            <circle cx="14" cy="14" r="11" fill="#facc15"/><text x="10" y="18" fill="#0f172a" font-size="11" font-weight="900">1</text>
+            <text x="26" y="68" fill="#fde047" font-size="11" font-weight="700">WalkSpeed: 16 ➔ 40 (加速)</text>
+            <text x="26" y="96" fill="#86efac" font-size="11" font-weight="700">JumpPower: 50 ➔ 120 (彈跳)</text>
+            <text x="26" y="124" fill="#93c5fd" font-size="11" font-weight="700">Health: 100 (血量)</text>
+            <rect x="252" y="14" width="454" height="192" rx="8" fill="#0f172a" stroke="#22c55e" stroke-width="2"/>
+            <text x="268" y="36" fill="#4ade80" font-size="11" font-weight="800">🪙 防連點冷卻 (Debounce) ＋ 排行榜 (leaderstats)</text>
+            <circle cx="252" cy="14" r="11" fill="#22c55e"/><text x="248" y="18" fill="#0f172a" font-size="11" font-weight="900">2</text>
+            <text x="268" y="68" fill="#f472b6" font-size="11" font-family="monospace">local debounce = false  -- 冷卻開關</text>
+            <text x="268" y="94" fill="#a7f3d0" font-size="11" font-family="monospace">if not debounce then</text>
+            <text x="288" y="118" fill="#fde047" font-size="11" font-family="monospace">debounce = true</text>
+            <text x="288" y="142" fill="#93c5fd" font-size="11" font-family="monospace">player.leaderstats.Coins.Value += 1</text>
+            <text x="288" y="166" fill="#cbd5e1" font-size="11" font-family="monospace">task.wait(1) ; debounce = false</text>
+            <text x="268" y="188" fill="#a7f3d0" font-size="11" font-family="monospace">end</text>
+          </svg>
+        `, '① 改 WalkSpeed/JumpPower 就能做加速板與彈跳板 ② 加上 debounce 冷卻開關，金幣才不會一秒加一百次！');
+
+      case 'rbx-publish-menu':
+        return wrap(`
+          <svg viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="250" fill="#1e2228"/>
+            <!-- File Dropdown -->
+            <rect x="14" y="14" width="210" height="222" rx="8" fill="#252930" stroke="#475569"/>
+            <rect x="14" y="14" width="60" height="26" rx="4" fill="#2563eb"/>
+            <text x="28" y="31" fill="#fff" font-size="11" font-weight="800">File</text>
+            <circle cx="14" cy="14" r="11" fill="#facc15"/><text x="10" y="18" fill="#0f172a" font-size="11" font-weight="900">1</text>
+            <text x="26" y="64" fill="#cbd5e1" font-size="11">New / Open...</text>
+            <text x="26" y="90" fill="#cbd5e1" font-size="11">Save to Roblox</text>
+            <rect x="22" y="106" width="194" height="32" rx="6" fill="#16a34a" stroke="#4ade80" stroke-width="2"/>
+            <text x="32" y="126" fill="#ffffff" font-size="11" font-weight="900">🚀 Publish to Roblox...</text>
+            <circle cx="22" cy="106" r="11" fill="#22c55e"/><text x="18" y="110" fill="#0f172a" font-size="11" font-weight="900">2</text>
+            <text x="26" y="162" fill="#cbd5e1" font-size="11">⚙️ Game Settings</text>
+            <!-- Permissions Modal -->
+            <rect x="242" y="14" width="246" height="222" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+            <text x="256" y="36" fill="#38bdf8" font-size="12" font-weight="800">⚙️ Game Settings ➔ Permissions</text>
+            <circle cx="242" cy="14" r="11" fill="#38bdf8"/><text x="238" y="18" fill="#0f172a" font-size="11" font-weight="900">3</text>
+            <rect x="256" y="54" width="218" height="44" rx="6" fill="#14532d" stroke="#22c55e" stroke-width="2"/>
+            <text x="268" y="74" fill="#86efac" font-size="12" font-weight="900">🔘 Private (只有自己能玩)</text>
+            <text x="268" y="90" fill="#bbf7d0" font-size="10">✅ 最推薦！自己測試超安全</text>
+            <rect x="256" y="110" width="218" height="44" rx="6" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/>
+            <text x="268" y="130" fill="#bfdbfe" font-size="12" font-weight="900">🔘 Friends (只限好友)</text>
+            <text x="268" y="146" fill="#dbeafe" font-size="10">✅ 可邀哥哥妹妹或同學一起玩</text>
+            <text x="256" y="184" fill="#94a3b8" font-size="11">⚪ Public (公開給所有人)</text>
+            <!-- Virus Check Box -->
+            <rect x="504" y="14" width="202" height="222" rx="8" fill="#252930" stroke="#ef4444" stroke-width="2"/>
+            <text x="516" y="36" fill="#fca5a5" font-size="11" font-weight="900">🛡️ Toolbox 安全檢查</text>
+            <text x="516" y="66" fill="#cbd5e1" font-size="11">📂 ToolboxCar</text>
+            <text x="526" y="92" fill="#86efac" font-size="11">✓ VehicleSeat (正常)</text>
+            <rect x="522" y="106" width="172" height="32" rx="5" fill="#7f1d1d" stroke="#ef4444"/>
+            <text x="530" y="126" fill="#fecaca" font-size="11" font-weight="800">❌ Virus / Infection</text>
+            <text x="516" y="164" fill="#fde047" font-size="10" font-weight="700">發現可疑 Script 馬上按</text>
+            <text x="516" y="182" fill="#fde047" font-size="10" font-weight="700">Delete 鍵刪掉！</text>
+          </svg>
+        `, '安全發佈 3 步驟：① 點左上角 File ② 選 Publish to Roblox ③ 在 Permissions 選 Private 或 Friends，並檢查 Toolbox 裡的可疑 Script！');
+
+      case 'rbx-disaster-unanchor':
+        return wrap(`
+          <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="220" fill="#1e2228"/>
+            <rect x="14" y="14" width="210" height="192" rx="8" fill="#0f172a" stroke="#22c55e" stroke-width="2"/>
+            <text x="28" y="38" fill="#86efac" font-size="12" font-weight="900">1. 安全大廳 (Lobby)</text>
+            <rect x="44" y="64" width="150" height="54" rx="6" fill="#334155"/>
+            <text x="64" y="95" fill="#f8fafc" font-size="11" font-weight="800">⏱️ 倒數 15 秒集合</text>
+            <text x="34" y="150" fill="#cbd5e1" font-size="10">時間到 ➔ 傳送到小島！</text>
+            <rect x="242" y="14" width="224" height="192" rx="8" fill="#0f172a" stroke="#f59e0b" stroke-width="2"/>
+            <text x="256" y="38" fill="#fde047" font-size="12" font-weight="900">2. 平常的房子 (Anchored)</text>
+            <rect x="292" y="72" width="120" height="68" rx="4" fill="#64748b" stroke="#22c55e" stroke-width="2"/>
+            <text x="314" y="110" fill="#fff" font-size="11" font-weight="800">🏠 Anchored = true</text>
+            <text x="268" y="168" fill="#86efac" font-size="10">穩穩站在地面上！</text>
+            <rect x="484" y="14" width="222" height="192" rx="8" fill="#0f172a" stroke="#ef4444" stroke-width="2"/>
+            <text x="498" y="38" fill="#fca5a5" font-size="12" font-weight="900">3. 龍捲風來了！(Unanchor)</text>
+            <rect x="524" y="70" width="52" height="32" rx="4" fill="#94a3b8" transform="rotate(-18 550 86)"/>
+            <rect x="598" y="94" width="52" height="32" rx="4" fill="#94a3b8" transform="rotate(24 624 110)"/>
+            <text x="506" y="152" fill="#fca5a5" font-size="11" font-weight="800">🌪️ Anchored = false</text>
+            <text x="506" y="174" fill="#cbd5e1" font-size="10">積木散開飛起來啦！</text>
+          </svg>
+        `, '回合制災難地圖結構：① Lobby 大廳倒數 ② 房子預設 Anchored=true ③ 災難腳本切換成 Anchored=false 製造破壞！');
+
+      case 'rbx-proximity-prompt':
+        return wrap(`
+          <svg viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="230" fill="#1e2228"/>
+            <rect x="14" y="14" width="224" height="202" rx="8" fill="#252930" stroke="#475569"/>
+            <text x="26" y="36" fill="#f8fafc" font-size="11" font-weight="800">📂 Explorer ➔ 按 + 新增</text>
+            <circle cx="14" cy="14" r="11" fill="#facc15"/><text x="10" y="18" fill="#0f172a" font-size="11" font-weight="900">1</text>
+            <text x="30" y="64" fill="#94a3b8" font-size="11">▾ 🍓 StrawberryPart</text>
+            <rect x="44" y="76" width="180" height="28" rx="5" fill="#16a34a"/>
+            <text x="54" y="94" fill="#ffffff" font-size="11" font-weight="900">💬 ProximityPrompt</text>
+            <text x="44" y="126" fill="#cbd5e1" font-size="11">📜 HarvestScript</text>
+            <rect x="256" y="14" width="228" height="202" rx="8" fill="#252930" stroke="#38bdf8" stroke-width="2"/>
+            <text x="268" y="36" fill="#38bdf8" font-size="11" font-weight="800">🎛️ Properties 設定</text>
+            <circle cx="256" cy="14" r="11" fill="#38bdf8"/><text x="252" y="18" fill="#0f172a" font-size="11" font-weight="900">2</text>
+            <text x="270" y="72" fill="#e2e8f0" font-size="11">ActionText: <tspan fill="#fde047" font-weight="800">"採收果實"</tspan></text>
+            <text x="270" y="102" fill="#e2e8f0" font-size="11">KeyboardKeyCode: <tspan fill="#4ade80" font-weight="800">E</tspan></text>
+            <text x="270" y="132" fill="#e2e8f0" font-size="11">HoldDuration: <tspan fill="#cbd5e1" font-weight="800">0.5 秒</tspan></text>
+            <rect x="502" y="14" width="204" height="202" rx="8" fill="#0f172a" stroke="#22c55e" stroke-width="2"/>
+            <text x="516" y="36" fill="#86efac" font-size="11" font-weight="800">🎮 遊戲內實際畫面</text>
+            <circle cx="502" cy="14" r="11" fill="#22c55e"/><text x="498" y="18" fill="#0f172a" font-size="11" font-weight="900">3</text>
+            <circle cx="604" cy="126" r="34" fill="#1e293b" stroke="#facc15" stroke-width="3"/>
+            <rect x="588" y="106" width="32" height="26" rx="5" fill="#f8fafc"/>
+            <text x="598" y="124" fill="#0f172a" font-size="15" font-weight="900">E</text>
+            <text x="580" y="148" fill="#fde047" font-size="11" font-weight="800">採收果實</text>
+          </svg>
+        `, '① 在果實 Part 按 + 加入 ProximityPrompt ② 在 Properties 設定按鈕 E 與文字 ③ 玩家靠近就會自動跳出按 E 圈圈！');
+
+      case 'rbx-click-detector':
+        return wrap(`
+          <svg viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="230" fill="#1e2228"/>
+            <rect x="14" y="14" width="224" height="202" rx="8" fill="#252930" stroke="#475569"/>
+            <text x="26" y="36" fill="#f8fafc" font-size="11" font-weight="800">📂 Explorer ➔ 按 + 新增</text>
+            <circle cx="14" cy="14" r="11" fill="#facc15"/><text x="10" y="18" fill="#0f172a" font-size="11" font-weight="900">1</text>
+            <text x="30" y="64" fill="#94a3b8" font-size="11">▾ 🚪 FrontDoor (Part)</text>
+            <rect x="44" y="76" width="180" height="28" rx="5" fill="#2563eb"/>
+            <text x="54" y="94" fill="#ffffff" font-size="11" font-weight="900">👆 ClickDetector</text>
+            <text x="44" y="126" fill="#cbd5e1" font-size="11">📜 OpenDoorScript</text>
+            <rect x="256" y="14" width="228" height="202" rx="8" fill="#252930" stroke="#38bdf8" stroke-width="2"/>
+            <text x="268" y="36" fill="#38bdf8" font-size="11" font-weight="800">🎛️ 開門切換的 Properties</text>
+            <circle cx="256" cy="14" r="11" fill="#38bdf8"/><text x="252" y="18" fill="#0f172a" font-size="11" font-weight="900">2</text>
+            <text x="270" y="72" fill="#e2e8f0" font-size="11">Transparency: <tspan fill="#fde047" font-weight="800">0 ➔ 0.8</tspan></text>
+            <text x="270" y="102" fill="#e2e8f0" font-size="11">CanCollide: <tspan fill="#4ade80" font-weight="800">true ➔ false</tspan></text>
+            <text x="270" y="132" fill="#cbd5e1" font-size="10">(變成半透明而且可以穿過去！)</text>
+            <rect x="502" y="14" width="204" height="202" rx="8" fill="#0f172a" stroke="#f59e0b" stroke-width="2"/>
+            <text x="516" y="36" fill="#fde047" font-size="11" font-weight="800">🖱️ 點一下門就打開</text>
+            <circle cx="502" cy="14" r="11" fill="#f59e0b"/><text x="498" y="18" fill="#0f172a" font-size="11" font-weight="900">3</text>
+            <rect x="564" y="64" width="76" height="118" rx="4" fill="#92400e" fill-opacity="0.5" stroke="#fde047" stroke-width="2" stroke-dasharray="4 3"/>
+            <text x="594" y="128" fill="#fff" font-size="22">👆</text>
+          </svg>
+        `, '① 在門或電燈裡按 + 加入 ClickDetector ② 腳本切換 Transparency 與 CanCollide ③ 滑鼠點一下就開門！');
+
+      case 'rbx-weld-seat':
+        return wrap(`
+          <svg viewBox="0 0 720 240" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="240" fill="#1e2228"/>
+            <!-- Top Model Ribbon -->
+            <rect x="0" y="0" width="720" height="58" fill="#252930"/>
+            <text x="20" y="20" fill="#38bdf8" font-size="11" font-weight="800">Model 分頁 ➔ Constraints (約束黏合)</text>
+            <rect x="260" y="10" width="144" height="38" rx="6" fill="#1d4ed8" stroke="#facc15" stroke-width="2.5"/>
+            <text x="278" y="33" fill="#ffffff" font-size="12" font-weight="900">🔗 Create ➔ Weld</text>
+            <circle cx="260" cy="10" r="11" fill="#facc15"/><text x="256" y="14" fill="#0f172a" font-size="11" font-weight="900">1</text>
+            <!-- Explorer -->
+            <rect x="14" y="70" width="260" height="156" rx="8" fill="#252930" stroke="#475569"/>
+            <text x="26" y="90" fill="#f8fafc" font-size="11" font-weight="800">📂 Explorer - MyBoat</text>
+            <circle cx="14" cy="70" r="11" fill="#22c55e"/><text x="10" y="74" fill="#0f172a" font-size="11" font-weight="900">2</text>
+            <text x="32" y="114" fill="#cbd5e1" font-size="11">🪵 WoodHull (Anchored: false)</text>
+            <text x="32" y="138" fill="#fde047" font-size="11" font-weight="800">🪑 VehicleSeat (駕駛座)</text>
+            <text x="32" y="162" fill="#93c5fd" font-size="11" font-weight="800">🔗 WeldConstraint (把船黏起來)</text>
+            <text x="32" y="186" fill="#fca5a5" font-size="11">🚀 Thruster (推進器)</text>
+            <!-- 3D Boat Preview -->
+            <rect x="292" y="70" width="414" height="156" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+            <circle cx="292" cy="70" r="11" fill="#38bdf8"/><text x="288" y="74" fill="#0f172a" font-size="11" font-weight="900">3</text>
+            <rect x="360" y="142" width="230" height="34" rx="6" fill="#92400e" stroke="#fde047" stroke-width="2"/>
+            <rect x="446" y="112" width="46" height="30" rx="4" fill="#facc15"/>
+            <text x="454" y="131" fill="#0f172a" font-size="11" font-weight="900">🪑 座</text>
+            <rect x="330" y="146" width="30" height="24" rx="4" fill="#ef4444"/>
+            <text x="336" y="162" fill="#fff" font-size="12">🚀</text>
+            <path d="M 320 184 Q 480 198 650 184" fill="none" stroke="#38bdf8" stroke-width="3"/>
+          </svg>
+        `, '造船位置：① 到 Model 分頁按 Create ➔ Weld 黏合積木 ② 確認船身 Anchored=false ③ 放進 VehicleSeat 就能開船！');
+
+      default:
+        return '';
+    }
   }
 };
 

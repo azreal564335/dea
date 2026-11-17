@@ -1514,6 +1514,7 @@ window.CURRICULUM_LESSONS = [
    * 按住 **\`W / A / S / D\`** 鍵：像玩遊戲一樣前後左右飛行。
    * 按住 **滑鼠右鍵** 拖曳：轉動攝影機視角看四面八方。
    * 按下鍵盤 **\`F\`** 鍵：攝影機瞬間飛到你選中的積木正前方！`,
+        visualType: 'rbx-viewport-nav',
         highlight: '🎮 小秘訣：按住 Shift + W/A/S/D 可以慢速精細移動，滾動滑鼠滾輪可以縮放！'
       },
       {
@@ -1524,6 +1525,7 @@ window.CURRICULUM_LESSONS = [
 2. **\`Move\`（移動 - 紅/綠/藍箭頭）**：拉動三個顏色的箭頭，把積木精準移到左邊、右邊或高空中。
 3. **\`Scale\`（縮放 - 彩色圓點）**：拉長變成跑酷長橋，或拉寬變成大平台。
 4. **\`Rotate\`（旋轉 - 彩色圓環）**：把積木轉成斜坡或帥氣的跳台！`,
+        visualType: 'rbx-ribbon-tools',
         highlight: '🌈 顏色記憶法：X 軸是紅色（左右）、Y 軸是綠色（上下高度）、Z 軸是藍色（前後）！'
       },
       {
@@ -1532,6 +1534,7 @@ window.CURRICULUM_LESSONS = [
         body: `很多小朋友花了一小時蓋好超帥的空中跑酷平台，結果一按 **\`Play\`（試玩）**……整個地圖竟然「碰！」一聲全部掉到地板上散開了！😱
 * **為什麼？** 因為 Roblox 世界預設有「地心引力 (Gravity)」，沒有固定住的積木通通會往下掉！
 * **解決方法**：點選你的積木 ➔ 到右邊 **\`Properties\`（屬性面板）** 往下滑 ➔ 把 **\`Anchored\`** 打勾（或是按工具列的 **⚓ Anchor** 按鈕）！`,
+        visualType: 'rbx-explorer-anchored',
         highlight: '⚓ 必背口訣：「空中積木要聽話，Anchored 一定要打勾！」'
       }
     ],
@@ -1601,6 +1604,7 @@ window.CURRICULUM_LESSONS = [
    * 🟩 **綠色 / 藍色**：安全平台，放心站上去！
    * 🟥 **紅色 / 橘色發光 (Neon)**：危險岩漿 **KillBrick**，千萬不能踩！
    * 🟨 **黃色旗幟**：**Checkpoint 存檔點**，踩到超安心！`,
+        visualType: 'rbx-obby-parts',
         highlight: '🎯 設計師鐵則：「自己都能輕鬆跳過 3 次，才算合格的好關卡！」'
       },
       {
@@ -1609,6 +1613,7 @@ window.CURRICULUM_LESSONS = [
         body: `為了讓朋友玩你的跑酷不會玩到生氣，記得加入這兩個設計：
 * **每 4~5 個難關放一個 \`Checkpoint\`**：利用 \`Teams\` 或進度腳本，讓玩家死掉後從最近的 Checkpoint 重生，成就感大大提升！
 * **加入會動的「移動平台」**：把單純的跳躍升級成「會左右滑動的浮空磚塊」，玩家必須抓準時機起跳！`,
+        visualType: 'rbx-obby-checkpoint',
         highlight: '💡 小技巧：在 Roblox Studio 可以直接搜尋官方內建的 Obby 範本，觀察它怎麼擺放 Checkpoint！'
       }
     ],
@@ -1675,6 +1680,7 @@ window.CURRICULUM_LESSONS = [
 1. **找到自己**：\`local part = script.Parent\`（代表這個腳本所在的積木）
 2. **裝上感應器**：\`part.Touched:Connect(function(hit)\`（有人踩到我時就啟動！）
 3. **檢查是不是玩家**：看看撞到我的人身上有沒有 \`Humanoid\`，有的話就幫他 **加速**、**彈高** 或 **加金幣**！`,
+        visualType: 'rbx-add-script',
         highlight: '⚡ 不用死背英文！看懂「觸碰 (Touched) ➔ 檢查玩家 (Humanoid) ➔ 執行魔法」的邏輯就超強了！'
       },
       {
@@ -1684,6 +1690,7 @@ window.CURRICULUM_LESSONS = [
 * **⚡ 加速板 (Speed Pad)**：把 \`humanoid.WalkSpeed\` 從預設的 \`16\` 變成 \`40\`，一踩就衝刺！
 * **🦘 彈跳板 (Bounce Pad)**：把 \`humanoid.JumpPower\` 調高到 \`120\`（或給向上推力），一跳飛上屋頂！
 * **🪙 旋轉金幣 (Collectible Coin)**：踩到後讓右上角 \`leaderstats.Coins.Value += 1\`，並把金幣暫時隱藏再重生！`,
+        visualType: 'rbx-script-editor',
         highlight: '🛡️ 防呆小常識：加金幣時要設一個 `debounce`（冷卻開關），才不會踩一下瞬間加 100 次！'
       }
     ],
@@ -1760,6 +1767,7 @@ window.CURRICULUM_LESSONS = [
 2. **安全發佈設定 (\`File → Publish to Roblox\`)**：
    * 建議小朋友一開始先設為 **\`Private\`（只有自己能玩）** 或 **\`Friends\`（只邀請家人和好朋友）**，安全又好玩！
    * 記得幫遊戲取一個響亮的名字，並截一張酷炫的封面圖！`,
+        visualType: 'rbx-publish-menu',
         highlight: '🔒 安全第一：不隨便使用來源不明的腳本，並和爸媽一起確認隱私權限設定！'
       }
     ],
@@ -1830,6 +1838,7 @@ window.CURRICULUM_LESSONS = [
 2. **隨機災難 (\`math.random\`)**：系統從 5 種災難中隨機抽一個（🌊 洪水、☄️ 隕石、🌪️ 龍捲風、🌋 火山、⚡ 雷暴）。
 3. **物理破壞魔法**：平常房子都是 \`Anchored = true\`，但龍捲風經過時會把 \`Anchored\` 變成 \`false\`，房子就真的吹飛了！
 4. **生存結算**：撐到倒數 0 秒還沒掉進海裡的玩家，名字就會出現在勝利排行榜！`,
+        visualType: 'rbx-disaster-unanchor',
         highlight: '⏱️ 設計心法：每一回合只要 60~90 秒，節奏快又刺激，大家就會一直按「再玩一局」！'
       }
     ],
@@ -1885,6 +1894,7 @@ window.CURRICULUM_LESSONS = [
 2. **成長計時器 (\`task.wait\`)**：每過幾秒鐘，腳本把植物慢慢放大 (**Scale**)，成熟時還會發光！
 3. **靠近按 \`E\` 採收 (\`ProximityPrompt\`)**：在 Roblox Studio 只要把 \`ProximityPrompt\` 放進 Part 裡，玩家靠近就會自動出現帥氣的按 \`E\` 互動圈圈！
 4. **賣掉換金幣升級**：拿著果實到商店換金幣，買「2 倍澆水壺」或「金色稀有種子」！`,
+        visualType: 'rbx-proximity-prompt',
         highlight: '🌟 設計師秘訣：讓玩家每 10 秒就看到一點小收穫，成就感就會源源不絕！'
       }
     ],
@@ -1938,6 +1948,7 @@ window.CURRICULUM_LESSONS = [
         body: `為什麼 *Brookhaven* 的房子這麼好玩？因為到處都可以點！
 * **會開關的門**：放進 \`ClickDetector\`，點一下把門的 \`Transparency = 0.8\`、\`CanCollide = false\`（變成半透明可穿過）！
 * **會亮的檯燈**：點一下切換 \`PointLight.Enabled = true/false\`，晚上開燈超溫馨！`,
+        visualType: 'rbx-click-detector',
         highlight: '💡 小巧思：只要一個門把加上 ClickDetector，整間房子立刻充滿生命力！'
       },
       {
@@ -2001,6 +2012,7 @@ window.CURRICULUM_LESSONS = [
 1. **放好木板、船頭與駕駛座 (\`VehicleSeat\`)**。
 2. **用 \`WeldConstraint\` 把每一塊積木「黏」在一起**：這樣整艘船就會變成一個一起移動、一起浮在水面上的超級載具！
 3. **材質決定重量與硬度**：木頭輕又會浮、鐵塊重但耐撞石頭、推進器 (**Thruster**) 給你滿滿加速力！`,
+        visualType: 'rbx-weld-seat',
         highlight: '🔧 必懂對比：固定不動的跑酷平台用 \`Anchored = true\`；會動會開的船與車用 \`Anchored = false\` ＋ \`WeldConstraint\`！'
       }
     ],

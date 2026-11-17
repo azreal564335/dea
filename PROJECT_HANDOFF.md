@@ -100,9 +100,13 @@ digital-explorer-academy/
 ## 5. 📊 Current Status & Changelog
 
 * **Last Updated:** 2026-11-16
-* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **565 / 565 PASS (100%)**
+* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **597 / 597 PASS (100%)**
 * **GitHub Repository:** https://github.com/azreal564335/dea (`main` branch)
 * **Recent Changes:**
+  * **Annotated Screenshot-Style UI Location Guides (World 5 & World 6):**
+    * Added `renderCardVisual(visualType)` in `js/app.js` and `.slide-visual-diagram` styling in `css/styles.css` rendering 11 self-contained annotated SVG UI mockups with numbered callout badges (`① ② ③ ④`) and bilingual captions inside `data/curriculum.js` lesson cards (`w5-l1`..`w5-l4`, `w6-l1`..`w6-l4`).
+    * Covers Roblox Studio 3D Viewport & `F` focus, `Home` Ribbon (`Part`/`Move`/`Scale`/`Rotate`), `Explorer` + `Properties` `Anchored ✅`, `Obby` parts & `Toolbox` Checkpoints, `Explorer` `+` ➔ `Script` & `Debounce`, `File` ➔ `Publish to Roblox` ➔ `Private`/`Friends`, `Lobby`/Unanchor, `ProximityPrompt`, `ClickDetector`, and `Model` ➔ `Create` ➔ `Weld` + `VehicleSeat`.
+    * Expanded `tests/run-all-tests.js` to **597 assertions (100% pass)**.
   * **World 6 Launch (`熱門 Roblox 地圖拆解` — 6 Worlds, 26 Lessons, 22 Typing Drills):**
     * Deconstructed top kid-friendly Roblox hits (*Natural Disaster Survival*, *Grow a Garden* / *Bee Swarm Simulator*, *Brookhaven RP* / *Dress to Impress*, *Build a Boat for Treasure*) into 4 bite-sized lessons (`w6-l1`..`w6-l4`) with 4 interactive simulators.
     * Added Island 6 (`world-6`) to `js/island-scene.js` with 5th treasure chest, quick-jump chip, and 6-world `travelToWorld` routing.

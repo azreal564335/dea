@@ -484,6 +484,18 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   const wpTypes = window.IslandScene.avatarState.waypoints.map(w => w.type);
   assert(wpTypes.includes('hop') && wpTypes.includes('swim') && wpTypes.includes('superjump'),
     'Waypoints include hop, swim, and superjump segments to reach World 6');
+
+  console.log('\n--- 12. Annotated UI Location Diagrams (World 5 & World 6) ---');
+  for (const lid of ['w5-l1', 'w5-l2', 'w5-l3', 'w5-l4', 'w6-l1', 'w6-l2', 'w6-l3', 'w6-l4']) {
+    window.AppState.navigate('lesson', lid);
+    window.AppState.setLessonStep('learn');
+    const diagrams = window.document.querySelectorAll('.slide-visual-diagram');
+    assert(diagrams.length >= 1, `Lesson ${lid} renders at least 1 UI location diagram (${diagrams.length} found)`);
+    diagrams.forEach((d, idx) => {
+      assert(!!d.querySelector('svg'), `Lesson ${lid} diagram #${idx + 1} contains inline <svg>`);
+      assert(!!d.querySelector('.visual-caption')?.textContent.trim(), `Lesson ${lid} diagram #${idx + 1} has non-empty caption`);
+    });
+  }
 }
 
 async function main() {
