@@ -152,7 +152,26 @@ window.Simulators = {
     rbxGenre: 'tycoon',
     rbxGenreModules: {},
     rbxGenreSimDone: false,
-    rbxChecks: { toolbox: false, privacy: false, playtest: false }
+    rbxChecks: { toolbox: false, privacy: false, playtest: false },
+
+    // World 6: Popular Roblox Maps Deconstructed
+    disasterType: 'tornado',
+    disasterShelterAnchored: true,
+    disasterRoundRan: false,
+
+    gardenCrop: 'strawberry',
+    gardenStage: 0, // 0: empty, 1: seed, 2: growing, 3: ripe
+    gardenCoins: 0,
+    gardenToolLevel: 1,
+
+    rpDoorOpen: false,
+    rpLampOn: false,
+    rpThemeIdx: 0,
+    rpOutfitHat: '🪖 太空頭盔',
+    rpRunwayStars: 0,
+
+    boatParts: { wood: false, iron: false, seat: false, thruster: false },
+    boatLaunched: false
   },
 
   render(simConfig, containerId) {
@@ -196,6 +215,14 @@ window.Simulators = {
         return this.renderRobloxLuaLab(el, containerId);
       case 'roblox-game-architect':
         return this.renderRobloxGameArchitect(el, containerId);
+      case 'roblox-disaster-lab':
+        return this.renderRobloxDisasterLab(el, containerId);
+      case 'roblox-garden-sim':
+        return this.renderRobloxGardenSim(el, containerId);
+      case 'roblox-rp-stage':
+        return this.renderRobloxRpStage(el, containerId);
+      case 'roblox-boat-builder':
+        return this.renderRobloxBoatBuilder(el, containerId);
       default:
         el.innerHTML = `
           <div class="sim-box" style="text-align:center;">
@@ -2790,5 +2817,260 @@ window.Simulators = {
   rbxToggleCheck(field, cid) {
     this.state.rbxChecks[field] = !this.state.rbxChecks[field];
     this.render({ type: 'roblox-game-architect' }, cid);
+  },
+
+  // ==========================================================================
+  // 6.1 NATURAL DISASTER SURVIVAL & ROUND LOOP LAB
+  // ==========================================================================
+  renderRobloxDisasterLab(el, cid) {
+    const s = this.state;
+    const disasters = {
+      tornado: { icon: '🌪️', name: '龍捲風 (Tornado)', desc: '強力旋風會把沒有 Anchored 的房子吹飛！' },
+      flood: { icon: '🌊', name: '大海嘯洪水 (Flash Flood)', desc: '水面不斷升高！快爬到高樓屋頂避難！' },
+      meteor: { icon: '☄️', name: '隕石雨 (Meteor Shower)', desc: '天上掉下火球撞擊地圖！' }
+    };
+    const cur = disasters[s.disasterType] || disasters.tornado;
+
+    el.innerHTML = `
+      <div class="sim-box roblox-box">
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.85rem;">
+          ${Object.keys(disasters).map(k => `
+            <button class="rbx-tool-btn ${s.disasterType === k ? 'active' : ''}"
+                    onclick="window.Simulators.setDisasterType('${k}', '${cid}')">
+              ${disasters[k].icon} ${disasters[k].name}
+            </button>
+          `).join('')}
+        </div>
+        <div class="roblox-panel">
+          <div class="roblox-panel-title">⏱️ 回合制控制台：Lobby ➔ Teleport ➔ ${cur.name} ➔ Winners</div>
+          <p style="font-size:0.88rem; font-weight:700; color:#475569; margin:0 0 0.65rem;">${cur.desc}</p>
+          <div style="display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center; margin-bottom:0.75rem;">
+            <button class="btn-secondary" onclick="window.Simulators.toggleDisasterAnchor('${cid}')">
+              ${s.disasterShelterAnchored ? '⚓ 避難所 Anchored = true (穩固)' : '💥 避難所 Anchored = false (可被吹飛)'}
+            </button>
+            <button class="btn-primary" onclick="window.Simulators.runDisasterRound('${cid}')">
+              ▶ 開始 60 秒生存回合
+            </button>
+          </div>
+          ${s.disasterRoundRan ? `
+            <div style="padding:0.75rem; border-radius:12px; font-weight:800; background:${s.disasterShelterAnchored ? '#dcfce7' : '#fef3c7'}; color:${s.disasterShelterAnchored ? '#166534' : '#92400e'};">
+              ${s.disasterShelterAnchored
+                ? `🏆 倒數 0 秒！因為避難所保持 Anchored = true，小探險家成功撐過 ${cur.name}，登上勝利榜！`
+                : `💨 哇！災難腳本解除 Anchored 後，積木被 ${cur.name} 吹得滿天飛，超有真實物理感！`}
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  },
+
+  setDisasterType(type, cid) {
+    this.state.disasterType = type;
+    this.state.disasterRoundRan = false;
+    this.render({ type: 'roblox-disaster-lab' }, cid);
+  },
+
+  toggleDisasterAnchor(cid) {
+    this.state.disasterShelterAnchored = !this.state.disasterShelterAnchored;
+    this.render({ type: 'roblox-disaster-lab' }, cid);
+  },
+
+  runDisasterRound(cid) {
+    this.state.disasterRoundRan = true;
+    this.render({ type: 'roblox-disaster-lab' }, cid);
+  },
+
+  // ==========================================================================
+  // 6.2 GROW A GARDEN & PROXIMITYPROMPT FARMING SIM
+  // ==========================================================================
+  renderRobloxGardenSim(el, cid) {
+    const s = this.state;
+    const crops = {
+      strawberry: { icon: '🍓', name: '草莓種子', value: 10 },
+      sunflower: { icon: '🌻', name: '向日葵種子', value: 20 },
+      crystal: { icon: '💎', name: '水晶果種子', value: 35 }
+    };
+    const cur = crops[s.gardenCrop] || crops.strawberry;
+    const stageLabels = ['🟫 空農地 (請播種)', '🌱 小芽剛冒出來 (Stage 1)', '🌿 葉子長高高 (Stage 2)', `✨ ${cur.icon} 成熟發光！可按 [E] 採收！`];
+
+    el.innerHTML = `
+      <div class="sim-box roblox-box">
+        <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem; font-weight:900;">
+          <span>🪙 金幣：${s.gardenCoins} | 💧 灑水壺等級：Lv.${s.gardenToolLevel}</span>
+          <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
+            ${Object.keys(crops).map(k => `
+              <button class="rbx-tool-btn ${s.gardenCrop === k ? 'active' : ''}"
+                      onclick="window.Simulators.gardenSelectCrop('${k}', '${cid}')">
+                ${crops[k].icon} ${crops[k].name}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+        <div class="roblox-panel" style="text-align:center;">
+          <div style="font-size:1.3rem; font-weight:900; margin:0.6rem 0;">${stageLabels[s.gardenStage]}</div>
+          <div style="display:flex; justify-content:center; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn-secondary" onclick="window.Simulators.gardenPlant('${cid}')">🌱 播種 Plant</button>
+            <button class="btn-primary" ${s.gardenStage === 0 || s.gardenStage >= 3 ? 'disabled' : ''} onclick="window.Simulators.gardenWater('${cid}')">💧 澆水長大 (+${s.gardenToolLevel} 階段)</button>
+            <button class="btn-primary" style="background:#059669;" ${s.gardenStage < 3 ? 'disabled' : ''} onclick="window.Simulators.gardenHarvest('${cid}')">[E] ProximityPrompt 採收 (+${cur.value * s.gardenToolLevel} 🪙)</button>
+            <button class="btn-secondary" ${s.gardenCoins < 20 || s.gardenToolLevel >= 2 ? 'disabled' : ''} onclick="window.Simulators.gardenUpgrade('${cid}')">⚡ 買 2x 黃金灑水壺 (20 🪙)</button>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  gardenSelectCrop(crop, cid) {
+    this.state.gardenCrop = crop;
+    this.render({ type: 'roblox-garden-sim' }, cid);
+  },
+
+  gardenPlant(cid) {
+    this.state.gardenStage = 1;
+    this.render({ type: 'roblox-garden-sim' }, cid);
+  },
+
+  gardenWater(cid) {
+    if (this.state.gardenStage > 0 && this.state.gardenStage < 3) {
+      this.state.gardenStage = Math.min(3, this.state.gardenStage + this.state.gardenToolLevel);
+    }
+    this.render({ type: 'roblox-garden-sim' }, cid);
+  },
+
+  gardenHarvest(cid) {
+    const vals = { strawberry: 10, sunflower: 20, crystal: 35 };
+    if (this.state.gardenStage === 3) {
+      this.state.gardenCoins += (vals[this.state.gardenCrop] || 10) * this.state.gardenToolLevel;
+      this.state.gardenStage = 0;
+    }
+    this.render({ type: 'roblox-garden-sim' }, cid);
+  },
+
+  gardenUpgrade(cid) {
+    if (this.state.gardenCoins >= 20 && this.state.gardenToolLevel < 2) {
+      this.state.gardenCoins -= 20;
+      this.state.gardenToolLevel = 2;
+    }
+    this.render({ type: 'roblox-garden-sim' }, cid);
+  },
+
+  // ==========================================================================
+  // 6.3 BROOKHAVEN RP HOUSE & DRESS TO IMPRESS STAGE
+  // ==========================================================================
+  renderRobloxRpStage(el, cid) {
+    const s = this.state;
+    const themes = ['🚀 太空探險家', '🦕 恐龍派對', '👑 皇家城堡'];
+    const hats = ['🪖 太空頭盔', '🎩 魔法禮帽', '👑 黃金皇冠'];
+    const curTheme = themes[s.rpThemeIdx] || themes[0];
+
+    el.innerHTML = `
+      <div class="sim-box roblox-box">
+        <div class="roblox-studio-grid">
+          <div class="roblox-panel">
+            <div class="roblox-panel-title">🏡 Brookhaven 小屋 (ClickDetector 互動)</div>
+            <div style="padding:0.75rem; border-radius:10px; background:${s.rpLampOn ? '#fef9c3' : '#1e293b'}; color:${s.rpLampOn ? '#0f172a' : '#f8fafc'}; text-align:center; font-weight:800; margin-bottom:0.6rem;">
+              ${s.rpLampOn ? '💡 客廳檯燈已開啟！好溫馨！' : '🌙 屋內暗暗的，試著點按開燈！'}<br/>
+              ${s.rpDoorOpen ? '🚪 大門已開啟 (CanCollide = false)' : '🔒 大門關閉中 (CanCollide = true)'}
+            </div>
+            <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+              <button class="btn-secondary" onclick="window.Simulators.rpToggleDoor('${cid}')">🚪 點門開關</button>
+              <button class="btn-secondary" onclick="window.Simulators.rpToggleLamp('${cid}')">💡 點燈開關</button>
+            </div>
+          </div>
+
+          <div class="roblox-panel">
+            <div class="roblox-panel-title">👗 Dress to Impress 時尚舞台</div>
+            <div style="font-weight:800; font-size:0.88rem; margin-bottom:0.4rem;">🎯 本場主題：${curTheme}</div>
+            <div style="display:flex; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+              <button class="btn-secondary" style="font-size:0.8rem;" onclick="window.Simulators.rpNextTheme('${cid}')">🎲 換主題</button>
+              ${hats.map(h => `
+                <button class="rbx-tool-btn ${s.rpOutfitHat === h ? 'active' : ''}" style="font-size:0.76rem; padding:0.25rem 0.5rem;"
+                        onclick="window.Simulators.rpSetHat('${h}', '${cid}')">${h}</button>
+              `).join('')}
+            </div>
+            <button class="btn-primary" style="width:100%;" onclick="window.Simulators.rpVoteRunway('${cid}')">
+              🌟 戴上「${s.rpOutfitHat}」上台走秀評分！
+            </button>
+            ${s.rpRunwayStars > 0 ? `
+              <div style="margin-top:0.5rem; font-weight:900; color:#d97706; text-align:center;">
+                ⭐⭐⭐⭐⭐ 獲得全場 ${s.rpRunwayStars} 顆星冠軍評價！
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  rpToggleDoor(cid) {
+    this.state.rpDoorOpen = !this.state.rpDoorOpen;
+    this.render({ type: 'roblox-rp-stage' }, cid);
+  },
+
+  rpToggleLamp(cid) {
+    this.state.rpLampOn = !this.state.rpLampOn;
+    this.render({ type: 'roblox-rp-stage' }, cid);
+  },
+
+  rpNextTheme(cid) {
+    this.state.rpThemeIdx = (this.state.rpThemeIdx + 1) % 3;
+    this.render({ type: 'roblox-rp-stage' }, cid);
+  },
+
+  rpSetHat(hat, cid) {
+    this.state.rpOutfitHat = hat;
+    this.render({ type: 'roblox-rp-stage' }, cid);
+  },
+
+  rpVoteRunway(cid) {
+    this.state.rpRunwayStars = 5;
+    this.render({ type: 'roblox-rp-stage' }, cid);
+  },
+
+  // ==========================================================================
+  // 6.4 BUILD A BOAT PHYSICS & WELDCONSTRAINT LAB
+  // ==========================================================================
+  renderRobloxBoatBuilder(el, cid) {
+    const s = this.state;
+    const parts = [
+      { id: 'wood', label: '🪵 木頭船身 (會浮在水上)' },
+      { id: 'iron', label: '⚙️ 鐵甲船頭 (耐撞巨石)' },
+      { id: 'seat', label: '🪑 VehicleSeat 駕駛座' },
+      { id: 'thruster', label: '🚀 火箭推進器 (加速衝刺)' }
+    ];
+    const count = Object.values(s.boatParts).filter(Boolean).length;
+    const ready = s.boatParts.wood && s.boatParts.seat;
+
+    el.innerHTML = `
+      <div class="sim-box roblox-box">
+        <div style="font-weight:900; margin-bottom:0.5rem;">🔧 用 <code>WeldConstraint</code> 黏合積木造船（保持 <code>Anchored = false</code> 才會動！）：</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:0.5rem; margin-bottom:0.8rem;">
+          ${parts.map(p => `
+            <button class="lua-line-btn ${s.boatParts[p.id] ? 'done' : ''}"
+                    onclick="window.Simulators.boatTogglePart('${p.id}', '${cid}')">
+              ${s.boatParts[p.id] ? '✅' : '➕'} ${p.label}
+            </button>
+          `).join('')}
+        </div>
+        <button class="btn-primary" style="width:100%;" ${ready ? '' : 'disabled'} onclick="window.Simulators.boatLaunch('${cid}')">
+          ${ready ? `🌊 Launch Boat 下水試航！(已黏合 ${count}/4 個零件)` : '👆 請至少放進「🪵 木頭船身」與「🪑 駕駛座」'}
+        </button>
+        ${s.boatLaunched ? `
+          <div style="margin-top:0.75rem; padding:0.75rem; border-radius:12px; background:#e0f2fe; color:#0369a1; font-weight:900; text-align:center;">
+            ⛵ 你的戰船乘風破浪衝過巨石河流，成功打開 🏆 終點寶箱啦！
+          </div>
+        ` : ''}
+      </div>
+    `;
+  },
+
+  boatTogglePart(id, cid) {
+    this.state.boatParts[id] = !this.state.boatParts[id];
+    this.state.boatLaunched = false;
+    this.render({ type: 'roblox-boat-builder' }, cid);
+  },
+
+  boatLaunch(cid) {
+    this.state.boatLaunched = true;
+    this.render({ type: 'roblox-boat-builder' }, cid);
   }
 };

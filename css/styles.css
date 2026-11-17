@@ -1282,6 +1282,12 @@ body.show-en .en-sub {
   color: #be123c;
 }
 
+.island-quick-chip.w6 {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border: 2px solid #0ea5e9;
+  color: #0369a1;
+}
+
 .roblox-box {
   background: #f1f5f9;
   border: 2px solid #cbd5e1;

@@ -71,6 +71,16 @@ window.CURRICULUM_WORLDS = [
     icon: '🧱',
     themeColor: '#e11d48',
     badgeName: 'Roblox 建築大師勳章'
+  },
+  {
+    id: 'world-6',
+    number: 'World 6',
+    title: '熱門 Roblox 地圖拆解',
+    titleEn: 'Popular Roblox Maps Deconstructed',
+    subtitle: '拆解最紅的《自然災害生存》《種菜模擬器》《Brookhaven》《造船尋寶》核心機關，學會用小積木拼出大遊戲！',
+    icon: '🗺️',
+    themeColor: '#0ea5e9',
+    badgeName: 'Roblox 遊戲製作人勳章'
   }
 ];
 
@@ -1788,6 +1798,237 @@ window.CURRICULUM_LESSONS = [
         ],
         correct: 0,
         explain: '太棒了！設定為 Private 或 Friends 是最適合小小創作者的安全測試方式！🎉'
+      }
+    ]
+  },
+
+  // ==========================================================================
+  // WORLD 6: 熱門 ROBLOX 地圖拆解 (POPULAR ROBLOX MAPS DECONSTRUCTED)
+  // ==========================================================================
+  {
+    id: 'w6-l1',
+    worldId: 'world-6',
+    number: '6.1',
+    title: '拆解《自然災害生存》與《地獄塔》：回合倒數與隨機事件！',
+    titleEn: 'Round-Based Games: Natural Disaster Survival & Timed Obby',
+    icon: '🌪️',
+    duration: '18 分鐘',
+    xp: 240,
+    summary: '為什麼《Natural Disaster Survival》玩不膩？秘密就在「大廳等待 ➔ 傳送地圖 ➔ 隨機災難＋倒數計時 ➔ 結算贏家」的回合制循環！',
+    vocab: [
+      { en: 'Round Loop', zh: '回合制循環', desc: '遊戲不斷重複的節奏：大廳倒數 ➔ 傳送到關卡 ➔ 開始挑戰 ➔ 頒獎結算' },
+      { en: 'Lobby', zh: '玩家大廳', desc: '每一回合開始前大家集合休息、等待倒數的安全區域' },
+      { en: 'Random Event', zh: '隨機事件', desc: '用 math.random() 隨機挑出洪水、隕石或龍捲風，讓每局都充滿驚喜！' },
+      { en: 'Unanchor', zh: '解除錨定 (破壞效果)', desc: '房子平常有 Anchored，但遇到龍捲風或洪水時腳本會解除 Anchored 讓房子飛起來！' }
+    ],
+    cards: [
+      {
+        title: '🌪️ 拆解經典神作《Natural Disaster Survival》！',
+        titleEn: 'How Round-Based Survival Maps Work',
+        body: `這款從 2008 年紅到現在的 Roblox 經典遊戲，其實只用了 **4 個超簡單積木邏輯**：
+1. **安全大廳 (\`Lobby\`)**：倒數 15 秒讓大家準備，時間到就把所有玩家傳送 (\`Teleport\`) 到隨機小島！
+2. **隨機災難 (\`math.random\`)**：系統從 5 種災難中隨機抽一個（🌊 洪水、☄️ 隕石、🌪️ 龍捲風、🌋 火山、⚡ 雷暴）。
+3. **物理破壞魔法**：平常房子都是 \`Anchored = true\`，但龍捲風經過時會把 \`Anchored\` 變成 \`false\`，房子就真的吹飛了！
+4. **生存結算**：撐到倒數 0 秒還沒掉進海裡的玩家，名字就會出現在勝利排行榜！`,
+        highlight: '⏱️ 設計心法：每一回合只要 60~90 秒，節奏快又刺激，大家就會一直按「再玩一局」！'
+      }
+    ],
+    simulator: {
+      type: 'roblox-disaster-lab',
+      title: '🌪️ 回合制災難控制台：設定大廳倒數、挑選隨機災難並測試物理防護！',
+      instruction: '選擇一種災難事件（🌊 洪水 / ☄️ 隕石 / 🌪️ 龍捲風），開啟或關閉「庇護所 Anchored 固定」，然後點擊「▶ 開始 60 秒生存回合」觀察結果！'
+    },
+    quiz: [
+      {
+        q: '在《Natural Disaster Survival》這類回合制遊戲裡，為什麼每局都要先回到「Lobby (大廳)」？',
+        options: [
+          '讓所有玩家安全集合、重置地圖並倒數準備下一回合',
+          '讓電腦關機休息',
+          '把所有積木永遠刪掉'
+        ],
+        correct: 0,
+        explain: '答對了！Lobby 大廳＋地圖重置 (Reset) 是所有回合制派對遊戲的心臟！'
+      },
+      {
+        q: '如果想讓房子在平常穩穩站著，但被龍捲風吹到時會真的散開飛走，腳本應該改變哪一個屬性？',
+        options: [
+          '把積木的 Anchored 從 true 改成 false',
+          '把螢幕調成黑白',
+          '把玩家名字改掉'
+        ],
+        correct: 0,
+        explain: '太聰明了！動態切換 Anchored = false 就是 Roblox 物理破壞特效的秘密！'
+      }
+    ]
+  },
+  {
+    id: 'w6-l2',
+    worldId: 'world-6',
+    number: '6.2',
+    title: '拆解《Grow a Garden》與《Bee Swarm》：種菜、養寵與按 E 互動！',
+    titleEn: 'Collection & Farming Simulators: ProximityPrompt & Upgrade Loops',
+    icon: '🌱',
+    duration: '18 分鐘',
+    xp: 250,
+    summary: '為什麼《Grow a Garden》和《Bee Swarm Simulator》這麼療癒好玩？學會「種植/採集 ➔ 按 E 互動 (ProximityPrompt) ➔ 賣錢升級工具」的成長公式！',
+    vocab: [
+      { en: 'ProximityPrompt', zh: '靠近按 E 互動鍵', desc: '玩家走近植物、商店或門時，畫面自動跳出「按 E 採收」的提示框！' },
+      { en: 'Growth Loop', zh: '成長收集循環', desc: '播種/採集 ➔ 等待成長 ➔ 賣出換金幣 ➔ 買更強工具或稀有種子' },
+      { en: 'Tween / Scale', zh: '漸進放大動畫', desc: '讓小樹苗慢慢長大變成大果實的平滑動畫效果' }
+    ],
+    cards: [
+      {
+        title: '🌱 拆解爆紅神作《Grow a Garden》與收集模擬器！',
+        titleEn: 'Inside Farming & Pet Collection Simulators',
+        body: `在 *Grow a Garden* 或 *Bee Swarm Simulator* 裡，玩家不用打打殺殺也能玩超久，秘密在於 **看得見的成長獎勵**：
+1. **種下種子 (\`Plant\`)**：在自己的農地放上小種子（小方塊 + 綠色葉子）。
+2. **成長計時器 (\`task.wait\`)**：每過幾秒鐘，腳本把植物慢慢放大 (**Scale**)，成熟時還會發光！
+3. **靠近按 \`E\` 採收 (\`ProximityPrompt\`)**：在 Roblox Studio 只要把 \`ProximityPrompt\` 放進 Part 裡，玩家靠近就會自動出現帥氣的按 \`E\` 互動圈圈！
+4. **賣掉換金幣升級**：拿著果實到商店換金幣，買「2 倍澆水壺」或「金色稀有種子」！`,
+        highlight: '🌟 設計師秘訣：讓玩家每 10 秒就看到一點小收穫，成就感就會源源不絕！'
+      }
+    ],
+    simulator: {
+      type: 'roblox-garden-sim',
+      title: '🌱 迷你《Grow a Garden》農場工坊：播種、按 [E] 採收並升級工具！',
+      instruction: '1. 選擇種子（🍓 草莓 / 🌻 向日葵 / 💎 水晶果）種在農地。\n2. 等待或點擊「💧 澆水加速成長」，成熟後點擊「[E] ProximityPrompt 採收」。\n3. 賣出換金幣，存夠錢就能購買「⚡ 2x 黃金灑水壺」升級！'
+    },
+    quiz: [
+      {
+        q: '在 Roblox Studio 裡，如果想做「玩家走近果樹就跳出按 E 採收」的互動功能，最適合加入哪一個元件？',
+        options: [
+          'ProximityPrompt (靠近互動提示)',
+          'KillBrick',
+          'Sky (天空盒)'
+        ],
+        correct: 0,
+        explain: '完全正確！ProximityPrompt 是 Roblox 官方內建的超好用互動元件，免寫複雜距離計算！'
+      },
+      {
+        q: '《Grow a Garden》或《Bee Swarm Simulator》這類模擬器遊戲最核心的玩法循環是什麼？',
+        options: [
+          '收集/種植 ➔ 賣出換金幣 ➔ 升級更強的工具或種子',
+          '站在原地不動 10 分鐘',
+          '只有一個終點旗幟'
+        ],
+        correct: 0,
+        explain: '沒錯！「收集 ➔ 變現 ➔ 升級變得更快」就是所有 Simulator 遊戲迷人的核心！'
+      }
+    ]
+  },
+  {
+    id: 'w6-l3',
+    worldId: 'world-6',
+    number: '6.3',
+    title: '拆解《Brookhaven RP》與《Dress to Impress》：角色扮演小鎮與時尚舞台！',
+    titleEn: 'Social RP & Fashion Maps: ClickDetector, Themes & Voting',
+    icon: '🏡',
+    duration: '18 分鐘',
+    xp: 250,
+    summary: '揭開《Brookhaven》和《Dress to Impress》的魔法：用 ClickDetector 做可開關的房子門燈、設計主題穿搭倒數、以及 1~5 顆星走秀評分！',
+    vocab: [
+      { en: 'ClickDetector', zh: '滑鼠點擊感應器', desc: '放進門或電燈裡，玩家用滑鼠點一下就能開門、開燈或換裝！' },
+      { en: 'Roleplay (RP)', zh: '角色扮演', desc: '像《Brookhaven》一樣，玩家自己編故事當警察、醫生、烘焙師或住進漂亮房子' },
+      { en: 'Theme & Voting', zh: '主題與評分舞台', desc: '像《Dress to Impress》：公布主題 ➔ 限時換裝 ➔ 上台走秀給 1~5 顆星' }
+    ],
+    cards: [
+      {
+        title: '🏡 《Brookhaven》的互動小鎮秘密：ClickDetector！',
+        titleEn: 'Interactive Houses & Props with ClickDetector',
+        body: `為什麼 *Brookhaven* 的房子這麼好玩？因為到處都可以點！
+* **會開關的門**：放進 \`ClickDetector\`，點一下把門的 \`Transparency = 0.8\`、\`CanCollide = false\`（變成半透明可穿過）！
+* **會亮的檯燈**：點一下切換 \`PointLight.Enabled = true/false\`，晚上開燈超溫馨！`,
+        highlight: '💡 小巧思：只要一個門把加上 ClickDetector，整間房子立刻充滿生命力！'
+      },
+      {
+        title: '👗 《Dress to Impress》的走秀魔法：主題＋倒數＋評分！',
+        titleEn: 'Fashion Show Loop: Theme -> Dress Up -> Runway Vote',
+        body: `* **Step 1 抽主題**：例如「太空探險家 🚀」或「恐龍派對 🦕」。
+* **Step 2 限時換裝**：玩家點選衣櫃裡的帽子、披風、顏色（改變 \`HumanoidDescription\` 或配件）。
+* **Step 3 走秀給星**：站上發光伸展台，大家互給 1~5 顆星選出冠軍！`,
+        highlight: '✨ 友善提醒：設計評分系統時，鼓勵大家公平給星、稱讚別人的創意喔！'
+      }
+    ],
+    simulator: {
+      type: 'roblox-rp-stage',
+      title: '🏡 小鎮與時尚伸展台工坊：測試 ClickDetector 房子與 DTI 走秀！',
+      instruction: '1. 在左側【Brookhaven 小屋】點擊大門與檯燈，測試 ClickDetector 互動開關！\n2. 在右側【Dress to Impress 舞台】抽取主題、幫角色換裝、點「🌟 上台走秀評分」！'
+    },
+    quiz: [
+      {
+        q: '想讓 Roblox 小鎮房子裡的電燈或大門「被滑鼠點一下就開關」，應該在門或燈裡放進哪個元件？',
+        options: [
+          'ClickDetector (滑鼠點擊感應器)',
+          'SpawnLocation',
+          'Lava KillBrick'
+        ],
+        correct: 0,
+        explain: '答對了！ClickDetector 專門負責感應玩家的滑鼠點擊動作！'
+      },
+      {
+        q: '像《Dress to Impress》這類換裝走秀遊戲，主要包含哪三個核心步驟？',
+        options: [
+          '公布主題 ➔ 限時穿搭換裝 ➔ 走秀並互相評分給星',
+          '一直掉進岩漿裡',
+          '開船撞石頭'
+        ],
+        correct: 0,
+        explain: '太棒了！清晰的「主題 ➔ 創作 ➔ 展示評分」流程讓大家玩得超開心！'
+      }
+    ]
+  },
+  {
+    id: 'w6-l4',
+    worldId: 'world-6',
+    number: '6.4',
+    title: '拆解《Build a Boat for Treasure》：物理造船與 WeldConstraint 黏合術！',
+    titleEn: 'Physics Sandbox Maps: WeldConstraint, Buoyancy & Thrusters',
+    icon: '⛵',
+    duration: '20 分鐘',
+    xp: 280,
+    summary: '為什麼《Build a Boat for Treasure》能把方塊拼成船開進大海？學會 Roblox 物理引擎最重要的 WeldConstraint（強力膠水）與推進器原理！',
+    vocab: [
+      { en: 'WeldConstraint', zh: '焊接強力膠', desc: '把兩個 Unanchored 的方塊牢牢黏在一起，變成一整艘船或一台車！' },
+      { en: 'Seat / VehicleSeat', zh: '駕駛座椅', desc: '坐上去就能用 W/A/S/D 控制整艘船或車子往前衝！' },
+      { en: 'Physics', zh: '3D 物理引擎', desc: '決定木頭會浮在水上、鐵塊很耐撞、火箭推進器會往前推的真實物理規則' }
+    ],
+    cards: [
+      {
+        title: '⛵ 為什麼方塊拼成船，下水後不會散開？',
+        titleEn: 'Gluing Blocks Together with WeldConstraint',
+        body: `在 *Build a Boat for Treasure* 裡，船要能往前開，所以所有船身積木都必須是 **\`Anchored = false\`**（不能鎖死在空中！）。
+那為什麼不會散成一地積木呢？秘密就是 **\`WeldConstraint\`（焊接強力膠）**！
+1. **放好木板、船頭與駕駛座 (\`VehicleSeat\`)**。
+2. **用 \`WeldConstraint\` 把每一塊積木「黏」在一起**：這樣整艘船就會變成一個一起移動、一起浮在水面上的超級載具！
+3. **材質決定重量與硬度**：木頭輕又會浮、鐵塊重但耐撞石頭、推進器 (**Thruster**) 給你滿滿加速力！`,
+        highlight: '🔧 必懂對比：固定不動的跑酷平台用 \`Anchored = true\`；會動會開的船與車用 \`Anchored = false\` ＋ \`WeldConstraint\`！'
+      }
+    ],
+    simulator: {
+      type: 'roblox-boat-builder',
+      title: '⛵ 迷你《Build a Boat》造船工坊：選擇積木黏合造船，下水闖關奪寶！',
+      instruction: '1. 點擊下方積木（🪵 木頭船身、⚙️ 鐵甲船頭、🪑 駕駛座、🚀 火箭推進器），用 WeldConstraint 拼出你的戰船！\n2. 點擊「🌊 Launch Boat 下水試航」，看你的船能不能衝過巨石河流拿到 🏆 寶箱！'
+    },
+    quiz: [
+      {
+        q: '在製作《Build a Boat》這種可以開動的船或車時，為什麼不能把船身設成 Anchored = true？',
+        options: [
+          '因為 Anchored = true 會把船鎖死在原地，完全開不動！必須用 WeldConstraint 黏起來並保持 Unanchored',
+          '因為船會變成隱形',
+          '因為顏色會不見'
+        ],
+        correct: 0,
+        explain: '超讚！這是 Roblox 開發者最重要的物理觀念：要會動就要 Unanchored ＋ WeldConstraint！'
+      },
+      {
+        q: '在拼裝好船身積木後，要放進哪一個零件，玩家才能坐上去並控制整艘船往前進？',
+        options: [
+          'VehicleSeat (駕駛座椅)',
+          'Lava Brick (岩漿磚)',
+          'TextLabel'
+        ],
+        correct: 0,
+        explain: '完全正確！VehicleSeat 就是專門用來駕駛車子、船隻與飛機的座椅元件！🎉'
       }
     ]
   }

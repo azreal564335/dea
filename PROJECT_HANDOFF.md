@@ -89,14 +89,24 @@ digital-explorer-academy/
 - [x] **Lesson `5.3` (`w5-l3`):** *Luau Scripting Lab* (`roblox-lua-lab` block-assembly Luau script lab for Coins, Speed Pad, Bounce Pad, and Auto Door with `Touched` events and `Humanoid`).
 - [x] **Lesson `5.4` (`w5-l4`):** *Multi-Genre Game Architect & Safe Publishing* (`roblox-game-architect` simulator covering Tycoon, Simulator, Racing, and Hide & Seek game loops + Toolbox & Privacy checklist).
 
+### ✅ Phase 4: World 6 — 熱門 Roblox 地圖拆解 (COMPLETED)
+- [x] **Lesson `6.1` (`w6-l1`):** *Natural Disaster Survival & Timed Obby* (`roblox-disaster-lab` simulator: Lobby, Teleport, Random Event, dynamic `Anchored` physics).
+- [x] **Lesson `6.2` (`w6-l2`):** *Grow a Garden & Collection Simulators* (`roblox-garden-sim` simulator: Plant, Water, `[E] ProximityPrompt` harvest, Coin upgrades).
+- [x] **Lesson `6.3` (`w6-l3`):** *Brookhaven RP & Dress to Impress* (`roblox-rp-stage` simulator: `ClickDetector` doors/lamps, theme draw, outfit & runway voting).
+- [x] **Lesson `6.4` (`w6-l4`):** *Build a Boat for Treasure* (`roblox-boat-builder` simulator: `WeldConstraint` + `Unanchored` + `VehicleSeat` physics vessel).
+
 ---
 
 ## 5. 📊 Current Status & Changelog
 
 * **Last Updated:** 2026-11-16
-* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **521 / 521 PASS (100%)**
+* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **565 / 565 PASS (100%)**
 * **GitHub Repository:** https://github.com/azreal564335/dea (`main` branch)
 * **Recent Changes:**
+  * **World 6 Launch (`熱門 Roblox 地圖拆解` — 6 Worlds, 26 Lessons, 22 Typing Drills):**
+    * Deconstructed top kid-friendly Roblox hits (*Natural Disaster Survival*, *Grow a Garden* / *Bee Swarm Simulator*, *Brookhaven RP* / *Dress to Impress*, *Build a Boat for Treasure*) into 4 bite-sized lessons (`w6-l1`..`w6-l4`) with 4 interactive simulators.
+    * Added Island 6 (`world-6`) to `js/island-scene.js` with 5th treasure chest, quick-jump chip, and 6-world `travelToWorld` routing.
+    * Expanded `tests/run-all-tests.js` to **565 assertions (100% pass)**.
   * **World 5 Launch (`Roblox 3D 遊戲工坊` — 5 Worlds, 22 Lessons, 22 Typing Drills):**
     * Added Lesson 5.1 (`w5-l1`) with `roblox-studio-basics` simulator (Part spawning, Explorer/Properties, Move/Scale/Rotate, `Anchored` gravity test).
     * Added Lesson 5.2 (`w5-l2`) with `roblox-obby-builder` simulator (grid Obby map builder + playable Canvas playtester).

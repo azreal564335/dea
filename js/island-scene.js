@@ -110,11 +110,13 @@ window.IslandScene = {
     const w4Total = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-4').length || 3;
     const w5Done = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-5' && profile.completedLessons[l.id]).length;
     const w5Total = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-5').length || 4;
+    const w6Done = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-6' && profile.completedLessons[l.id]).length;
+    const w6Total = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-6').length || 4;
 
     container.innerHTML = `
       <div class="three-island-stage" id="${containerId}-stage" style="height: 390px;">
         <div class="three-hud-top">
-          <span class="three-pill-badge">🎮 點擊島嶼讓 ${profile.avatar} 跳石頭、游泳、或超級大跳躍前往天空島、創意島與 Roblox 島！</span>
+          <span class="three-pill-badge">🎮 點擊島嶼讓 ${profile.avatar} 跳石頭、游泳、或超級大跳躍探索六大世界！</span>
           <span id="${containerId}-hover-label" class="three-hover-pill">✨ 拖曳可旋轉 3D 冒險地圖</span>
         </div>
         <div class="three-island-labels">
@@ -132,6 +134,9 @@ window.IslandScene = {
           </button>
           <button class="island-quick-chip w5" onclick="window.IslandScene.travelToWorld('world-5', true)">
             🧱 5. Roblox 工坊 (⭐${w5Done}/${w5Total})
+          </button>
+          <button class="island-quick-chip w6" onclick="window.IslandScene.travelToWorld('world-6', true)">
+            🗺️ 6. 熱門地圖拆解 (⭐${w6Done}/${w6Total})
           </button>
         </div>
       </div>
@@ -493,7 +498,28 @@ window.IslandScene = {
     island5.add(rbxGroup);
     scene.add(island5);
 
-    this.islands = [island1, island2, island3, island4, island5];
+    // =========================================================================
+    // ISLAND 6: 熱門 ROBLOX 地圖拆解島 (Popular Maps Deconstructed)
+    // =========================================================================
+    const island6 = createFutureIsland(0x0284c7, 0x38bdf8);
+    island6.position.set(11.4, 2.0, 0.2);
+    island6.userData = {
+      worldId: 'world-6',
+      label: '🗺️ World 6: 熱門 Roblox 地圖拆解・自然災害/種菜/造船 (點擊探索！)',
+      standPos: new THREE.Vector3(11.4, 2.45, 0.85)
+    };
+    const popMapsGroup = new THREE.Group();
+    popMapsGroup.position.set(0, 0.5, -0.2);
+    const trophyOrb = new THREE.Mesh(
+      new THREE.OctahedronGeometry(0.45, 0),
+      new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0xeab308, emissiveIntensity: 0.45, flatShading: true })
+    );
+    trophyOrb.position.set(0, 0.85, 0);
+    popMapsGroup.add(trophyOrb);
+    island6.add(popMapsGroup);
+    scene.add(island6);
+
+    this.islands = [island1, island2, island3, island4, island5, island6];
 
     // =========================================================================
     // STEPPING STONES (Between Island 1 & Water Swim Channel to Island 2)
@@ -541,6 +567,7 @@ window.IslandScene = {
     createChest(new THREE.Vector3(0.0, -0.1, -0.5), w2Done >= w2Total);
     createChest(new THREE.Vector3(3.6, 0.3, -0.4), w3Done >= w3Total);
     createChest(new THREE.Vector3(6.9, 0.7, -0.6), w4Done >= w4Total);
+    createChest(new THREE.Vector3(9.9, 1.3, -0.4), w5Done >= w5Total);
 
     // =========================================================================
     // 3D EXPLORER AVATAR (🦁 Lion or 🦊 Fox)
@@ -576,6 +603,7 @@ window.IslandScene = {
     if (w3Done > 0) startWorld = 'world-3';
     if (w4Done > 0) startWorld = 'world-4';
     if (w5Done > 0) startWorld = 'world-5';
+    if (w6Done > 0) startWorld = 'world-6';
     this.currentWorldId = startWorld;
     const initIsl = this.islands.find(i => i.userData.worldId === startWorld) || island1;
     avatarGroup.position.copy(initIsl.userData.standPos);
@@ -878,6 +906,7 @@ window.IslandScene = {
     const p3 = this.islands[2].userData.standPos;
     const p4 = this.islands[3].userData.standPos;
     const p5 = this.islands[4] ? this.islands[4].userData.standPos : p4;
+    const p6 = this.islands[5] ? this.islands[5].userData.standPos : p5;
 
     const waypoints = [];
     const cur = this.currentWorldId;
@@ -890,7 +919,8 @@ window.IslandScene = {
       },
       2: () => { waypoints.push({ from: p2, to: p3, type: 'superjump' }); },
       3: () => { waypoints.push({ from: p3, to: p4, type: 'superjump' }); },
-      4: () => { waypoints.push({ from: p4, to: p5, type: 'superjump' }); }
+      4: () => { waypoints.push({ from: p4, to: p5, type: 'superjump' }); },
+      5: () => { waypoints.push({ from: p5, to: p6, type: 'superjump' }); }
     };
 
     const segmentsBackward = {
@@ -901,7 +931,8 @@ window.IslandScene = {
       },
       3: () => { waypoints.push({ from: p3, to: p2, type: 'superjump' }); },
       4: () => { waypoints.push({ from: p4, to: p3, type: 'superjump' }); },
-      5: () => { waypoints.push({ from: p5, to: p4, type: 'superjump' }); }
+      5: () => { waypoints.push({ from: p5, to: p4, type: 'superjump' }); },
+      6: () => { waypoints.push({ from: p6, to: p5, type: 'superjump' }); }
     };
 
     const curIdx = parseInt(cur.replace('world-', ''), 10);

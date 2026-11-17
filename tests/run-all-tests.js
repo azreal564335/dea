@@ -97,8 +97,8 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   assert(typeof window.UIModal === 'object', 'window.UIModal is available');
   assert(typeof window.TypingDojo === 'object', 'window.TypingDojo is available');
   assert(typeof window.Simulators === 'object', 'window.Simulators is available');
-  assert(Array.isArray(window.CURRICULUM_WORLDS) && window.CURRICULUM_WORLDS.length === 5, 'All 5 curriculum worlds are loaded');
-  assert(Array.isArray(window.CURRICULUM_LESSONS) && window.CURRICULUM_LESSONS.length === 22, 'All 22 curriculum lessons are loaded');
+  assert(Array.isArray(window.CURRICULUM_WORLDS) && window.CURRICULUM_WORLDS.length === 6, 'All 6 curriculum worlds are loaded');
+  assert(Array.isArray(window.CURRICULUM_LESSONS) && window.CURRICULUM_LESSONS.length === 26, 'All 26 curriculum lessons are loaded');
   assert(Array.isArray(window.TYPING_DATA.categories) && window.TYPING_DATA.categories.length === 6, 'All 6 typing categories loaded');
 
   // Count total drills
@@ -357,6 +357,27 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
       window.Simulators.rbxToggleCheck('playtest', 'lesson-simulator-mount');
       window.Simulators.rbxToggleCheck('privacy', 'lesson-simulator-mount');
       assert(window.Simulators.state.rbxChecks.privacy === true, 'Roblox safe publish checklist completed');
+    } else if (lesson.simulator.type === 'roblox-disaster-lab') {
+      window.Simulators.setDisasterType('flood', 'lesson-simulator-mount');
+      window.Simulators.runDisasterRound('lesson-simulator-mount');
+      assert(window.Simulators.state.disasterRoundRan === true, 'Natural disaster round simulation ran');
+    } else if (lesson.simulator.type === 'roblox-garden-sim') {
+      window.Simulators.gardenSelectCrop('sunflower', 'lesson-simulator-mount');
+      window.Simulators.gardenPlant('lesson-simulator-mount');
+      window.Simulators.gardenWater('lesson-simulator-mount');
+      window.Simulators.gardenWater('lesson-simulator-mount');
+      window.Simulators.gardenHarvest('lesson-simulator-mount');
+      assert(window.Simulators.state.gardenCoins >= 20, 'Garden simulator planted, watered, and harvested for coins');
+    } else if (lesson.simulator.type === 'roblox-rp-stage') {
+      window.Simulators.rpToggleDoor('lesson-simulator-mount');
+      window.Simulators.rpToggleLamp('lesson-simulator-mount');
+      window.Simulators.rpVoteRunway('lesson-simulator-mount');
+      assert(window.Simulators.state.rpDoorOpen === true && window.Simulators.state.rpRunwayStars === 5, 'Brookhaven door and Dress to Impress runway tested');
+    } else if (lesson.simulator.type === 'roblox-boat-builder') {
+      window.Simulators.boatTogglePart('wood', 'lesson-simulator-mount');
+      window.Simulators.boatTogglePart('seat', 'lesson-simulator-mount');
+      window.Simulators.boatLaunch('lesson-simulator-mount');
+      assert(window.Simulators.state.boatLaunched === true, 'Build a Boat WeldConstraint vessel launched');
     }
 
     // Step 3: Quiz View
@@ -434,14 +455,13 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   assert(window.AppState.currentView === 'certificate', 'Navigated to certificate view');
   const certEl = window.document.getElementById('app-main');
   assert(certEl.textContent.includes('數位小探險家學院・榮譽證書'), 'Graduation Certificate title rendered');
-  assert(certEl.textContent.includes('22 / 22 堂數位課程'), 'All 22/22 lessons reflected on Certificate');
+  assert(certEl.textContent.includes('26 / 26 堂數位課程'), 'All 26/26 lessons reflected on Certificate');
   assert(certEl.textContent.includes('22 / 22 關中英盲打特訓'), 'All 22/22 typing drills reflected on Certificate');
   assert(certEl.textContent.includes('傳奇數位魔法師'), 'Awarded highest certification tier: 傳奇數位魔法師');
 
-  // 10. Test IslandScene World 5 Navigation & Routing
+  // 10. Test IslandScene World 6 Navigation & Routing
   console.log('\n--- Testing IslandScene 3D World Map Navigation ---');
   assert(typeof window.IslandScene === 'object', 'window.IslandScene object exists');
-  // Initialize mock islands and avatar to verify multi-modal path routing to World 5
   let selectedTargetWorld = null;
   window.IslandScene._onSelectWorld = (targetId) => { selectedTargetWorld = targetId; };
   window.IslandScene.islands = [
@@ -449,20 +469,21 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
     { userData: { worldId: 'world-2', standPos: new window.THREE.Vector3(-1.8, 0.42, 1.35) } },
     { userData: { worldId: 'world-3', standPos: new window.THREE.Vector3(1.8, 2.75, 0.95) } },
     { userData: { worldId: 'world-4', standPos: new window.THREE.Vector3(5.4, 1.27, 0.85) } },
-    { userData: { worldId: 'world-5', standPos: new window.THREE.Vector3(8.4, 1.85, -0.55) } }
+    { userData: { worldId: 'world-5', standPos: new window.THREE.Vector3(8.4, 1.85, -0.55) } },
+    { userData: { worldId: 'world-6', standPos: new window.THREE.Vector3(11.4, 2.45, 0.85) } }
   ];
   window.IslandScene.avatar = new window.THREE.Group();
   window.IslandScene.currentWorldId = 'world-1';
   window.IslandScene.avatarState.mode = 'idle';
 
-  window.IslandScene.travelToWorld('world-5', true);
+  window.IslandScene.travelToWorld('world-6', true);
   assert(window.IslandScene.avatarState.mode === 'moving', 'Avatar state switched to moving mode');
-  assert(window.IslandScene.avatarState.targetWorldId === 'world-5', 'Target world set to world-5');
-  assert(Array.isArray(window.IslandScene.avatarState.waypoints) && window.IslandScene.avatarState.waypoints.length === 6,
-    `Scenic waypoints to World 5 generated (count: ${window.IslandScene.avatarState.waypoints.length})`);
+  assert(window.IslandScene.avatarState.targetWorldId === 'world-6', 'Target world set to world-6');
+  assert(Array.isArray(window.IslandScene.avatarState.waypoints) && window.IslandScene.avatarState.waypoints.length === 7,
+    `Scenic waypoints to World 6 generated (count: ${window.IslandScene.avatarState.waypoints.length})`);
   const wpTypes = window.IslandScene.avatarState.waypoints.map(w => w.type);
   assert(wpTypes.includes('hop') && wpTypes.includes('swim') && wpTypes.includes('superjump'),
-    'Waypoints include hop, swim, and superjump segments to reach World 5');
+    'Waypoints include hop, swim, and superjump segments to reach World 6');
 }
 
 async function main() {
