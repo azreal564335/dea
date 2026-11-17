@@ -108,11 +108,13 @@ window.IslandScene = {
     const w3Total = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-3').length || 6;
     const w4Done = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-4' && profile.completedLessons[l.id]).length;
     const w4Total = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-4').length || 3;
+    const w5Done = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-5' && profile.completedLessons[l.id]).length;
+    const w5Total = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-5').length || 4;
 
     container.innerHTML = `
       <div class="three-island-stage" id="${containerId}-stage" style="height: 390px;">
         <div class="three-hud-top">
-          <span class="three-pill-badge">🎮 點擊島嶼讓 ${profile.avatar} 跳石頭、游泳、或超級大跳躍前往天空島與創意島！</span>
+          <span class="three-pill-badge">🎮 點擊島嶼讓 ${profile.avatar} 跳石頭、游泳、或超級大跳躍前往天空島、創意島與 Roblox 島！</span>
           <span id="${containerId}-hover-label" class="three-hover-pill">✨ 拖曳可旋轉 3D 冒險地圖</span>
         </div>
         <div class="three-island-labels">
@@ -127,6 +129,9 @@ window.IslandScene = {
           </button>
           <button class="island-quick-chip w4" onclick="window.IslandScene.travelToWorld('world-4', true)">
             🚀 4. 創意程式島 (⭐${w4Done}/${w4Total})
+          </button>
+          <button class="island-quick-chip w5" onclick="window.IslandScene.travelToWorld('world-5', true)">
+            🧱 5. Roblox 工坊 (⭐${w5Done}/${w5Total})
           </button>
         </div>
       </div>
@@ -457,7 +462,38 @@ window.IslandScene = {
     island4.add(studioGroup);
     scene.add(island4);
 
-    this.islands = [island1, island2, island3, island4];
+    // =========================================================================
+    // ISLAND 5: ROBLOX 3D 遊戲工坊 (Roblox Obby & Studio Blocky Island)
+    // =========================================================================
+    const island5 = createFutureIsland(0xe11d48, 0xfb7185);
+    island5.position.set(8.4, 1.4, -1.2);
+    island5.userData = {
+      worldId: 'world-5',
+      label: '🧱 World 5: Roblox 3D 遊戲工坊・跑酷與 Luau (點擊探索！)',
+      standPos: new THREE.Vector3(8.4, 1.85, -0.55)
+    };
+
+    const rbxGroup = new THREE.Group();
+    rbxGroup.position.set(0, 0.5, -0.2);
+    const rbxColors = [0x22c55e, 0xf59e0b, 0x3b82f6];
+    rbxColors.forEach((col, i) => {
+      const part = new THREE.Mesh(
+        new THREE.BoxGeometry(0.55, 0.24, 0.55),
+        new THREE.MeshStandardMaterial({ color: col, roughness: 0.3, flatShading: true })
+      );
+      part.position.set((i - 1) * 0.6, i * 0.28 + 0.15, (i % 2 === 0 ? 0.2 : -0.2));
+      rbxGroup.add(part);
+    });
+    const goalFlag = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.04, 0.04, 0.9, 6),
+      new THREE.MeshStandardMaterial({ color: 0xfef08a, emissive: 0xf59e0b, emissiveIntensity: 0.4 })
+    );
+    goalFlag.position.set(0.6, 1.15, 0.2);
+    rbxGroup.add(goalFlag);
+    island5.add(rbxGroup);
+    scene.add(island5);
+
+    this.islands = [island1, island2, island3, island4, island5];
 
     // =========================================================================
     // STEPPING STONES (Between Island 1 & Water Swim Channel to Island 2)
@@ -504,6 +540,7 @@ window.IslandScene = {
     createChest(new THREE.Vector3(-3.6, -0.1, -0.5), w1Done >= w1Total);
     createChest(new THREE.Vector3(0.0, -0.1, -0.5), w2Done >= w2Total);
     createChest(new THREE.Vector3(3.6, 0.3, -0.4), w3Done >= w3Total);
+    createChest(new THREE.Vector3(6.9, 0.7, -0.6), w4Done >= w4Total);
 
     // =========================================================================
     // 3D EXPLORER AVATAR (🦁 Lion or 🦊 Fox)
@@ -538,6 +575,7 @@ window.IslandScene = {
     if (w2Done > 0) startWorld = 'world-2';
     if (w3Done > 0) startWorld = 'world-3';
     if (w4Done > 0) startWorld = 'world-4';
+    if (w5Done > 0) startWorld = 'world-5';
     this.currentWorldId = startWorld;
     const initIsl = this.islands.find(i => i.userData.worldId === startWorld) || island1;
     avatarGroup.position.copy(initIsl.userData.standPos);
@@ -839,69 +877,45 @@ window.IslandScene = {
     const p2 = this.islands[1].userData.standPos;
     const p3 = this.islands[2].userData.standPos;
     const p4 = this.islands[3].userData.standPos;
+    const p5 = this.islands[4] ? this.islands[4].userData.standPos : p4;
 
     const waypoints = [];
     const cur = this.currentWorldId;
 
-    // Helper functions for common travel segments
-    const add1to2 = () => {
-      waypoints.push({ from: p1, to: s1, type: 'hop' });
-      waypoints.push({ from: s1, to: s2, type: 'hop' });
-      waypoints.push({ from: s2, to: p2, type: 'swim' });
-    };
-    const add2to1 = () => {
-      waypoints.push({ from: p2, to: s2, type: 'swim' });
-      waypoints.push({ from: s2, to: s1, type: 'hop' });
-      waypoints.push({ from: s1, to: p1, type: 'hop' });
-    };
-    const add2to3 = () => {
-      waypoints.push({ from: p2, to: p3, type: 'superjump' });
-    };
-    const add3to2 = () => {
-      waypoints.push({ from: p3, to: p2, type: 'superjump' });
-    };
-    const add3to4 = () => {
-      // Super jump glide down from AI Sky Island to Creative Studio Island
-      waypoints.push({ from: p3, to: p4, type: 'superjump' });
-    };
-    const add4to3 = () => {
-      // Super jump rocket boost up to AI Sky Island
-      waypoints.push({ from: p4, to: p3, type: 'superjump' });
+    const segmentsForward = {
+      1: () => {
+        waypoints.push({ from: p1, to: s1, type: 'hop' });
+        waypoints.push({ from: s1, to: s2, type: 'hop' });
+        waypoints.push({ from: s2, to: p2, type: 'swim' });
+      },
+      2: () => { waypoints.push({ from: p2, to: p3, type: 'superjump' }); },
+      3: () => { waypoints.push({ from: p3, to: p4, type: 'superjump' }); },
+      4: () => { waypoints.push({ from: p4, to: p5, type: 'superjump' }); }
     };
 
-    // Build scenic multi-modal travel routes between all 4 worlds:
-    if (cur === 'world-1' && targetWorldId === 'world-2') {
-      add1to2();
-    } else if (cur === 'world-2' && targetWorldId === 'world-1') {
-      add2to1();
-    } else if (cur === 'world-2' && targetWorldId === 'world-3') {
-      add2to3();
-    } else if (cur === 'world-3' && targetWorldId === 'world-2') {
-      add3to2();
-    } else if (cur === 'world-3' && targetWorldId === 'world-4') {
-      add3to4();
-    } else if (cur === 'world-4' && targetWorldId === 'world-3') {
-      add4to3();
-    } else if (cur === 'world-1' && targetWorldId === 'world-3') {
-      add1to2();
-      add2to3();
-    } else if (cur === 'world-3' && targetWorldId === 'world-1') {
-      add3to2();
-      add2to1();
-    } else if (cur === 'world-1' && targetWorldId === 'world-4') {
-      add1to2();
-      add2to3();
-      add3to4();
-    } else if (cur === 'world-4' && targetWorldId === 'world-1') {
-      add4to3();
-      add3to2();
-      add2to1();
-    } else if (cur === 'world-2' && targetWorldId === 'world-4') {
-      add2to3();
-      add3to4();
-    } else if (cur === 'world-4' && targetWorldId === 'world-2') {
-      add4to3();
-      add3to2();
+    const segmentsBackward = {
+      2: () => {
+        waypoints.push({ from: p2, to: s2, type: 'swim' });
+        waypoints.push({ from: s2, to: s1, type: 'hop' });
+        waypoints.push({ from: s1, to: p1, type: 'hop' });
+      },
+      3: () => { waypoints.push({ from: p3, to: p2, type: 'superjump' }); },
+      4: () => { waypoints.push({ from: p4, to: p3, type: 'superjump' }); },
+      5: () => { waypoints.push({ from: p5, to: p4, type: 'superjump' }); }
+    };
+
+    const curIdx = parseInt(cur.replace('world-', ''), 10);
+    const tgtIdx = parseInt(targetWorldId.replace('world-', ''), 10);
+    if (!Number.isNaN(curIdx) && !Number.isNaN(tgtIdx)) {
+      if (curIdx < tgtIdx) {
+        for (let i = curIdx; i < tgtIdx; i++) {
+          if (segmentsForward[i]) segmentsForward[i]();
+        }
+      } else if (curIdx > tgtIdx) {
+        for (let i = curIdx; i > tgtIdx; i--) {
+          if (segmentsBackward[i]) segmentsBackward[i]();
+        }
+      }
     }
 
     if (waypoints.length === 0) {

@@ -101,7 +101,58 @@ window.Simulators = {
     storySettingIdx: 0,
     storyTwistIdx: 0,
     storyCurrentScene: 0,
-    storyAudioPlaying: false
+    storyAudioPlaying: false,
+
+    // Roblox Studio Basics (Lesson 5.1)
+    rbxParts: [
+      { id: 'part-1', name: 'SpawnLocation', shape: 'Block', color: '#3b82f6', material: 'SmoothPlastic', anchored: true, x: 40, y: 150, w: 72, h: 18, rot: 0 },
+      { id: 'part-2', name: 'SkyPlatform', shape: 'Block', color: '#10b981', material: 'Wood', anchored: true, x: 155, y: 95, w: 96, h: 20, rot: 0 },
+      { id: 'part-3', name: 'LooseBrick', shape: 'Wedge', color: '#f59e0b', material: 'Neon', anchored: false, x: 295, y: 60, w: 68, h: 36, rot: 0 }
+    ],
+    rbxSelectedId: 'part-3',
+    rbxTool: 'move',
+    rbxPlaytestRunning: false,
+
+    // Roblox Obby Builder & Playtester (Lesson 5.2)
+    obbyBrush: 'safe',
+    obbyCells: {
+      '0,3': 'spawn',
+      '1,3': 'safe',
+      '2,3': 'lava',
+      '3,2': 'safe',
+      '4,2': 'checkpoint',
+      '5,2': 'moving',
+      '6,1': 'safe',
+      '7,1': 'goal'
+    },
+    obbyPlaying: false,
+    obbyPlayerX: 25,
+    obbyPlayerY: 132,
+    obbyPlayerVY: 0,
+    obbyOnGround: true,
+    obbySpawnX: 25,
+    obbySpawnY: 132,
+    obbyDeaths: 0,
+    obbyReachedGoal: false,
+    obbyMoveTick: 0,
+    obbyTimerId: null,
+
+    // Roblox Luau Script Lab (Lesson 5.3)
+    luaPreset: 'coin',
+    luaStep1: false,
+    luaStep2: false,
+    luaStep3: false,
+    luaCoins: 0,
+    luaWalkSpeed: 16,
+    luaJumpPower: 50,
+    luaDoorOpen: false,
+    luaTriggered: false,
+
+    // Roblox Multi-Genre Game Architect (Lesson 5.4)
+    rbxGenre: 'tycoon',
+    rbxGenreModules: {},
+    rbxGenreSimDone: false,
+    rbxChecks: { toolbox: false, privacy: false, playtest: false }
   },
 
   render(simConfig, containerId) {
@@ -137,6 +188,14 @@ window.Simulators = {
         return this.renderScratchBlocks(el, containerId);
       case 'story-studio':
         return this.renderStoryStudio(el, containerId);
+      case 'roblox-studio-basics':
+        return this.renderRobloxStudioBasics(el, containerId);
+      case 'roblox-obby-builder':
+        return this.renderRobloxObbyBuilder(el, containerId);
+      case 'roblox-lua-lab':
+        return this.renderRobloxLuaLab(el, containerId);
+      case 'roblox-game-architect':
+        return this.renderRobloxGameArchitect(el, containerId);
       default:
         el.innerHTML = `
           <div class="sim-box" style="text-align:center;">
@@ -2118,5 +2177,618 @@ window.Simulators = {
     if (window.UIModal && window.UIModal.toast) {
       window.UIModal.toast(`🔊 正在為你朗讀第 ${sceneIdx + 1} 幕故事有聲書...`, 3000);
     }
+  },
+
+  // ==========================================================================
+  // 5.1 ROBLOX STUDIO BASICS WORKBENCH (PART, TRANSFORM, EXPLORER, ANCHORED)
+  // ==========================================================================
+  renderRobloxStudioBasics(el, cid) {
+    const s = this.state;
+    const selected = s.rbxParts.find(p => p.id === s.rbxSelectedId) || s.rbxParts[0];
+    const allAnchored = s.rbxParts.length > 0 && s.rbxParts.every(p => p.anchored);
+
+    el.innerHTML = `
+      <div class="sim-box roblox-box">
+        <div class="roblox-toolbar">
+          <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            <button class="rbx-tool-btn ${s.rbxTool === 'move' ? 'active' : ''}" onclick="window.Simulators.rbxSetTool('move', '${cid}')">✥ Move 移動</button>
+            <button class="rbx-tool-btn ${s.rbxTool === 'scale' ? 'active' : ''}" onclick="window.Simulators.rbxSetTool('scale', '${cid}')">⤢ Scale 縮放</button>
+            <button class="rbx-tool-btn ${s.rbxTool === 'rotate' ? 'active' : ''}" onclick="window.Simulators.rbxSetTool('rotate', '${cid}')">↻ Rotate 旋轉</button>
+          </div>
+          <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            <button class="btn-secondary" style="padding:0.35rem 0.7rem; font-size:0.82rem;" onclick="window.Simulators.rbxAddPart('Block', '${cid}')">+ 🧱 方塊</button>
+            <button class="btn-secondary" style="padding:0.35rem 0.7rem; font-size:0.82rem;" onclick="window.Simulators.rbxAddPart('Wedge', '${cid}')">+ 📐 斜坡</button>
+            <button class="btn-primary" style="padding:0.35rem 0.85rem; font-size:0.85rem; background:${s.rbxPlaytestRunning ? '#dc2626' : '#059669'};" onclick="window.Simulators.rbxTogglePlaytest('${cid}')">
+              ${s.rbxPlaytestRunning ? '⏹ Stop 停止試玩' : '▶ Playtest 試玩重力'}
+            </button>
+          </div>
+        </div>
+
+        <div class="roblox-studio-grid">
+          <!-- 3D Viewport -->
+          <div class="roblox-viewport">
+            <div class="roblox-viewport-hud">
+              <span>🎥 3D Viewport (WASD 飛行 / 右鍵旋轉 / F 聚焦)</span>
+              <span>${s.rbxPlaytestRunning ? (allAnchored ? '✅ 重力測試：所有積木都穩穩浮在空中！' : '💥 哎呀！沒開 Anchored 的積木掉到地板上了！') : '🛠️ 編輯模式'}</span>
+            </div>
+            <div class="roblox-stage-area">
+              ${s.rbxParts.map(p => {
+                const isSel = selected && selected.id === p.id;
+                const fallenY = (s.rbxPlaytestRunning && !p.anchored) ? 168 - p.h : p.y;
+                const radius = p.shape === 'Sphere' ? '50%' : '4px';
+                const clip = p.shape === 'Wedge' ? 'polygon(0 100%, 100% 0, 100% 100%)' : 'none';
+                return `
+                  <div onclick="window.Simulators.rbxSelectPart('${p.id}', '${cid}')"
+                       class="rbx-part ${isSel ? 'selected' : ''}"
+                       style="left:${p.x}px; top:${fallenY}px; width:${p.w}px; height:${p.h}px; background:${p.color}; border-radius:${radius}; clip-path:${clip}; transform:rotate(${p.rot}deg);">
+                    <span class="rbx-part-tag">${p.anchored ? '⚓' : '⚠️'} ${p.name}</span>
+                  </div>
+                `;
+              }).join('')}
+              <div class="roblox-baseplate">Baseplate (灰色安全地板)</div>
+            </div>
+            ${selected ? `
+              <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.5rem; justify-content:center;">
+                <button class="btn-secondary" style="padding:0.28rem 0.65rem; font-size:0.8rem;" onclick="window.Simulators.rbxTransformSelected(-18, 0, '${cid}')">⬅️ 左 / 縮小 / 左轉</button>
+                <button class="btn-secondary" style="padding:0.28rem 0.65rem; font-size:0.8rem;" onclick="window.Simulators.rbxTransformSelected(18, 0, '${cid}')">➡️ 右 / 拉長 / 右轉</button>
+                <button class="btn-secondary" style="padding:0.28rem 0.65rem; font-size:0.8rem;" onclick="window.Simulators.rbxTransformSelected(0, -18, '${cid}')">⬆️ 升高</button>
+                <button class="btn-secondary" style="padding:0.28rem 0.65rem; font-size:0.8rem;" onclick="window.Simulators.rbxTransformSelected(0, 18, '${cid}')">⬇️ 降低</button>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Explorer + Properties -->
+          <div class="roblox-sidebar">
+            <div class="roblox-panel">
+              <div class="roblox-panel-title">📂 Explorer (物件層級樹)</div>
+              <div style="font-size:0.82rem; font-weight:700; color:#475569; margin-bottom:0.35rem;">▾ 🌐 Workspace</div>
+              ${s.rbxParts.map(p => `
+                <div class="rbx-explorer-item ${selected && selected.id === p.id ? 'active' : ''}"
+                     onclick="window.Simulators.rbxSelectPart('${p.id}', '${cid}')">
+                  <span>🧱 ${p.name}</span>
+                  <span>${p.anchored ? '⚓' : '⚠️'}</span>
+                </div>
+              `).join('')}
+            </div>
+
+            ${selected ? `
+              <div class="roblox-panel">
+                <div class="roblox-panel-title">⚙️ Properties (${selected.name})</div>
+                <div class="rbx-prop-row">
+                  <span>Color 顏色</span>
+                  <div style="display:flex; gap:4px;">
+                    ${['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#a855f7'].map(c => `
+                      <button onclick="window.Simulators.rbxUpdateProp('color', '${c}', '${cid}')"
+                              style="width:20px; height:20px; border-radius:4px; border:${selected.color === c ? '2px solid #0f172a' : '1px solid #cbd5e1'}; background:${c}; cursor:pointer;"></button>
+                    `).join('')}
+                  </div>
+                </div>
+                <div class="rbx-prop-row">
+                  <span>Material 材質</span>
+                  <select onchange="window.Simulators.rbxUpdateProp('material', this.value, '${cid}')" style="font-size:0.8rem; padding:2px 4px; border-radius:6px;">
+                    ${['SmoothPlastic', 'Wood', 'Neon', 'Grass'].map(m => `<option value="${m}" ${selected.material === m ? 'selected' : ''}>${m}</option>`).join('')}
+                  </select>
+                </div>
+                <div class="rbx-prop-row">
+                  <span>⚓ Anchored (固定鎖)</span>
+                  <button onclick="window.Simulators.rbxUpdateProp('anchored', ${!selected.anchored}, '${cid}')"
+                          style="padding:0.25rem 0.6rem; border-radius:8px; border:none; font-weight:800; cursor:pointer; background:${selected.anchored ? '#dcfce7' : '#fee2e2'}; color:${selected.anchored ? '#166534' : '#991b1b'};">
+                    ${selected.anchored ? '✅ true (已固定)' : '❌ false (會掉落!)'}
+                  </button>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  rbxSelectPart(id, cid) {
+    this.state.rbxSelectedId = id;
+    this.render({ type: 'roblox-studio-basics' }, cid);
+  },
+
+  rbxSetTool(tool, cid) {
+    this.state.rbxTool = tool;
+    this.render({ type: 'roblox-studio-basics' }, cid);
+  },
+
+  rbxAddPart(shape, cid) {
+    const idx = this.state.rbxParts.length + 1;
+    const newPart = {
+      id: `part-${Date.now()}-${idx}`,
+      name: `${shape}${idx}`,
+      shape,
+      color: shape === 'Wedge' ? '#ec4899' : '#06b6d4',
+      material: 'SmoothPlastic',
+      anchored: true,
+      x: 60 + ((idx * 35) % 240),
+      y: 65 + ((idx * 15) % 60),
+      w: 68,
+      h: shape === 'Wedge' ? 34 : 22,
+      rot: 0
+    };
+    this.state.rbxParts.push(newPart);
+    this.state.rbxSelectedId = newPart.id;
+    this.state.rbxPlaytestRunning = false;
+    this.render({ type: 'roblox-studio-basics' }, cid);
+  },
+
+  rbxUpdateProp(key, val, cid) {
+    const p = this.state.rbxParts.find(item => item.id === this.state.rbxSelectedId);
+    if (!p) return;
+    p[key] = val;
+    this.render({ type: 'roblox-studio-basics' }, cid);
+  },
+
+  rbxTransformSelected(dx, dy, cid) {
+    const p = this.state.rbxParts.find(item => item.id === this.state.rbxSelectedId);
+    if (!p) return;
+    const t = this.state.rbxTool;
+    if (t === 'move') {
+      p.x = Math.max(10, Math.min(340, p.x + dx));
+      p.y = Math.max(20, Math.min(145, p.y + dy));
+    } else if (t === 'scale') {
+      p.w = Math.max(32, Math.min(160, p.w + dx));
+      p.h = Math.max(14, Math.min(70, p.h - Math.sign(dy) * 8));
+    } else if (t === 'rotate') {
+      p.rot = (p.rot + (dx > 0 ? 15 : -15)) % 360;
+    }
+    this.render({ type: 'roblox-studio-basics' }, cid);
+  },
+
+  rbxTogglePlaytest(cid) {
+    this.state.rbxPlaytestRunning = !this.state.rbxPlaytestRunning;
+    this.render({ type: 'roblox-studio-basics' }, cid);
+  },
+
+  // ==========================================================================
+  // 5.2 ROBLOX OBBY STAGE BUILDER & PLAYTESTER
+  // ==========================================================================
+  renderRobloxObbyBuilder(el, cid) {
+    const s = this.state;
+    const cols = 8;
+    const rows = 5;
+    const brushes = [
+      { id: 'safe', icon: '🟩', label: '安全平台' },
+      { id: 'lava', icon: '🟥', label: '岩漿陷阱' },
+      { id: 'moving', icon: '🟦', label: '移動平台' },
+      { id: 'checkpoint', icon: '🚩', label: '存檔點' },
+      { id: 'goal', icon: '🏆', label: '終點獎盃' },
+      { id: 'erase', icon: '🧹', label: '橡皮擦' }
+    ];
+
+    let gridHtml = '';
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const key = `${c},${r}`;
+        const cell = s.obbyCells[key] || '';
+        const emojiMap = { spawn: '🚀', safe: '🟩', lava: '🔥', moving: '🟦', checkpoint: '🚩', goal: '🏆' };
+        gridHtml += `
+          <button class="obby-cell ${cell ? 'type-' + cell : ''}"
+                  onclick="window.Simulators.obbyPaintCell(${c}, ${r}, '${cid}')">
+            ${emojiMap[cell] || ''}
+          </button>
+        `;
+      }
+    }
+
+    el.innerHTML = `
+      <div class="sim-box roblox-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+          <div style="display:flex; gap:0.35rem; flex-wrap:wrap;">
+            ${brushes.map(b => `
+              <button class="rbx-tool-btn ${s.obbyBrush === b.id ? 'active' : ''}"
+                      onclick="window.Simulators.obbySetBrush('${b.id}', '${cid}')">
+                ${b.icon} ${b.label}
+              </button>
+            `).join('')}
+          </div>
+          <button class="btn-primary" style="background:${s.obbyPlaying ? '#dc2626' : '#059669'};"
+                  onclick="window.Simulators.obbyTogglePlaytest('${cid}')">
+            ${s.obbyPlaying ? '🛠️ 返回編輯模式' : '▶ Playtest 試玩跑酷'}
+          </button>
+        </div>
+
+        ${!s.obbyPlaying ? `
+          <div class="obby-grid-editor">${gridHtml}</div>
+          <div style="font-size:0.84rem; color:#475569; font-weight:700; margin-top:0.5rem; text-align:center;">
+            💡 點擊格子擺放跑酷磚塊，完成後按「▶ Playtest 試玩跑酷」親自挑戰！
+          </div>
+        ` : `
+          <div class="obby-playtest-box">
+            <div style="display:flex; justify-content:space-between; font-weight:800; margin-bottom:0.4rem; font-size:0.9rem;">
+              <span>🏃 試玩中！目標：抵達 🏆 終點</span>
+              <span>💀 失誤次數：${s.obbyDeaths} | ${s.obbyReachedGoal ? '🎉 跑酷過關成功！' : '加油跳躍！'}</span>
+            </div>
+            <canvas id="${cid}-obby-canvas" width="480" height="220" style="width:100%; max-width:480px; background:#0f172a; border-radius:12px; display:block; margin:0 auto;"></canvas>
+            <div style="display:flex; justify-content:center; gap:0.6rem; margin-top:0.65rem; flex-wrap:wrap;">
+              <button class="btn-secondary" onclick="window.Simulators.obbyControl('left', '${cid}')">⬅️ 往左 (A)</button>
+              <button class="btn-primary" onclick="window.Simulators.obbyControl('jump', '${cid}')">⬆️ 跳躍 (Space)</button>
+              <button class="btn-secondary" onclick="window.Simulators.obbyControl('right', '${cid}')">➡️ 往右 (D)</button>
+            </div>
+          </div>
+        `}
+      </div>
+    `;
+
+    if (s.obbyPlaying) {
+      this.obbyDrawCanvas(cid);
+    }
+  },
+
+  obbySetBrush(brush, cid) {
+    this.state.obbyBrush = brush;
+    this.render({ type: 'roblox-obby-builder' }, cid);
+  },
+
+  obbyPaintCell(c, r, cid) {
+    const key = `${c},${r}`;
+    if (this.state.obbyCells[key] === 'spawn') return; // preserve spawn
+    if (this.state.obbyBrush === 'erase') {
+      delete this.state.obbyCells[key];
+    } else {
+      this.state.obbyCells[key] = this.state.obbyBrush;
+    }
+    this.render({ type: 'roblox-obby-builder' }, cid);
+  },
+
+  obbyTogglePlaytest(cid) {
+    const s = this.state;
+    if (s.obbyPlaying) {
+      s.obbyPlaying = false;
+      if (s.obbyTimerId) {
+        clearInterval(s.obbyTimerId);
+        s.obbyTimerId = null;
+      }
+      this.render({ type: 'roblox-obby-builder' }, cid);
+      return;
+    }
+
+    s.obbyPlaying = true;
+    s.obbyReachedGoal = false;
+    s.obbyDeaths = 0;
+    s.obbySpawnX = 25;
+    s.obbySpawnY = 120;
+    // Find spawn cell
+    Object.keys(s.obbyCells).forEach(k => {
+      if (s.obbyCells[k] === 'spawn') {
+        const [c, r] = k.split(',').map(Number);
+        s.obbySpawnX = c * 60 + 20;
+        s.obbySpawnY = r * 44 - 22;
+      }
+    });
+    s.obbyPlayerX = s.obbySpawnX;
+    s.obbyPlayerY = s.obbySpawnY;
+    s.obbyPlayerVY = 0;
+    s.obbyOnGround = true;
+
+    this.render({ type: 'roblox-obby-builder' }, cid);
+
+    if (s.obbyTimerId) clearInterval(s.obbyTimerId);
+    s.obbyTimerId = setInterval(() => {
+      if (!this.state.obbyPlaying) {
+        clearInterval(this.state.obbyTimerId);
+        this.state.obbyTimerId = null;
+        return;
+      }
+      this.obbyPhysicsTick(cid);
+    }, 60);
+  },
+
+  obbyControl(action, cid) {
+    const s = this.state;
+    if (!s.obbyPlaying) return;
+    if (action === 'left') s.obbyPlayerX = Math.max(4, s.obbyPlayerX - 24);
+    if (action === 'right') s.obbyPlayerX = Math.min(454, s.obbyPlayerX + 24);
+    if (action === 'jump') {
+      s.obbyPlayerVY = -14;
+      s.obbyOnGround = false;
+    }
+    this.obbyPhysicsTick(cid);
+  },
+
+  obbyPhysicsTick(cid) {
+    const s = this.state;
+    s.obbyMoveTick = (s.obbyMoveTick + 1) % 60;
+    s.obbyPlayerVY = Math.min(12, s.obbyPlayerVY + 2.2);
+    s.obbyPlayerY += s.obbyPlayerVY;
+
+    const px = s.obbyPlayerX + 10;
+    const py = s.obbyPlayerY + 20;
+
+    // Check collisions with grid cells
+    Object.keys(s.obbyCells).forEach(k => {
+      const type = s.obbyCells[k];
+      const [c, r] = k.split(',').map(Number);
+      const offsetX = type === 'moving' ? Math.sin(s.obbyMoveTick / 10) * 18 : 0;
+      const cx = c * 60 + offsetX;
+      const cy = r * 44;
+      if (px >= cx && px <= cx + 56 && py >= cy && py <= cy + 24 && s.obbyPlayerVY >= 0) {
+        if (type === 'lava') {
+          s.obbyDeaths++;
+          s.obbyPlayerX = s.obbySpawnX;
+          s.obbyPlayerY = s.obbySpawnY;
+          s.obbyPlayerVY = 0;
+        } else {
+          s.obbyPlayerY = cy - 20;
+          s.obbyPlayerVY = 0;
+          s.obbyOnGround = true;
+          if (type === 'checkpoint') {
+            s.obbySpawnX = cx + 16;
+            s.obbySpawnY = cy - 22;
+          } else if (type === 'goal' && !s.obbyReachedGoal) {
+            s.obbyReachedGoal = true;
+            if (s.obbyTimerId) {
+              clearInterval(s.obbyTimerId);
+              s.obbyTimerId = null;
+            }
+            if (window.UIModal && window.UIModal.toast) {
+              window.UIModal.toast('🏆 太神啦！你成功通過自己設計的 3D 跑酷關卡了！', 3500);
+            }
+          }
+        }
+      }
+    });
+
+    // Fall into void
+    if (s.obbyPlayerY > 220) {
+      s.obbyDeaths++;
+      s.obbyPlayerX = s.obbySpawnX;
+      s.obbyPlayerY = s.obbySpawnY;
+      s.obbyPlayerVY = 0;
+    }
+
+    this.obbyDrawCanvas(cid);
+  },
+
+  obbyDrawCanvas(cid) {
+    const canvas = document.getElementById(`${cid}-obby-canvas`);
+    if (!canvas || !canvas.getContext) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const s = this.state;
+    ctx.clearRect(0, 0, 480, 220);
+
+    // Draw platforms
+    Object.keys(s.obbyCells).forEach(k => {
+      const type = s.obbyCells[k];
+      const [c, r] = k.split(',').map(Number);
+      const offsetX = type === 'moving' ? Math.sin(s.obbyMoveTick / 10) * 18 : 0;
+      const x = c * 60 + offsetX;
+      const y = r * 44;
+      const colors = { spawn: '#3b82f6', safe: '#22c55e', lava: '#ef4444', moving: '#38bdf8', checkpoint: '#eab308', goal: '#f59e0b' };
+      ctx.fillStyle = colors[type] || '#94a3b8';
+      ctx.fillRect(x, y, 54, 18);
+    });
+
+    // Draw Roblox blocky character
+    ctx.fillStyle = '#fde047';
+    ctx.fillRect(s.obbyPlayerX, s.obbyPlayerY, 20, 20);
+  },
+
+  // ==========================================================================
+  // 5.3 ROBLOX LUAU SCRIPTING LAB
+  // ==========================================================================
+  renderRobloxLuaLab(el, cid) {
+    const s = this.state;
+    const presets = {
+      coin: {
+        name: '🪙 旋轉金幣 (Collectible Coin)',
+        line1: 'local coin = script.Parent',
+        line2: 'coin.Touched:Connect(function(hit)',
+        line3: '  leaderstats.Coins.Value += 1 -- 防連點冷卻 debounce!'
+      },
+      speed: {
+        name: '⚡ 閃電加速板 (Speed Pad)',
+        line1: 'local pad = script.Parent',
+        line2: 'pad.Touched:Connect(function(hit)',
+        line3: '  hit.Parent.Humanoid.WalkSpeed = 40'
+      },
+      bounce: {
+        name: '🦘 超級彈跳板 (Bounce Pad)',
+        line1: 'local pad = script.Parent',
+        line2: 'pad.Touched:Connect(function(hit)',
+        line3: '  hit.Parent.Humanoid.JumpPower = 120'
+      },
+      door: {
+        name: '🚪 感應自動門 (Auto Door)',
+        line1: 'local door = script.Parent',
+        line2: 'door.Touched:Connect(function(hit)',
+        line3: '  door.Transparency = 0.7; door.CanCollide = false'
+      }
+    };
+    const cur = presets[s.luaPreset] || presets.coin;
+    const allAssembled = s.luaStep1 && s.luaStep2 && s.luaStep3;
+
+    el.innerHTML = `
+      <div class="sim-box roblox-box">
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.85rem;">
+          ${Object.keys(presets).map(k => `
+            <button class="rbx-tool-btn ${s.luaPreset === k ? 'active' : ''}"
+                    onclick="window.Simulators.luaSelectPreset('${k}', '${cid}')">
+              ${presets[k].name}
+            </button>
+          `).join('')}
+        </div>
+
+        <div class="roblox-studio-grid">
+          <div>
+            <div style="font-weight:800; margin-bottom:0.4rem;">📜 點擊積木組裝 Luau 腳本 (Script)：</div>
+            <div class="lua-code-bench">
+              <button class="lua-line-btn ${s.luaStep1 ? 'done' : ''}" onclick="window.Simulators.luaToggleStep(1, '${cid}')">
+                ${s.luaStep1 ? '✅' : '1️⃣'} <code>${cur.line1}</code>
+              </button>
+              <button class="lua-line-btn ${s.luaStep2 ? 'done' : ''}" onclick="window.Simulators.luaToggleStep(2, '${cid}')">
+                ${s.luaStep2 ? '✅' : '2️⃣'} <code>${cur.line2}</code>
+              </button>
+              <button class="lua-line-btn ${s.luaStep3 ? 'done' : ''}" onclick="window.Simulators.luaToggleStep(3, '${cid}')">
+                ${s.luaStep3 ? '✅' : '3️⃣'} <code>${cur.line3}</code>
+              </button>
+            </div>
+            <button class="btn-primary" style="margin-top:0.7rem; width:100%;"
+                    ${allAssembled ? '' : 'disabled'}
+                    onclick="window.Simulators.luaRunTrigger('${cid}')">
+              ${allAssembled ? '▶ Run Script 派角色踩上去測試！' : '👆 請先依序點選上方 3 行 Luau 程式積木'}
+            </button>
+          </div>
+
+          <div class="roblox-panel">
+            <div class="roblox-panel-title">📊 遊戲即時狀態 (leaderstats & Humanoid)</div>
+            <div style="font-size:0.95rem; font-weight:800; line-height:1.9;">
+              <div>🪙 Coins 金幣：<span style="color:#d97706;">${s.luaCoins}</span></div>
+              <div>⚡ WalkSpeed 速度：<span style="color:#0284c7;">${s.luaWalkSpeed}</span></div>
+              <div>🦘 JumpPower 跳力：<span style="color:#059669;">${s.luaJumpPower}</span></div>
+              <div>🚪 Door 感應門：<span style="color:#7c3aed;">${s.luaDoorOpen ? '已開啟 (可穿過)' : '關閉中'}</span></div>
+            </div>
+            ${s.luaTriggered ? `
+              <div style="margin-top:0.6rem; padding:0.55rem; background:#dcfce7; color:#166534; border-radius:10px; font-weight:800; font-size:0.85rem;">
+                ✨ <code>Touched</code> 事件成功觸發！機關運作正常！
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  luaSelectPreset(preset, cid) {
+    this.state.luaPreset = preset;
+    this.state.luaStep1 = false;
+    this.state.luaStep2 = false;
+    this.state.luaStep3 = false;
+    this.state.luaTriggered = false;
+    this.render({ type: 'roblox-lua-lab' }, cid);
+  },
+
+  luaToggleStep(step, cid) {
+    this.state[`luaStep${step}`] = true;
+    this.render({ type: 'roblox-lua-lab' }, cid);
+  },
+
+  luaRunTrigger(cid) {
+    const s = this.state;
+    s.luaTriggered = true;
+    if (s.luaPreset === 'coin') s.luaCoins += 1;
+    if (s.luaPreset === 'speed') s.luaWalkSpeed = 40;
+    if (s.luaPreset === 'bounce') s.luaJumpPower = 120;
+    if (s.luaPreset === 'door') s.luaDoorOpen = !s.luaDoorOpen;
+    this.render({ type: 'roblox-lua-lab' }, cid);
+  },
+
+  // ==========================================================================
+  // 5.4 ROBLOX MULTI-GENRE GAME ARCHITECT & SAFE PUBLISH
+  // ==========================================================================
+  renderRobloxGameArchitect(el, cid) {
+    const s = this.state;
+    const genres = {
+      tycoon: {
+        name: '🏭 大亨經營 (Tycoon)',
+        loop: 'Dropper 生產 ➔ Conveyor 運送 ➔ Collector 換錢 ➔ Button 買升級',
+        modules: ['⚙️ Dropper 自動生產機', '🛤️ Conveyor 輸送帶', '💵 Cash Collector 收銀台', '🟩 Upgrade Button 升級按鈕']
+      },
+      simulator: {
+        name: '🐾 收集模擬器 (Simulator)',
+        loop: '點擊收集資源 ➔ 裝滿 Backpack ➔ 賣出換金幣 ➔ 買更強寵物',
+        modules: ['💎 寶石/工具點擊器', '🎒 Backpack 背包容量', '🏪 商店賣出換金幣', '🐣 寵物孵化機 (Pet Egg)']
+      },
+      racing: {
+        name: '🏎️ 賽車競速 (Racing)',
+        loop: '坐上 VehicleSeat ➔ 衝過賽道彎道 ➔ 通過 Checkpoint ➔ 衝線計時',
+        modules: ['🛣️ 3D 賽道與彎道', '🪑 VehicleSeat 駕駛座', '🚩 圈數 Checkpoint', '⏱️ 比賽計時器']
+      },
+      hideseek: {
+        name: '👻 躲貓貓 (Hide & Seek)',
+        loop: '大廳倒數 ➔ 隨機選鬼 (Seeker) ➔ 躲藏者找密室 ➔ 時間到結算',
+        modules: ['🏠 巨大立體家具房間', '🚪 秘密躲藏通道', '⏳ 大廳倒數計時器', '🎯 Teams 分隊系統']
+      }
+    };
+    const cur = genres[s.rbxGenre] || genres.tycoon;
+    const doneMods = cur.modules.filter((_, i) => s.rbxGenreModules[`${s.rbxGenre}-${i}`]).length;
+    const allChecks = s.rbxChecks.toolbox && s.rbxChecks.privacy && s.rbxChecks.playtest;
+
+    el.innerHTML = `
+      <div class="sim-box roblox-box">
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.85rem;">
+          ${Object.keys(genres).map(k => `
+            <button class="rbx-tool-btn ${s.rbxGenre === k ? 'active' : ''}"
+                    onclick="window.Simulators.rbxSelectGenre('${k}', '${cid}')">
+              ${genres[k].name}
+            </button>
+          `).join('')}
+        </div>
+
+        <div style="background:#f8fafc; border:2px solid #cbd5e1; border-radius:14px; padding:0.9rem; margin-bottom:0.85rem;">
+          <div style="font-weight:900; color:#0f172a; margin-bottom:0.35rem;">🔄 核心遊戲循環：${cur.loop}</div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:0.5rem; margin-top:0.6rem;">
+            ${cur.modules.map((m, i) => {
+              const active = !!s.rbxGenreModules[`${s.rbxGenre}-${i}`];
+              return `
+                <button class="lua-line-btn ${active ? 'done' : ''}"
+                        onclick="window.Simulators.rbxToggleModule(${i}, '${cid}')">
+                  ${active ? '✅' : '➕'} ${m}
+                </button>
+              `;
+            }).join('')}
+          </div>
+          <button class="btn-primary" style="margin-top:0.75rem;"
+                  ${doneMods === 4 ? '' : 'disabled'}
+                  onclick="window.Simulators.rbxRunGenreSim('${cid}')">
+            ${doneMods === 4 ? '▶ 模擬此遊戲類型運作！' : `請放入全部 4 個核心模組 (${doneMods}/4)`}
+          </button>
+          ${s.rbxGenreSimDone ? `
+            <div style="margin-top:0.6rem; padding:0.55rem; background:#dcfce7; color:#166534; border-radius:10px; font-weight:800;">
+              🎉 太棒了！你的「${cur.name}」核心循環已成功跑起來囉！
+            </div>
+          ` : ''}
+        </div>
+
+        <div style="background:#fff1f2; border:2px solid #fda4af; border-radius:14px; padding:0.9rem;">
+          <div style="font-weight:900; color:#9f1239; margin-bottom:0.45rem;">🛡️ 安全發佈檢查清單 (Publish Checklist)</div>
+          <div style="display:flex; flex-direction:column; gap:0.4rem;">
+            <label style="font-weight:700; cursor:pointer;">
+              <input type="checkbox" ${s.rbxChecks.toolbox ? 'checked' : ''} onchange="window.Simulators.rbxToggleCheck('toolbox', '${cid}')">
+              1. 已檢查 Toolbox 免費模型，確認沒有可疑的未知 Script
+            </label>
+            <label style="font-weight:700; cursor:pointer;">
+              <input type="checkbox" ${s.rbxChecks.playtest ? 'checked' : ''} onchange="window.Simulators.rbxToggleCheck('playtest', '${cid}')">
+              2. 已按 Play 親自試玩過關，確認所有平台都有開 Anchored
+            </label>
+            <label style="font-weight:700; cursor:pointer;">
+              <input type="checkbox" ${s.rbxChecks.privacy ? 'checked' : ''} onchange="window.Simulators.rbxToggleCheck('privacy', '${cid}')">
+              3. 新手測試先設為 Private（私人）或 Friends（只限好友）安全分享
+            </label>
+          </div>
+          ${allChecks ? `
+            <div style="margin-top:0.6rem; font-weight:900; color:#059669;">
+              🏆 恭喜通過所有安全檢查！你已具備 Roblox 3D 遊戲建築師實力！
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  },
+
+  rbxSelectGenre(genre, cid) {
+    this.state.rbxGenre = genre;
+    this.state.rbxGenreSimDone = false;
+    this.render({ type: 'roblox-game-architect' }, cid);
+  },
+
+  rbxToggleModule(idx, cid) {
+    const key = `${this.state.rbxGenre}-${idx}`;
+    this.state.rbxGenreModules[key] = !this.state.rbxGenreModules[key];
+    this.render({ type: 'roblox-game-architect' }, cid);
+  },
+
+  rbxRunGenreSim(cid) {
+    this.state.rbxGenreSimDone = true;
+    this.render({ type: 'roblox-game-architect' }, cid);
+  },
+
+  rbxToggleCheck(field, cid) {
+    this.state.rbxChecks[field] = !this.state.rbxChecks[field];
+    this.render({ type: 'roblox-game-architect' }, cid);
   }
 };

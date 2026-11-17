@@ -61,6 +61,16 @@ window.CURRICULUM_WORLDS = [
     icon: '🚀',
     themeColor: '#7c3aed',
     badgeName: '數位創意大師勳章'
+  },
+  {
+    id: 'world-5',
+    number: 'World 5',
+    title: 'Roblox 3D 遊戲工坊',
+    titleEn: 'Roblox Studio 3D Map & Game Creator',
+    subtitle: '從零學會 Roblox Studio 開發工具、親手打造 3D 跑酷 (Obby) 關卡、寫 Luau 腳本做金幣與機關，並解鎖多種遊戲類型！',
+    icon: '🧱',
+    themeColor: '#e11d48',
+    badgeName: 'Roblox 建築大師勳章'
   }
 ];
 
@@ -1460,6 +1470,324 @@ window.CURRICULUM_LESSONS = [
         ],
         correct: 0,
         explain: '太棒了！自信分享、累積自己的作品集，你就是最閃耀的數位小探險家！🌟'
+      }
+    ]
+  },
+
+  // ==========================================================================
+  // WORLD 5: ROBLOX 3D 遊戲工坊 (ROBLOX STUDIO MAP & GAME CREATOR)
+  // ==========================================================================
+  {
+    id: 'w5-l1',
+    worldId: 'world-5',
+    number: '5.1',
+    title: 'Roblox Studio 開發工具全攻略：3D 視角、Explorer 與 Anchored 錨定',
+    titleEn: 'Roblox Studio Basics: Viewport, Explorer, Properties & Anchored',
+    icon: '🧰',
+    duration: '18 分鐘',
+    xp: 220,
+    summary: '認識 Roblox Studio 介面四大核心：3D 視窗飛翔移動、Explorer 物件樹、Properties 屬性面板、Move/Scale/Rotate 工具，以及最重要的 Anchored 固定鎖！',
+    vocab: [
+      { en: 'Roblox Studio', zh: 'Roblox 開發工作室', desc: '免費的 3D 遊戲與地圖製作軟體，可在 Windows 11 筆電上打造自己的世界' },
+      { en: 'Explorer', zh: '檔案總管 / 物件層級樹', desc: '顯示地圖裡所有東西的清單，例如 Workspace、Parts、SpawnLocation' },
+      { en: 'Properties', zh: '屬性面板', desc: '用來修改選中積木的顏色 (Color)、材質 (Material)、大小與物理設定' },
+      { en: 'Part', zh: '3D 基礎積木', desc: '建造 Roblox 地圖的基本磚塊（方塊 Block、斜坡 Wedge、球體 Sphere 等）' },
+      { en: 'Anchored', zh: '錨定 / 固定鎖', desc: '超重要開關！打開 Anchored 積木才會乖乖固定在空中，不會受重力掉下去！' }
+    ],
+    cards: [
+      {
+        title: '🚀 打開 Roblox Studio：從玩家變身「3D 世界建築師」！',
+        titleEn: 'Installing & Navigating Roblox Studio on Windows 11',
+        body: `平常玩 Roblox 是玩別人做的地圖，而 **Roblox Studio** 就是讓你當「遊戲設計師」的免費官方工具！
+1. **建立第一張空白地圖**：在 Windows 11 打開 Roblox Studio，點選 **\`Baseplate\`**（經典灰色地板）或 **\`Obby\`** 範本。
+2. **3D 視窗飛行秘訣（建議接滑鼠更好操作）**：
+   * 按住 **\`W / A / S / D\`** 鍵：像玩遊戲一樣前後左右飛行。
+   * 按住 **滑鼠右鍵** 拖曳：轉動攝影機視角看四面八方。
+   * 按下鍵盤 **\`F\`** 鍵：攝影機瞬間飛到你選中的積木正前方！`,
+        highlight: '🎮 小秘訣：按住 Shift + W/A/S/D 可以慢速精細移動，滾動滑鼠滾輪可以縮放！'
+      },
+      {
+        title: '🧩 四大黃金工具：Part、Move、Scale、Rotate',
+        titleEn: 'Building Blocks & Transform Tools',
+        body: `上方工具列（Home / Model 分頁）有四個天天都會用到的魔法按鈕：
+1. **\`Part\`（新增積木）**：點一下就能在地面生出方塊 (**Block**)、球體 (**Sphere**)、斜坡 (**Wedge**) 或圓柱 (**Cylinder**)。
+2. **\`Move\`（移動 - 紅/綠/藍箭頭）**：拉動三個顏色的箭頭，把積木精準移到左邊、右邊或高空中。
+3. **\`Scale\`（縮放 - 彩色圓點）**：拉長變成跑酷長橋，或拉寬變成大平台。
+4. **\`Rotate\`（旋轉 - 彩色圓環）**：把積木轉成斜坡或帥氣的跳台！`,
+        highlight: '🌈 顏色記憶法：X 軸是紅色（左右）、Y 軸是綠色（上下高度）、Z 軸是藍色（前後）！'
+      },
+      {
+        title: '⚓ 新手第一大魔王：忘記按「Anchored (錨定)」！',
+        titleEn: 'The #1 Beginner Rule: Always Check Anchored = true!',
+        body: `很多小朋友花了一小時蓋好超帥的空中跑酷平台，結果一按 **\`Play\`（試玩）**……整個地圖竟然「碰！」一聲全部掉到地板上散開了！😱
+* **為什麼？** 因為 Roblox 世界預設有「地心引力 (Gravity)」，沒有固定住的積木通通會往下掉！
+* **解決方法**：點選你的積木 ➔ 到右邊 **\`Properties\`（屬性面板）** 往下滑 ➔ 把 **\`Anchored\`** 打勾（或是按工具列的 **⚓ Anchor** 按鈕）！`,
+        highlight: '⚓ 必背口訣：「空中積木要聽話，Anchored 一定要打勾！」'
+      }
+    ],
+    simulator: {
+      type: 'roblox-studio-basics',
+      title: '🧰 Roblox Studio 互動工作台：新增積木、調色並測試 Anchored 重力！',
+      instruction: '1. 點選下方工具列新增「方塊 / 斜坡 / 球體」積木。\n2. 在右側 Properties 修改顏色與尺寸，試著把其中一塊的 Anchored 取消勾選，另一塊保持 Anchored ✅。\n3. 點擊「▶ Playtest 試玩重力」，親眼看看沒有錨定的積木會發生什麼事！'
+    },
+    quiz: [
+      {
+        q: '在 Roblox Studio 蓋好一個漂浮在空中的跑酷平台，但一按 Play 試玩平台就掉到地上，最可能忘記開哪個設定？',
+        options: [
+          '忘記把積木的 Anchored (錨定) 打開',
+          '忘記把螢幕亮度調到最高',
+          '忘記把平台塗成紅色'
+        ],
+        correct: 0,
+        explain: '答對了！空中平台、牆壁、裝飾物都必須開啟 Anchored = true，才不會被地心引力吸下去！'
+      },
+      {
+        q: '在 Roblox Studio 裡，如果想把選中的積木拉長、變寬或變扁，應該使用哪一個工具？',
+        options: [
+          'Scale (縮放工具)',
+          'Rotate (旋轉工具)',
+          'Delete (刪除鍵)'
+        ],
+        correct: 0,
+        explain: '完全正確！Move 負責移動位置、Scale 負責縮放大小、Rotate 負責旋轉角度！'
+      },
+      {
+        q: '當你在 3D 畫面迷路找不到剛新增的積木時，在 Explorer 點選該積木後按下鍵盤哪個鍵可以瞬間飛過去？',
+        options: [
+          'F 鍵 (Focus 聚焦)',
+          'Esc 鍵',
+          'Caps Lock 鍵'
+        ],
+        correct: 0,
+        explain: '超專業！按下 F 鍵 (Focus) 就能讓攝影機一秒飛到選中物件的面前！'
+      }
+    ]
+  },
+  {
+    id: 'w5-l2',
+    worldId: 'world-5',
+    number: '5.2',
+    title: '打造你的第一關 3D 跑酷地圖 (Obby Stage Builder)',
+    titleEn: 'Build Your First Obby Stage: Spawn, Checkpoints, Lava & Moving Platforms',
+    icon: '🏃',
+    duration: '20 分鐘',
+    xp: 240,
+    summary: '學會 Roblox 最受歡迎的 Obby（障礙跑酷）關卡設計！親手配置出生點、安全平台、岩漿陷阱 (KillBrick)、移動跳台與存檔旗幟 (Checkpoint)，並親自試玩過關！',
+    vocab: [
+      { en: 'Obby', zh: '障礙跑酷遊戲 (Obstacle Course)', desc: 'Roblox 最經典的遊戲類型：玩家透過跳躍躲避陷阱到達終點' },
+      { en: 'SpawnLocation', zh: '玩家出生點', desc: '玩家進入遊戲或失敗重生時會站立的起點方塊' },
+      { en: 'Checkpoint', zh: '存檔檢查點', desc: '踩到後就能紀錄進度！下次掉進岩漿不用從頭重來' },
+      { en: 'KillBrick / Lava', zh: '扣血陷阱 / 岩漿磚', desc: '玩家一碰到就會立刻歸零重生的紅色發光障礙物' },
+      { en: 'Playtest', zh: '親自試玩測試', desc: '好設計師一定會自己玩一遍！檢查跳躍距離是不是太遠、太難' }
+    ],
+    cards: [
+      {
+        title: '🏃 什麼是好玩的 跑酷 (Obby) 關卡？',
+        titleEn: 'Secrets of Fun Obby Level Design',
+        body: `設計跑酷地圖不是把方塊隨便亂放，而是像設計遊樂園一樣，讓玩家覺得「哇！差一點就掉下去，但好刺激！」
+1. **起點要有 \`SpawnLocation\`**：如果地圖沒有出生點，玩家可能會從高空掉進無底洞！
+2. **間距要公平**：新手關的跳躍距離大約 **6 ~ 10 Studs（Roblox 距離單位）**，太遠會跳不到、太近會覺得無聊。
+3. **視覺顏色暗示**：
+   * 🟩 **綠色 / 藍色**：安全平台，放心站上去！
+   * 🟥 **紅色 / 橘色發光 (Neon)**：危險岩漿 **KillBrick**，千萬不能踩！
+   * 🟨 **黃色旗幟**：**Checkpoint 存檔點**，踩到超安心！`,
+        highlight: '🎯 設計師鐵則：「自己都能輕鬆跳過 3 次，才算合格的好關卡！」'
+      },
+      {
+        title: '🚩 存檔點 (Checkpoint) 與移動平台 (Moving Platform)',
+        titleEn: 'Checkpoints & Dynamic Obstacles',
+        body: `為了讓朋友玩你的跑酷不會玩到生氣，記得加入這兩個設計：
+* **每 4~5 個難關放一個 \`Checkpoint\`**：利用 \`Teams\` 或進度腳本，讓玩家死掉後從最近的 Checkpoint 重生，成就感大大提升！
+* **加入會動的「移動平台」**：把單純的跳躍升級成「會左右滑動的浮空磚塊」，玩家必須抓準時機起跳！`,
+        highlight: '💡 小技巧：在 Roblox Studio 可以直接搜尋官方內建的 Obby 範本，觀察它怎麼擺放 Checkpoint！'
+      }
+    ],
+    simulator: {
+      type: 'roblox-obby-builder',
+      title: '🏃 3D 跑酷地圖工坊 (Obby Builder & Playtester)：蓋好馬上自己玩！',
+      instruction: '1. 點選上方畫筆工具（安全平台 🟩、岩漿陷阱 🟥、移動平台 🟦、存檔點 🚩、終點獎盃 🏆），在網格上設計你的專屬跑酷關卡！\n2. 點擊「▶ Playtest 試玩跑酷」，用鍵盤 ← →（或 A / D）移動、空白鍵（或 ↑ / W）跳躍，挑戰從起點一路跳到終點！'
+    },
+    quiz: [
+      {
+        q: '設計 Roblox 跑酷 (Obby) 地圖時，每隔幾關放置「Checkpoint (存檔點)」最重要的目的是什麼？',
+        options: [
+          '讓玩家失敗後可以從最近的存檔點復活，不會因為一直從頭重來而放棄',
+          '讓地圖看起來比較擁擠',
+          '讓角色移動速度變慢'
+        ],
+        correct: 0,
+        explain: '太棒了！合理的 Checkpoint 設計能讓玩家越玩越有挑戰動力！'
+      },
+      {
+        q: '在跑酷關卡中，通常會用什麼顏色與材質來提示玩家「這是不能踩的岩漿陷阱 (KillBrick)」？',
+        options: [
+          '紅色或橘色加上發光 (Neon) 材質',
+          '透明的空氣',
+          '綠色草地材質'
+        ],
+        correct: 0,
+        explain: '沒錯！清楚的視覺語言（紅/橘發光 = 危險）能讓玩家一眼看懂規則！'
+      },
+      {
+        q: '每次蓋好一段新的跑酷跳台後，最負責任的遊戲設計師應該先做什麼？',
+        options: [
+          '按 Play 親自試玩，確認每個跳台距離都跳得過去',
+          '直接關掉電腦去睡覺',
+          '把跳台拉到 100 公尺遠讓人完全跳不到'
+        ],
+        correct: 0,
+        explain: '完全正確！Playtest 親自試玩是做出高品質遊戲最重要的好習慣！'
+      }
+    ]
+  },
+  {
+    id: 'w5-l3',
+    worldId: 'world-5',
+    number: '5.3',
+    title: 'Luau 魔法腳本：讓金幣、加速板與感應門動起來！',
+    titleEn: 'Roblox Luau Scripting: Touched Events, Coins, Speed Pads & Secret Doors',
+    icon: '⚡',
+    duration: '20 分鐘',
+    xp: 260,
+    summary: '不用怕寫程式！用最簡單的三行 Luau 積木邏輯認識 Script、Touched 觸碰事件與 Humanoid，親手寫出會加分的金幣、加速板與彈跳機關！',
+    vocab: [
+      { en: 'Luau Script', zh: 'Roblox 程式腳本', desc: 'Roblox 使用的程式語言（類似 Lua），就像給積木看的魔法說明書' },
+      { en: 'Touched', zh: '觸碰事件', desc: '當玩家角色踩到或撞到某個積木時，自動觸發的機關感應器' },
+      { en: 'Humanoid', zh: '角色核心控制器', desc: '控制玩家血量 (Health)、跑步速度 (WalkSpeed) 與跳躍高度 (JumpPower) 的元件' },
+      { en: 'leaderstats', zh: '排行榜積分系統', desc: '顯示在畫面右上角的玩家分數、金幣 (Coins) 或關卡數！' }
+    ],
+    cards: [
+      {
+        title: '📜 什麼是 Luau Script？讓積木擁有超能力！',
+        titleEn: 'Giving Parts Superpowers with Luau Scripts',
+        body: `學會放積木後，只要在積木裡面按下 \`+\` 號加入一個 **\`Script\`**，它就會聽懂你的命令！
+在 Roblox 的 **Luau** 程式語言裡，最常用到的魔法公式只有 3 步：
+1. **找到自己**：\`local part = script.Parent\`（代表這個腳本所在的積木）
+2. **裝上感應器**：\`part.Touched:Connect(function(hit)\`（有人踩到我時就啟動！）
+3. **檢查是不是玩家**：看看撞到我的人身上有沒有 \`Humanoid\`，有的話就幫他 **加速**、**彈高** 或 **加金幣**！`,
+        highlight: '⚡ 不用死背英文！看懂「觸碰 (Touched) ➔ 檢查玩家 (Humanoid) ➔ 執行魔法」的邏輯就超強了！'
+      },
+      {
+        title: '🪙 經典三大實用機關程式碼',
+        titleEn: '3 Must-Know Roblox Game Mechanics',
+        body: `學會這三個機關，你的跑酷和冒險地圖立刻好玩 10 倍：
+* **⚡ 加速板 (Speed Pad)**：把 \`humanoid.WalkSpeed\` 從預設的 \`16\` 變成 \`40\`，一踩就衝刺！
+* **🦘 彈跳板 (Bounce Pad)**：把 \`humanoid.JumpPower\` 調高到 \`120\`（或給向上推力），一跳飛上屋頂！
+* **🪙 旋轉金幣 (Collectible Coin)**：踩到後讓右上角 \`leaderstats.Coins.Value += 1\`，並把金幣暫時隱藏再重生！`,
+        highlight: '🛡️ 防呆小常識：加金幣時要設一個 `debounce`（冷卻開關），才不會踩一下瞬間加 100 次！'
+      }
+    ],
+    simulator: {
+      type: 'roblox-lua-lab',
+      title: '⚡ Luau 魔法腳本實驗室：組裝程式碼並派小探險家測試機關！',
+      instruction: '1. 選擇你想製作的機關類型（🪙 金幣、⚡ 加速板、🦘 彈跳板、🚪 密碼感應門）。\n2. 依序點擊下方的 Luau 程式積木行，組裝出完整的腳本！\n3. 點擊「▶ Run Script 派角色踩上去」，觀察右上角金幣數、速度與機關動畫！'
+    },
+    quiz: [
+      {
+        q: '在 Roblox 的 Luau 腳本裡，當我們想做一個「玩家踩到就會觸發」的加速板或岩漿，要用哪一個事件？',
+        options: [
+          'part.Touched',
+          'part.ColorChanged',
+          'part.Sleep'
+        ],
+        correct: 0,
+        explain: '答對了！Touched 就是「被觸碰」的意思，是 Roblox 互動機關最核心的感應器！'
+      },
+      {
+        q: '如果想讓踩到加速板的玩家跑得像閃電一樣快，應該修改角色 Humanoid 的哪一個屬性？',
+        options: [
+          'WalkSpeed (例如從 16 改成 40)',
+          'Part.Name',
+          'Workspace.Gravity'
+        ],
+        correct: 0,
+        explain: '超強！Humanoid.WalkSpeed 控制走路與跑步的速度（預設值為 16）！'
+      },
+      {
+        q: '為什麼寫「撿金幣」腳本時，通常會加一個冷卻開關 (Debounce)？',
+        options: [
+          '避免玩家腳還沒離開金幣，一瞬間重複觸發加了幾十次分數',
+          '讓金幣變成正方形',
+          '把電腦關機'
+        ],
+        correct: 0,
+        explain: '專業級觀念！Debounce（防連點冷卻）是每個 Roblox 工程師必學的技巧！'
+      }
+    ]
+  },
+  {
+    id: 'w5-l4',
+    worldId: 'world-5',
+    number: '5.4',
+    title: '解鎖多種 Roblox 遊戲類型與安全發佈作品！',
+    titleEn: 'Build Multiple Game Genres (Tycoon, Simulator, Racing, Hide & Seek) & Publish Safely',
+    icon: '🏆',
+    duration: '20 分鐘',
+    xp: 280,
+    summary: '用學到的 Studio 工具與腳本邏輯，舉一反三打造大亨經營 (Tycoon)、寵物模擬器 (Simulator)、賽車競速、躲貓貓四種熱門遊戲，並學會安全檢查 Toolbox 與發佈地圖！',
+    vocab: [
+      { en: 'Tycoon', zh: '大亨經營遊戲', desc: '蓋工廠賺錢 ➔ 買機器升級 ➔ 蓋出超豪華基地的經典玩法' },
+      { en: 'Simulator', zh: '模擬器遊戲', desc: '收集資源（點擊/挖礦）➔ 賣掉換金幣 ➔ 買更強背包與寵物的循環' },
+      { en: 'Toolbox', zh: '免費素材工具箱', desc: '可以借用別人的 3D 模型，但要小心檢查裡面有沒有隱藏的壞腳本！' },
+      { en: 'Publish to Roblox', zh: '發佈到 Roblox', desc: '把做好的遊戲上傳到雲端，還能設為 Private（私人）或 Friends（只限好友）一起玩！' }
+    ],
+    cards: [
+      {
+        title: '🎮 學會 Roblox Studio 後，你可以做出哪些超酷遊戲？',
+        titleEn: 'One Toolset, Infinite Game Genres!',
+        body: `你已經學會的 **3D 積木 + 屬性調整 + Touched 觸碰腳本**，其實就是所有熱門 Roblox 遊戲的共同積木！
+1. **🏭 大亨經營 (Tycoon)**：自動掉磚塊的 \`Dropper\` ➔ 輸送帶 \`Conveyor\` ➔ 換錢機 \`Collector\` ➔ 踩按鈕解鎖新樓層！
+2. **🐾 收集模擬器 (Simulator)**：點擊 / 收集寶石 ➔ 裝滿背包 \`Backpack\` ➔ 賣掉換金幣買可愛寵物！
+3. **🏎️ 賽車競速 (Racing)**：用 Part 蓋跑道 + 放進 \`VehicleSeat\` 駕駛座 + 設好圈數 Checkpoint！
+4. **👻 躲貓貓 (Hide & Seek)**：蓋一座大房子，設定倒數計時器把玩家分成「鬼 (Seeker)」與「躲藏者 (Hider)」！`,
+        highlight: '🌟 舉一反三：先做出一個小小的「最小好玩版本 (MVP)」，再慢慢加新房間與新道具！'
+      },
+      {
+        title: '🛡️ 工具箱 (Toolbox) 安全守則與安全發佈',
+        titleEn: 'Toolbox Virus Check & Safe Publishing for Kids',
+        body: `在發佈你的傑作給朋友玩之前，一定要做 **安全雙重檢查**：
+1. **檢查 Toolbox 免費模型**：從 Toolbox 放進別人做的車子或房子時，記得打開 **Explorer** 檢查裡面有沒有名字怪怪的 \`Script\`（例如 \`Infection\`、\`Virus\`），有可疑腳本就立刻刪掉！
+2. **安全發佈設定 (\`File → Publish to Roblox\`)**：
+   * 建議小朋友一開始先設為 **\`Private\`（只有自己能玩）** 或 **\`Friends\`（只邀請家人和好朋友）**，安全又好玩！
+   * 記得幫遊戲取一個響亮的名字，並截一張酷炫的封面圖！`,
+        highlight: '🔒 安全第一：不隨便使用來源不明的腳本，並和爸媽一起確認隱私權限設定！'
+      }
+    ],
+    simulator: {
+      type: 'roblox-game-architect',
+      title: '🏆 多元遊戲藍圖工坊：選擇 4 種遊戲類型，組裝核心循環並通過發佈檢查！',
+      instruction: '1. 選擇你想挑戰的遊戲類型（🏭 大亨 Tycoon / 🐾 模擬器 Simulator / 🏎️ 賽車 Racing / 👻 躲貓貓 Hide & Seek）。\n2. 依序放入該遊戲必備的 4 個核心模組，點擊「▶ 模擬遊戲循環」看它怎麼運作！\n3. 完成底部的「安全發佈檢查清單」，領取你的 Roblox 建築大師認證！'
+    },
+    quiz: [
+      {
+        q: '在製作「大亨經營 (Tycoon)」遊戲時，最核心的賺錢循環是由哪幾個部件組成的？',
+        options: [
+          '生產機 (Dropper) ➔ 輸送帶 (Conveyor) ➔ 收銀台 (Collector) ➔ 踩按鈕升級',
+          '只有一塊灰色地板什麼都沒有',
+          '一直按關機鍵'
+        ],
+        correct: 0,
+        explain: '完全正確！生產 ➔ 運送 ➔ 換錢 ➔ 升級擴建，就是所有 Tycoon 遊戲迷人的核心循環！'
+      },
+      {
+        q: '從 Toolbox（免費素材庫）放入別人做的超帥跑車時，為了安全應該在 Explorer 做什麼檢查？',
+        options: [
+          '展開模型檢查裡面有沒有可疑或不明的 Script 腳本，若有就刪除',
+          '把整個 Workspace 刪掉',
+          '不用檢查，放越多來路不明的腳本越好'
+        ],
+        correct: 0,
+        explain: '超棒的安全意識！清理不必要的未知腳本可以保護你的地圖不被惡搞或卡頓！'
+      },
+      {
+        q: '當小朋友剛學會發佈自己的第一款 Roblox 地圖，想先和家人或認識的同學測試同樂，建議將遊戲權限設為什麼？',
+        options: [
+          'Private（私人）或 Friends（只限好友）',
+          '把帳號密碼公開在網路上',
+          '隨便讓全世界陌生人進來亂改設定'
+        ],
+        correct: 0,
+        explain: '太棒了！設定為 Private 或 Friends 是最適合小小創作者的安全測試方式！🎉'
       }
     ]
   }

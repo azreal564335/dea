@@ -83,14 +83,27 @@ digital-explorer-academy/
   - [x] Lesson `4.3` — *Audio & Visual Storytelling* (combining AI story + AI image prompts + TTS) with `story-studio` simulator.
 - [x] **Live Cloud Deployment (GitHub Repo Ready):** Pushed clean modular codebase to `https://github.com/azreal564335/dea` (`main` branch), ready to connect to Vercel or Cloudflare Pages.
 
+### ✅ Phase 3: World 5 — Roblox 3D 遊戲工坊 (COMPLETED)
+- [x] **Lesson `5.1` (`w5-l1`):** *Roblox Studio Basics* (`roblox-studio-basics` interactive workbench: 3D Viewport camera, Explorer, Properties, Move/Scale/Rotate, and `Anchored` gravity playtest).
+- [x] **Lesson `5.2` (`w5-l2`):** *Obby Stage Builder* (`roblox-obby-builder` grid editor + live HTML5 Canvas playtester with SpawnLocation, Lava KillBrick, Moving Platforms, Checkpoints, and Goal).
+- [x] **Lesson `5.3` (`w5-l3`):** *Luau Scripting Lab* (`roblox-lua-lab` block-assembly Luau script lab for Coins, Speed Pad, Bounce Pad, and Auto Door with `Touched` events and `Humanoid`).
+- [x] **Lesson `5.4` (`w5-l4`):** *Multi-Genre Game Architect & Safe Publishing* (`roblox-game-architect` simulator covering Tycoon, Simulator, Racing, and Hide & Seek game loops + Toolbox & Privacy checklist).
+
 ---
 
 ## 5. 📊 Current Status & Changelog
 
-* **Last Updated:** 2026-11-13
-* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **473 / 473 PASS (100%)**
+* **Last Updated:** 2026-11-16
+* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **521 / 521 PASS (100%)**
 * **GitHub Repository:** https://github.com/azreal564335/dea (`main` branch)
 * **Recent Changes:**
+  * **World 5 Launch (`Roblox 3D 遊戲工坊` — 5 Worlds, 22 Lessons, 22 Typing Drills):**
+    * Added Lesson 5.1 (`w5-l1`) with `roblox-studio-basics` simulator (Part spawning, Explorer/Properties, Move/Scale/Rotate, `Anchored` gravity test).
+    * Added Lesson 5.2 (`w5-l2`) with `roblox-obby-builder` simulator (grid Obby map builder + playable Canvas playtester).
+    * Added Lesson 5.3 (`w5-l3`) with `roblox-lua-lab` simulator (Luau `Touched` scripting for Coins, Speed Pad, Bounce Pad, and Auto Door).
+    * Added Lesson 5.4 (`w5-l4`) with `roblox-game-architect` simulator (Tycoon, Simulator, Racing, Hide & Seek blueprints + Toolbox & Safe Publishing checklist).
+    * Added Island 5 (`world-5`) to `js/island-scene.js` with Roblox blocky steps, goal flag, 4th treasure chest, quick-jump chip, and dynamic 5-world `travelToWorld` routing.
+    * Expanded `tests/run-all-tests.js` to **521 assertions (100% pass)**.
   * **Complete 4-World, 18-Lesson, 22-Drill MVP Delivered:**
     * **World 2 Expansion:** Added Lesson 2.5 (`w2-l5`: 用 Google 地圖規劃家庭小旅行) with interactive `maps-navigator` simulator (transit/walk/drive route calculations, Street View Pegman 360 preview, and real vs. fake review discrimination).
     * **World 4 Launch (`數位創作與程式入門`):**

@@ -1275,4 +1275,225 @@ body.show-en .en-sub {
   box-shadow: 0 0 8px #4ade80;
 }
 
+/* World 5: Roblox Studio Simulators & Island 5 Chip */
+.island-quick-chip.w5 {
+  background: linear-gradient(135deg, #fff1f2, #ffe4e6);
+  border: 2px solid #e11d48;
+  color: #be123c;
+}
 
+.roblox-box {
+  background: #f1f5f9;
+  border: 2px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+.roblox-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.rbx-tool-btn {
+  padding: 0.4rem 0.75rem;
+  border-radius: 10px;
+  border: 2px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+  font-weight: 800;
+  font-size: 0.84rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.rbx-tool-btn.active {
+  background: #e11d48;
+  border-color: #be123c;
+  color: #ffffff;
+}
+
+.roblox-studio-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 0.85rem;
+}
+
+@media (max-width: 720px) {
+  .roblox-studio-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.roblox-viewport {
+  background: #0f172a;
+  border-radius: 14px;
+  padding: 0.65rem;
+  color: #f8fafc;
+}
+
+.roblox-viewport-hud {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #cbd5e1;
+  margin-bottom: 0.45rem;
+}
+
+.roblox-stage-area {
+  position: relative;
+  height: 190px;
+  background: linear-gradient(180deg, #1e293b 0%, #334155 100%);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #475569;
+}
+
+.roblox-baseplate {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 22px;
+  background: #64748b;
+  color: #f8fafc;
+  font-size: 0.72rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 2px solid #94a3b8;
+}
+
+.rbx-part {
+  position: absolute;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  transition: top 0.35s ease, outline 0.15s ease;
+}
+
+.rbx-part.selected {
+  outline: 3px solid #38bdf8;
+  outline-offset: 2px;
+}
+
+.rbx-part-tag {
+  font-size: 0.68rem;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+.roblox-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.roblox-panel {
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 0.7rem;
+}
+
+.roblox-panel-title {
+  font-weight: 900;
+  font-size: 0.88rem;
+  color: #0f172a;
+  margin-bottom: 0.45rem;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.3rem;
+}
+
+.rbx-explorer-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  color: #334155;
+}
+
+.rbx-explorer-item.active {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.rbx-prop-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-top: 0.4rem;
+}
+
+.obby-grid-editor {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+  background: #0f172a;
+  padding: 10px;
+  border-radius: 14px;
+}
+
+.obby-cell {
+  height: 40px;
+  border-radius: 8px;
+  border: 1px dashed #475569;
+  background: #1e293b;
+  color: #ffffff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.obby-cell.type-spawn { background: #1d4ed8; border-style: solid; }
+.obby-cell.type-safe { background: #15803d; border-style: solid; }
+.obby-cell.type-lava { background: #b91c1c; border-style: solid; }
+.obby-cell.type-moving { background: #0284c7; border-style: solid; }
+.obby-cell.type-checkpoint { background: #a16207; border-style: solid; }
+.obby-cell.type-goal { background: #d97706; border-style: solid; }
+
+.lua-code-bench {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.lua-line-btn {
+  text-align: left;
+  padding: 0.55rem 0.75rem;
+  border-radius: 10px;
+  border: 2px solid #cbd5e1;
+  background: #ffffff;
+  font-weight: 800;
+  font-size: 0.84rem;
+  cursor: pointer;
+  color: #1e293b;
+}
+
+.lua-line-btn.done {
+  background: #dcfce7;
+  border-color: #22c55e;
+  color: #166534;
+}
