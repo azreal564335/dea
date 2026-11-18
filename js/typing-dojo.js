@@ -200,6 +200,8 @@ window.TypingDojo = {
         <div class="taiwan-keyboard" id="${containerId}-keyboard">
           ${this.renderKeyboardHtml(nextExpectedChar)}
         </div>
+
+        ${this.renderHistoryChart()}
       </div>
     `;
 
@@ -432,6 +434,45 @@ window.TypingDojo = {
     const idx = allDrills.indexOf(this.currentDrillId);
     const nextIdx = (idx + 1) % allDrills.length;
     this.selectDrill(allDrills[nextIdx], containerId);
+  },
+
+  renderHistoryChart() {
+    const profile = window.AppState && window.AppState.getProfile ? window.AppState.getProfile() : null;
+    const history = (profile && Array.isArray(profile.drillHistory)) ? profile.drillHistory.slice(-10) : [];
+    const isSimple = window.AppState && window.AppState.isSimpleMode ? window.AppState.isSimpleMode() : false;
+    const { drill } = this.findDrill(this.currentDrillId);
+    const targetCpm = Math.round((drill.targetCpm || 60) * (isSimple ? 0.75 : 1));
+
+    if (history.length === 0) {
+      return `
+        <div class="typing-history-box">
+          <div style="font-weight:800; color:#334155;">📈 速度成長曲線（目標：${targetCpm} 字/分${isSimple ? ' · 8歲護航目標' : ''}）</div>
+          <div style="font-size:0.86rem; color:#64748b; margin-top:0.25rem;">完成 1 次打字練習後，這裡就會畫出你的進步曲線喔！</div>
+        </div>
+      `;
+    }
+
+    const maxCpm = Math.max(targetCpm, ...history.map(h => h.cpm || 0), 40);
+    const w = 520, h = 90, pad = 16;
+    const pts = history.map((item, idx) => {
+      const x = history.length === 1 ? w / 2 : pad + (idx / (history.length - 1)) * (w - pad * 2);
+      const y = h - pad - ((item.cpm || 0) / maxCpm) * (h - pad * 2);
+      return { x: Math.round(x), y: Math.round(y), cpm: item.cpm, acc: item.accuracy };
+    });
+    const poly = pts.map(p => `${p.x},${p.y}`).join(' ');
+
+    return `
+      <div class="typing-history-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.45rem;">
+          <strong style="color:#0f172a;">📈 最近 ${history.length} 次打字速度成長曲線（目標：${targetCpm} 字/分）</strong>
+          <span style="font-size:0.84rem; color:#0369a1; font-weight:800;">最新：${history[history.length - 1].cpm} 字/分 ・ ${history[history.length - 1].accuracy}%</span>
+        </div>
+        <svg viewBox="0 0 ${w} ${h}" style="width:100%; max-height:95px; background:#ffffff; border-radius:10px; border:1px solid #cbd5e1;">
+          ${pts.length > 1 ? `<polyline fill="none" stroke="#2563eb" stroke-width="3" points="${poly}"/>` : ''}
+          ${pts.map(p => `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#f59e0b" stroke="#ffffff" stroke-width="2"><title>${p.cpm} 字/分 (${p.acc}%)</title></circle>`).join('')}
+        </svg>
+      </div>
+    `;
   },
 
   escapeHtml(str) {

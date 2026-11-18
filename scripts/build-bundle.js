@@ -38,17 +38,17 @@ const bundledHtml = `<!DOCTYPE html>
   <meta name="description" content="專為 8 歲與 10 歲兒童設計的 Windows 11 筆電操作、中英注音十指盲打道館、網路黃金關鍵字搜尋與 AI 魔法提示詞互動學習網站。" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bpmf+Iansui&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet" />
   <style>
 ${cssContent}
   </style>
 </head>
 <body class="show-en">
   <!-- Sticky Top Navigation -->
-  <header id="app-header" class="top-nav"></header>
+  <header id="app-header" class="top-nav" role="banner"></header>
 
   <!-- Main Content Container -->
-  <main id="app-main" class="main-container"></main>
+  <main id="app-main" class="main-container" role="main"></main>
 
   <!-- Footer -->
   <footer style="text-align:center; padding:1.2rem; color:#64748b; font-size:0.84rem; font-weight:700; border-top:1px solid #e2e8f0; background:#ffffff;">
@@ -87,6 +87,12 @@ ${appJs}
 const indexDistPath = path.join(distDir, 'index.html');
 fs.writeFileSync(artifactPath, bundledHtml, 'utf8');
 fs.writeFileSync(indexDistPath, bundledHtml, 'utf8');
+for (const pwaFile of ['manifest.json', 'sw.js']) {
+  const srcPwa = path.join(srcDir, pwaFile);
+  if (fs.existsSync(srcPwa)) {
+    fs.copyFileSync(srcPwa, path.join(distDir, pwaFile));
+  }
+}
 console.log(`✅ Successfully bundled self-contained HTML artifact (${bundledHtml.length} bytes) to:`);
 console.log(`   ${artifactPath}`);
 console.log(`   ${indexDistPath}`);

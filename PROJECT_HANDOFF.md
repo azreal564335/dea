@@ -139,6 +139,12 @@ digital-explorer-academy/
   * Fixed `TypingDojo` IME composition (`compositionstart`/`compositionend`) so Microsoft Bopomofo candidate selection is never interrupted.
   * Maintained strict generic laptop rules (zero hardware brand names).
   * Organized `G-Agent-folder` into `01`–`05` subfolders and initialized `PROJECT_HANDOFF.md`.
+* **Latest Update (Full Improvement Plan + Bopomofo Font + 8yo Simpler Mode):**
+  * **Test Gate:** `npm run build && npm test` passed **661 / 661** assertions (**0 failures**).
+  * **P0 Security & Hygiene:** Added `escapeHtml()` XSS protection across header/certificate, schema validation (`sanitizeProfile`) in `importProgress()`, and excluded `.agents/` & `PROJECT.md` via `.gitignore`.
+  * **P1 Learning Quality & 8yo Support:** Expanded all 26 lessons to have `>= 2` cards and `>= 3` quiz questions; added deterministic quiz option shuffling (`getShuffledQuizOrder`), 1–3 star calculation based on mistakes (`quizMistakes`), Daily Quest banner (`getDailyQuest`), Typing Dojo SVG progress chart (`drillHistory`) + `0.75x` CPM scaling for 8yo, real-world Roblox Studio checklists (`studioChecklist`), `simpleBody` for 8yo, and **Bopomofo/Zhuyin companion font (`Bpmf Iansui`)** auto-enabled for `kid-8` and toggleable in the header.
+  * **P2 Platform & Parent Dashboard:** Added Vercel Redis cloud sync endpoint (`api/progress.js`) + Parent Dashboard comparison grid (`renderParentGuide`), PWA (`manifest.json`, `sw.js`), GitHub Actions CI (`.github/workflows/ci.yml`), accessibility `:focus-visible`, mobile responsive rules, and deferred/reduced-motion 3D Island initialization.
+  * **P3 Worlds 1–4 Visual Guides:** Added annotated inline SVG UI diagrams (`win11-taskbar`, `chrome-tabs-search`, `ai-prompt-box`, `scratch-blocks-ui`) to `w1-l2`, `w2-l1`, `w3-l2`, `w4-l2`.
 
 ---
 

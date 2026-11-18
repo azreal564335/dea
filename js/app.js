@@ -15,10 +15,13 @@ const STORAGE_KEY = 'digital_explorer_academy_v1';
 window.AppState = {
   activeProfileId: 'kid-10',
   showEnglishSubtitles: true,
+  zhuyinFont: false,
   currentView: 'map', // 'map' | 'lesson' | 'dojo' | 'vocab' | 'certificate' | 'parent'
   currentLessonId: 'w1-l1',
   lessonStep: 'learn', // 'learn' | 'lab' | 'quiz'
   quizAnswers: {},
+  quizMistakes: {}, // { lessonId: number }
+  quizOrderCache: {}, // { 'lessonId-qIdx': [origIdx...] }
 
   profiles: {
     'kid-10': {
@@ -27,7 +30,9 @@ window.AppState = {
       avatar: '🦁',
       xp: 0,
       completedLessons: {}, // { 'w1-l1': { stars: 3, date: ... } }
-      completedDrills: {}   // { 'hr-1': { cpm: 35 } }
+      completedDrills: {},  // { 'hr-1': { cpm: 35 } }
+      drillHistory: [],
+      studioChecks: {}
     },
     'kid-8': {
       id: 'kid-8',
@@ -35,8 +40,23 @@ window.AppState = {
       avatar: '🦊',
       xp: 0,
       completedLessons: {},
-      completedDrills: {}
+      completedDrills: {},
+      drillHistory: [],
+      studioChecks: {}
     }
+  },
+
+  escapeHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  },
+
+  isSimpleMode() {
+    return this.activeProfileId === 'kid-8';
   },
 
   init() {
@@ -49,12 +69,22 @@ window.AppState = {
         if (typeof parsed.showEnglishSubtitles === 'boolean') {
           this.showEnglishSubtitles = parsed.showEnglishSubtitles;
         }
+        if (typeof parsed.zhuyinFont === 'boolean') {
+          this.zhuyinFont = parsed.zhuyinFont;
+        } else {
+          this.zhuyinFont = this.activeProfileId === 'kid-8';
+        }
+      } else {
+        this.zhuyinFont = this.activeProfileId === 'kid-8';
       }
     } catch (e) {
       console.warn('Could not read localStorage:', e);
     }
     this.syncBodyClass();
     this.renderAll();
+    if ('serviceWorker' in navigator && location.protocol && location.protocol.startsWith('http')) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
   },
 
   save() {
@@ -62,6 +92,7 @@ window.AppState = {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         activeProfileId: this.activeProfileId,
         showEnglishSubtitles: this.showEnglishSubtitles,
+        zhuyinFont: this.zhuyinFont,
         profiles: this.profiles
       }));
     } catch (e) {
@@ -77,29 +108,56 @@ window.AppState = {
     return this.getProfile().completedDrills || {};
   },
 
-  completeDrill(drillId, cpm) {
+  completeDrill(drillId, cpm, accuracy = 100) {
     const p = this.getProfile();
     if (!p.completedDrills[drillId]) {
       p.xp += 30;
     }
     p.completedDrills[drillId] = { cpm: Math.max(cpm, (p.completedDrills[drillId]?.cpm || 0)) };
+    if (!Array.isArray(p.drillHistory)) p.drillHistory = [];
+    p.drillHistory.push({ drillId, cpm, accuracy, at: new Date().toISOString() });
+    if (p.drillHistory.length > 15) p.drillHistory = p.drillHistory.slice(-15);
     this.save();
     this.renderHeader();
   },
 
-  completeLesson(lessonId, xpReward) {
+  completeLesson(lessonId, xpReward, starsOverride) {
     const p = this.getProfile();
     if (!p.completedLessons[lessonId]) {
       p.xp += xpReward;
     }
-    p.completedLessons[lessonId] = { stars: 3, completedAt: new Date().toISOString() };
+    const mistakes = this.quizMistakes[lessonId] || 0;
+    const calcStars = starsOverride || (mistakes === 0 ? 3 : mistakes <= 2 ? 2 : 1);
+    const prevStars = p.completedLessons[lessonId]?.stars || 0;
+    p.completedLessons[lessonId] = {
+      stars: Math.max(prevStars, calcStars),
+      completedAt: new Date().toISOString()
+    };
     this.save();
     this.renderHeader();
   },
 
+  toggleStudioCheck(lessonId, idx) {
+    const p = this.getProfile();
+    if (!p.studioChecks) p.studioChecks = {};
+    if (!Array.isArray(p.studioChecks[lessonId])) p.studioChecks[lessonId] = [];
+    const list = p.studioChecks[lessonId];
+    const pos = list.indexOf(idx);
+    if (pos === -1) {
+      list.push(idx);
+      p.xp += 10;
+    } else {
+      list.splice(pos, 1);
+    }
+    this.save();
+    this.renderAll();
+  },
+
   switchProfile() {
     this.activeProfileId = this.activeProfileId === 'kid-10' ? 'kid-8' : 'kid-10';
+    this.zhuyinFont = this.activeProfileId === 'kid-8';
     this.quizAnswers = {};
+    this.syncBodyClass();
     this.save();
     this.renderAll();
   },
@@ -133,11 +191,23 @@ window.AppState = {
     this.renderHeader();
   },
 
+  toggleZhuyinFont() {
+    this.zhuyinFont = !this.zhuyinFont;
+    this.syncBodyClass();
+    this.save();
+    this.renderAll();
+  },
+
   syncBodyClass() {
     if (this.showEnglishSubtitles) {
       document.body.classList.add('show-en');
     } else {
       document.body.classList.remove('show-en');
+    }
+    if (this.zhuyinFont) {
+      document.body.classList.add('zhuyin-font');
+    } else {
+      document.body.classList.remove('zhuyin-font');
     }
   },
 
@@ -167,6 +237,7 @@ window.AppState = {
     const navEl = document.getElementById('app-header');
     if (!navEl) return;
     const p = this.getProfile();
+    const safeName = this.escapeHtml(p.name);
     const completedCount = Object.keys(p.completedLessons).length;
     const totalLessons = window.CURRICULUM_LESSONS.length;
     const totalDrills = (window.TYPING_DATA && window.TYPING_DATA.categories)
@@ -174,7 +245,7 @@ window.AppState = {
       : 22;
 
     navEl.innerHTML = `
-      <div class="brand-area" onclick="window.AppState.navigate('map')">
+      <div class="brand-area" onclick="window.AppState.navigate('map')" role="button" tabindex="0" aria-label="返回探險地圖">
         <div class="brand-logo">🚀</div>
         <div>
           <div class="brand-title">數位小探險家學院</div>
@@ -182,7 +253,7 @@ window.AppState = {
         </div>
       </div>
 
-      <div class="nav-tabs">
+      <nav class="nav-tabs" aria-label="主導覽列">
         <button class="nav-tab ${this.currentView === 'map' || this.currentView === 'lesson' ? 'active' : ''}"
                 onclick="window.AppState.navigate('map')">
           🗺️ 探險地圖 (${completedCount}/${totalLessons})
@@ -201,23 +272,30 @@ window.AppState = {
         </button>
         <button class="nav-tab ${this.currentView === 'parent' ? 'active' : ''}"
                 onclick="window.AppState.navigate('parent')">
-          👨‍👩‍👧 家長指南
+          👨‍👩‍👧 家長儀表板
         </button>
-      </div>
+      </nav>
 
       <div class="nav-right">
-        <div class="profile-pill" onclick="window.AppState.switchProfile()" title="點擊切換 10歲 / 8歲 探險家檔案">
-          <span>${p.avatar} ${p.name}</span>
+        <button class="profile-pill" onclick="window.AppState.switchProfile()" title="點擊切換 10歲 / 8歲 探險家檔案" aria-label="切換探險家檔案">
+          <span>${p.avatar} ${safeName}</span>
           <span style="font-size:0.75rem; background:#fde68a; padding:1px 6px; border-radius:999px;">切換</span>
-        </div>
-        <button class="lang-toggle-btn" onclick="window.AppState.renameCurrentProfile()" title="修改探險家名字">
+        </button>
+        <button class="lang-toggle-btn" onclick="window.AppState.renameCurrentProfile()" title="修改探險家名字" aria-label="修改探險家名字">
           ✏️ 改名
         </button>
-        <div class="xp-pill">
+        <div class="xp-pill" aria-label="探險家總積分">
           ⭐ ${p.xp} XP
         </div>
+        <button class="lang-toggle-btn ${this.zhuyinFont ? 'en-on' : ''}"
+                onclick="window.AppState.toggleZhuyinFont()"
+                title="切換國語課本注音字體 (Bpmf Iansui)"
+                aria-label="切換注音伴讀字體">
+          ${this.zhuyinFont ? '📖 注音字體 ON' : '📖 注音字體'}
+        </button>
         <button class="lang-toggle-btn ${this.showEnglishSubtitles ? 'en-on' : ''}"
-                onclick="window.AppState.toggleEnglish()">
+                onclick="window.AppState.toggleEnglish()"
+                aria-label="切換中英雙語顯示">
           ${this.showEnglishSubtitles ? '中+EN 雙語開啟' : '僅顯示中文'}
         </button>
       </div>
@@ -247,26 +325,47 @@ window.AppState = {
     }
   },
 
+  getDailyQuest() {
+    const p = this.getProfile();
+    const nextLesson = window.CURRICULUM_LESSONS.find(l => !p.completedLessons[l.id]) || window.CURRICULUM_LESSONS[0];
+    let nextDrill = null;
+    if (window.TYPING_DATA && window.TYPING_DATA.categories) {
+      for (const cat of window.TYPING_DATA.categories) {
+        for (const d of cat.drills) {
+          if (!p.completedDrills[d.id]) {
+            nextDrill = d;
+            break;
+          }
+        }
+        if (nextDrill) break;
+      }
+      if (!nextDrill) nextDrill = window.TYPING_DATA.categories[0].drills[0];
+    }
+    return { nextLesson, nextDrill };
+  },
+
   // ==========================================================================
   // VIEW 1: WORLD MAP
   // ==========================================================================
   renderWorldMap(mainEl) {
     const p = this.getProfile();
+    const safeName = this.escapeHtml(p.name);
     const completedLessonsCount = Object.keys(p.completedLessons).length;
     const completedDrillsCount = Object.keys(p.completedDrills).length;
     const totalLessons = window.CURRICULUM_LESSONS.length;
     const totalDrills = (window.TYPING_DATA && window.TYPING_DATA.categories)
       ? window.TYPING_DATA.categories.reduce((sum, c) => sum + c.drills.length, 0)
       : 22;
+    const { nextLesson, nextDrill } = this.getDailyQuest();
 
     mainEl.innerHTML = `
       <section class="hero-banner">
         <div class="hero-info">
-          <h1>👋 歡迎回來，${p.avatar} ${p.name}！</h1>
-          <p>從認識你的全新 Windows 11 筆電、學會中英十指盲打，一路成為聰明又安全的網路與 AI 小大師！</p>
+          <h1>👋 歡迎回來，${p.avatar} ${safeName}！</h1>
+          <p>${this.isSimpleMode() ? '🌟 8歲簡易伴讀模式已開啟！一步一步學筆電、注音打字、AI 與 Roblox！' : '從認識你的全新 Windows 11 筆電、學會中英十指盲打，一路成為聰明又安全的網路與 AI 小大師！'}</p>
           <div class="dynamic-island-bar">
             <span class="dynamic-island-dot"></span>
-            <span>💊 靈動探險島：${p.avatar} ${p.name} 連線中</span>
+            <span>💊 靈動探險島：${p.avatar} ${safeName} 連線中</span>
             <span>｜</span>
             <span>👀 20-20-20 護眼提醒：每 20 分鐘看遠方 20 秒！</span>
           </div>
@@ -284,6 +383,21 @@ window.AppState = {
             <div class="stat-num">⭐ ${p.xp}</div>
             <div class="stat-label">探險家總積分</div>
           </div>
+        </div>
+      </section>
+
+      <!-- 🎯 Daily Quest Card -->
+      <section class="daily-quest-card" aria-label="今日探險任務">
+        <div>
+          <div style="font-size:0.85rem; font-weight:900; color:#b45309;">🎯 今日探險任務 (Daily Quest)</div>
+          <div style="font-weight:900; font-size:1.05rem; color:#78350f; margin-top:0.15rem;">
+            1. 挑戰課程：單元 ${nextLesson.number} ${nextLesson.title}
+            ${nextDrill ? ` ｜ 2. 打字特訓：${nextDrill.name}` : ''}
+          </div>
+        </div>
+        <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+          <button class="btn-primary" onclick="window.AppState.navigate('lesson', '${nextLesson.id}')">🚀 去上課</button>
+          <button class="btn-secondary" onclick="window.AppState.navigate('dojo')">🎹 練打字</button>
         </div>
       </section>
 
@@ -316,13 +430,14 @@ window.AppState = {
             <div class="lessons-grid">
               ${wLessons.map(lesson => {
                 const isDone = !!p.completedLessons[lesson.id];
+                const starsCount = isDone ? (p.completedLessons[lesson.id].stars || 3) : 0;
                 return `
                   <article class="lesson-card ${isDone ? 'completed' : ''}"
                            onclick="window.AppState.navigate('lesson', '${lesson.id}')">
                     <div>
                       <div class="lesson-card-top">
                         <span class="lesson-num-tag">單元 ${lesson.number}</span>
-                        <span class="lesson-status-stars">${isDone ? '⭐⭐⭐ 已通關' : '🎯 點擊開始'}</span>
+                        <span class="lesson-status-stars">${isDone ? `${'⭐'.repeat(starsCount)} 已通關` : '🎯 點擊開始'}</span>
                       </div>
                       <h3>${lesson.icon} ${lesson.title}</h3>
                       <div class="en-sub">${lesson.titleEn}</div>
@@ -341,19 +456,31 @@ window.AppState = {
       }).join('')}
     `;
 
-    if (window.IslandScene) {
-      window.IslandScene.mount('island-3d-canvas', {
-        onSelectWorld: (worldId) => {
-          const sec = document.getElementById(`section-${worldId}`);
-          if (sec) {
-            sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            sec.classList.add('island-highlight');
-            setTimeout(() => sec.classList.remove('island-highlight'), 1400);
-          }
-        },
-        profile: p,
-        worlds: window.CURRICULUM_WORLDS
-      });
+    const prefersReducedMotion = typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (window.IslandScene && !prefersReducedMotion) {
+      const mount3D = () => {
+        if (this.currentView !== 'map') return;
+        const canvasEl = document.getElementById('island-3d-canvas');
+        if (!canvasEl) return;
+        window.IslandScene.mount('island-3d-canvas', {
+          onSelectWorld: (worldId) => {
+            const sec = document.getElementById(`section-${worldId}`);
+            if (sec) {
+              sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              sec.classList.add('island-highlight');
+              setTimeout(() => sec.classList.remove('island-highlight'), 1400);
+            }
+          },
+          profile: p,
+          worlds: window.CURRICULUM_WORLDS
+        });
+      };
+      if (typeof window.requestAnimationFrame === 'function') {
+        window.requestAnimationFrame(mount3D);
+      } else {
+        mount3D();
+      }
     }
   },
 
@@ -402,15 +529,18 @@ window.AppState = {
         ${this.lessonStep === 'learn' ? `
           <!-- Step 1: Story & Concept Cards -->
           <div>
-            ${lesson.cards.map((c, idx) => `
+            ${lesson.cards.map((c, idx) => {
+              const cardText = (this.isSimpleMode() && c.simpleBody) ? c.simpleBody : c.body;
+              return `
               <div class="slide-card">
                 <h3>${c.title}</h3>
                 <div class="en-sub" style="margin-bottom:0.5rem;">${c.titleEn || ''}</div>
-                <div class="slide-body">${this.formatMarkdownBold(c.body)}</div>
+                <div class="slide-body">${this.formatMarkdownBold(cardText)}</div>
                 ${c.visualType ? this.renderCardVisual(c.visualType) : ''}
                 ${c.highlight ? `<div class="slide-highlight">${c.highlight}</div>` : ''}
               </div>
-            `).join('')}
+            `;
+            }).join('')}
 
             <!-- Essential English Tech Keywords -->
             <div style="margin-top:1.75rem; background:#f8fafc; border:2px solid #e2e8f0; border-radius:16px; padding:1.25rem;">
@@ -453,6 +583,22 @@ window.AppState = {
 
             <div id="lesson-simulator-mount"></div>
 
+            ${lesson.studioChecklist ? `
+              <div class="studio-checklist" aria-label="真實 Roblox Studio 實作任務">
+                <div style="font-weight:900; color:#166534; font-size:1.02rem;">🛠️ 真實 Roblox Studio 實作挑戰（每勾一項 +10 XP！）</div>
+                ${lesson.studioChecklist.map((item, idx) => {
+                  const checkedList = (this.getProfile().studioChecks && this.getProfile().studioChecks[lesson.id]) || [];
+                  const isDone = checkedList.includes(idx);
+                  return `
+                    <label class="studio-check-item ${isDone ? 'checked' : ''}" onclick="window.AppState.toggleStudioCheck('${lesson.id}', ${idx})">
+                      <input type="checkbox" ${isDone ? 'checked' : ''} style="width:18px; height:18px;" />
+                      <span>${item}</span>
+                    </label>
+                  `;
+                }).join('')}
+              </div>
+            ` : ''}
+
             <div style="display:flex; justify-content:space-between; margin-top:1.5rem; flex-wrap:wrap; gap:0.75rem;">
               <button class="btn-secondary" onclick="window.AppState.setLessonStep('learn')">
                 ← 回去看知識卡
@@ -468,43 +614,49 @@ window.AppState = {
           <!-- Step 3: Mastery Quiz -->
           <div>
             <p style="font-weight:800; color:#475569; margin-bottom:1rem;">
-              🎯 答對下面全部 ${lesson.quiz.length} 題，就能獲得 <strong>+${lesson.xp} XP</strong> 與 ⭐⭐⭐ 三顆星勳章！
+              🎯 答對下面全部 ${lesson.quiz.length} 題，就能獲得 <strong>+${lesson.xp} XP</strong>！（一次答對拿 ⭐⭐⭐ 三顆星！）
             </p>
             ${lesson.quiz.map((qItem, qIdx) => {
               const chosen = this.quizAnswers[qIdx];
               const isAnswered = chosen !== undefined;
               const isCorrect = chosen === qItem.correct;
+              const order = this.getShuffledQuizOrder(lesson.id, qIdx, qItem.options.length);
+              const labels = ['🅰️', '🅱️', '🆎', '🆔'];
               return `
                 <div class="quiz-question-card">
                   <div style="font-weight:900; font-size:1.08rem; margin-bottom:0.5rem;">
                     Q${qIdx + 1}. ${qItem.q}
                   </div>
-                  ${qItem.options.map((opt, oIdx) => {
+                  ${order.map((origIdx, displayIdx) => {
+                    const opt = qItem.options[origIdx];
                     let cls = 'quiz-option';
                     if (isAnswered) {
-                      if (oIdx === qItem.correct) cls += ' correct';
-                      else if (oIdx === chosen) cls += ' wrong';
+                      if (origIdx === qItem.correct && isCorrect) cls += ' correct';
+                      else if (origIdx === chosen && !isCorrect) cls += ' wrong';
                     }
                     return `
-                      <button class="${cls}" onclick="window.AppState.answerQuiz(${qIdx}, ${oIdx}, '${lesson.id}', ${lesson.xp})">
-                        ${oIdx === 0 ? '🅰️' : oIdx === 1 ? '🅱️' : '🆎'} ${opt}
+                      <button class="${cls}" onclick="window.AppState.answerQuiz(${qIdx}, ${origIdx}, '${lesson.id}', ${lesson.xp})">
+                        ${labels[displayIdx] || '🔹'} ${opt}
                       </button>
                     `;
                   }).join('')}
                   ${isAnswered ? `
-                    <div style="margin-top:0.75rem; padding:0.75rem 1rem; border-radius:10px; background:${isCorrect ? '#dcfce7' : '#fee2e2'}; font-weight:800; font-size:0.95rem;">
-                      ${isCorrect ? '🎉 答對了！' : '💡 再想一下喔：'}${qItem.explain}
+                    <div class="${isCorrect ? '' : 'quiz-feedback-wrong'}" style="${isCorrect ? 'margin-top:0.75rem; padding:0.75rem 1rem; border-radius:10px; background:#dcfce7; font-weight:800; font-size:0.95rem;' : ''}">
+                      ${isCorrect ? `🎉 答對了！${qItem.explain}` : `💡 再試試看其他選項喔！提示：${qItem.explain}`}
                     </div>
                   ` : ''}
                 </div>
               `;
             }).join('')}
 
-            ${this.isQuizAllCorrect(lesson) ? `
+            ${this.isQuizAllCorrect(lesson) ? (() => {
+              const earnedStars = (this.getProfile().completedLessons[lesson.id]?.stars) || 3;
+              const starIcons = '⭐'.repeat(earnedStars);
+              return `
               <div style="background:linear-gradient(135deg, #dcfce7 0%, #fef9c3 100%); border:3px solid #22c55e; border-radius:18px; padding:1.5rem; text-align:center; margin-top:1.25rem;">
-                <div style="font-size:2.5rem;">🎉⭐⭐⭐🎉</div>
+                <div style="font-size:2.5rem;">🎉${starIcons}🎉</div>
                 <h3 style="font-size:1.35rem; font-weight:900; color:#14532d; margin:0.35rem 0;">
-                  恭喜過關！你已獲得本單元三顆星與 +${lesson.xp} XP！
+                  恭喜過關！你已獲得本單元 ${earnedStars} 顆星與 +${lesson.xp} XP！
                 </h3>
                 <div style="display:flex; justify-content:center; gap:0.85rem; margin-top:1rem; flex-wrap:wrap;">
                   <button class="btn-secondary" onclick="window.AppState.navigate('map')">
@@ -521,7 +673,8 @@ window.AppState = {
                   `}
                 </div>
               </div>
-            ` : ''}
+              `;
+            })() : ''}
           </div>
         ` : ''}
       </div>
@@ -532,9 +685,28 @@ window.AppState = {
     }
   },
 
+  getShuffledQuizOrder(lessonId, qIdx, length) {
+    const key = `${lessonId}-${qIdx}-${length}`;
+    if (this.quizOrderCache[key]) return this.quizOrderCache[key];
+    const indices = Array.from({ length }, (_, i) => i);
+    // Deterministic hash-based shuffle so correct answer (index 0) spreads across A/B/C
+    let seed = 0;
+    for (let i = 0; i < key.length; i++) seed = (seed * 31 + key.charCodeAt(i)) >>> 0;
+    for (let i = indices.length - 1; i > 0; i--) {
+      seed = (seed * 1664525 + 1013904223) >>> 0;
+      const j = seed % (i + 1);
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    this.quizOrderCache[key] = indices;
+    return indices;
+  },
+
   answerQuiz(qIdx, oIdx, lessonId, xp) {
-    this.quizAnswers[qIdx] = oIdx;
     const lesson = window.CURRICULUM_LESSONS.find(l => l.id === lessonId);
+    if (lesson && lesson.quiz[qIdx] && oIdx !== lesson.quiz[qIdx].correct) {
+      this.quizMistakes[lessonId] = (this.quizMistakes[lessonId] || 0) + 1;
+    }
+    this.quizAnswers[qIdx] = oIdx;
     if (lesson && this.isQuizAllCorrect(lesson)) {
       this.completeLesson(lessonId, xp);
     }
@@ -628,7 +800,7 @@ window.AppState = {
             茲證明小小數位探險家：
           </p>
           <div style="font-size:2.1rem; font-weight:900; color:#0284c7; border-bottom:3px solid #0284c7; display:inline-block; padding:0.2rem 2rem; margin-bottom:1.25rem;">
-            ${p.avatar} ${p.name}
+            ${p.avatar} ${this.escapeHtml(p.name)}
           </div>
           <p style="font-size:1.05rem; color:#334155; max-width:600px; margin:0 auto 1.5rem; line-height:1.8;">
             已成功在 <strong>Windows 11 筆電</strong> 上完成：
@@ -657,15 +829,71 @@ window.AppState = {
   },
 
   // ==========================================================================
-  // VIEW 6: PARENT GUIDE & EXTENSIBILITY DOCS
+  // VIEW 6: PARENT DASHBOARD & GUIDE
   // ==========================================================================
   renderParentGuide(mainEl) {
+    const totalLessons = window.CURRICULUM_LESSONS.length;
+    const profileIds = ['kid-10', 'kid-8'];
+    const cardsHtml = profileIds.map(pid => {
+      const prof = this.profiles[pid] || { id: pid, name: pid, avatar: '🎓', xp: 0, completedLessons: {}, completedDrills: {}, drillHistory: [] };
+      const doneLessons = Object.keys(prof.completedLessons || {}).length;
+      const totalStars = Object.values(prof.completedLessons || {}).reduce((sum, item) => sum + (item.stars || 0), 0);
+      const drillEntries = Object.values(prof.completedDrills || {});
+      const avgCpm = drillEntries.length
+        ? Math.round(drillEntries.reduce((sum, d) => sum + (d.cpm || 0), 0) / drillEntries.length)
+        : 0;
+      const incompleteWorlds = window.CURRICULUM_WORLDS.filter(w => {
+        const wLessons = window.CURRICULUM_LESSONS.filter(l => l.worldId === w.id);
+        return wLessons.some(l => !(prof.completedLessons || {})[l.id]);
+      }).map(w => `${w.icon} ${w.title}`);
+
+      return `
+        <div class="parent-profile-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem;">
+            <h3 style="margin:0; font-size:1.15rem; font-weight:900;">${prof.avatar} ${this.escapeHtml(prof.name)}</h3>
+            <span style="background:#fef3c7; color:#b45309; padding:0.2rem 0.7rem; border-radius:999px; font-weight:900; font-size:0.85rem;">⭐ ${prof.xp || 0} XP</span>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem; margin-bottom:0.75rem; text-align:center;">
+            <div style="background:#f8fafc; border-radius:10px; padding:0.5rem;">
+              <div style="font-weight:900; font-size:1.05rem; color:#0284c7;">${doneLessons}/${totalLessons}</div>
+              <div style="font-size:0.75rem; color:#64748b; font-weight:700;">完成課程</div>
+            </div>
+            <div style="background:#f8fafc; border-radius:10px; padding:0.5rem;">
+              <div style="font-weight:900; font-size:1.05rem; color:#d97706;">⭐ ${totalStars}</div>
+              <div style="font-size:0.75rem; color:#64748b; font-weight:700;">總星星數</div>
+            </div>
+            <div style="background:#f8fafc; border-radius:10px; padding:0.5rem;">
+              <div style="font-weight:900; font-size:1.05rem; color:#16a34a;">${avgCpm} CPM</div>
+              <div style="font-size:0.75rem; color:#64748b; font-weight:700;">平均打字速</div>
+            </div>
+          </div>
+          <div style="font-size:0.84rem; color:#475569; font-weight:700; line-height:1.5;">
+            <strong>待探索世界：</strong>${incompleteWorlds.length ? incompleteWorlds.join('、') : '🎉 全數完成！'}
+          </div>
+        </div>
+      `;
+    }).join('');
+
     mainEl.innerHTML = `
       <div class="card-panel">
-        <h1 style="font-size:1.55rem; font-weight:900; margin-bottom:0.5rem;">👨‍👩‍👧 家長專屬指南：陪 8 歲與 10 歲孩子開啟數位與 AI 之旅</h1>
-        <p style="color:#475569; font-weight:700; margin-bottom:1.25rem;">
-          這份指南整理了 Windows 11 筆電的快速設定、如何陪孩子練習中英盲打與 AI，以及如何免費部署到 GitHub / Vercel / Cloudflare Pages 與未來擴充課程的方法。
-        </p>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem;">
+          <div>
+            <h1 style="font-size:1.55rem; font-weight:900; margin-bottom:0.35rem;">👨‍👩‍👧 家長儀表板與陪學指南</h1>
+            <p style="color:#475569; font-weight:700; margin:0;">
+              一眼掌握 10 歲與 8 歲孩子的學習進度、星星數、打字速度，並支援跨電腦雲端同步與列印報告。
+            </p>
+          </div>
+          <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+            <button class="btn-primary" onclick="window.AppState.openCloudSyncModal()">☁️ 雲端同步 (Vercel Redis)</button>
+            <button class="btn-secondary" onclick="window.print()">🖨️ 列印學習報告</button>
+            <button class="btn-secondary" onclick="window.AppState.exportProgress()">💾 匯出代碼</button>
+            <button class="btn-secondary" onclick="window.AppState.importProgress()">📥 匯入代碼</button>
+          </div>
+        </div>
+
+        <div class="parent-dash-grid" aria-label="孩子學習進度比較">
+          ${cardsHtml}
+        </div>
 
         <div class="slide-card">
           <h3>💻 1. 新買的 Windows 11 筆電：5 分鐘家長設定清單</h3>
@@ -685,22 +913,106 @@ window.AppState = {
         </div>
 
         <div class="slide-card">
-          <h3>☁️ 3. 如何免費部署到 GitHub + Vercel 或 Cloudflare Pages？</h3>
-          <div class="slide-body">本專案採用純靜態模組化架構（無須付費伺服器，100% 免費託管）：
-1. 將本資料夾上傳到你的 GitHub 儲存庫 (Repository)。
-2. 登入 <strong>Vercel.com</strong> 或 <strong>Cloudflare Pages</strong>（皆可直接使用 GitHub 帳號免費登入）。
-3. 點選「Add New Project / Connect to Git」選擇此儲存庫，Framework Preset 選擇「Other (Static)」，直接點選 <strong>Deploy</strong>！
-4. 30 秒內就會獲得一個專屬免費網址（例如 <code>https://kids-academy.vercel.app</code>），在兩台孩子的筆電上各自打開網址並加入書籤，進度會自動存在各自筆電的瀏覽器中！</div>
+          <h3>☁️ 3. 免費部署與 Vercel Redis 跨電腦雲端同步</h3>
+          <div class="slide-body">本專案採用純靜態模組化架構＋可選的 Vercel Serverless API（<code>api/progress.js</code>）：
+1. 在 Vercel Dashboard 專案中連接 Upstash Redis / Vercel KV（系統會自動填入 <code>KV_REST_API_URL</code> 與 <code>KV_REST_API_TOKEN</code>）。
+2. 即可點選上方「☁️ 雲端同步」用家庭代碼＋PIN 碼在哥哥與妹妹的筆電間即時同步進度！
+3. 尚未設定 Redis 時，也能隨時使用「💾 匯出代碼 / 📥 匯入代碼」離線備份。</div>
         </div>
 
         <div class="slide-card">
           <h3>🧩 4. 超好擴充的架構設計：未來想新增更多課程或打字關卡怎麼做？</h3>
           <div class="slide-body">我們特別把「課程資料」與「程式畫面」完全分離，你未來只需要編輯 <code>data/</code> 資料夾底下的兩個檔案：
 • <strong>想新增打字練習關卡</strong>：打開 <code>data/typing-drills.js</code>，在 <code>drills</code> 陣列中新增一行 <code>{ id: '...', name: '...', text: '...' }</code>，打字道館就會自動產生新關卡與手指提示！
-• <strong>想新增更多單元或第 4 個世界（例如：Scratch 程式設計、Canva 簡報設計、進階英文）</strong>：打開 <code>data/curriculum.js</code>，複製任一單元的格式貼上，主地圖與進度系統就會自動長出新課程！</div>
+• <strong>想新增更多單元或世界</strong>：打開 <code>data/curriculum.js</code>，複製任一單元的格式貼上，主地圖與進度系統就會自動長出新課程！</div>
         </div>
       </div>
     `;
+  },
+
+  sanitizeProfile(raw, fallback) {
+    const clean = {
+      id: fallback.id,
+      name: (raw && typeof raw.name === 'string' && raw.name.trim()) ? raw.name.trim().slice(0, 30) : fallback.name,
+      avatar: (raw && typeof raw.avatar === 'string') ? raw.avatar.slice(0, 4) : fallback.avatar,
+      xp: (raw && typeof raw.xp === 'number' && Number.isFinite(raw.xp) && raw.xp >= 0) ? Math.min(Math.floor(raw.xp), 999999) : 0,
+      completedLessons: (raw && raw.completedLessons && typeof raw.completedLessons === 'object' && !Array.isArray(raw.completedLessons)) ? raw.completedLessons : {},
+      completedDrills: (raw && raw.completedDrills && typeof raw.completedDrills === 'object' && !Array.isArray(raw.completedDrills)) ? raw.completedDrills : {},
+      drillHistory: (raw && Array.isArray(raw.drillHistory)) ? raw.drillHistory.slice(-15) : [],
+      studioChecks: (raw && raw.studioChecks && typeof raw.studioChecks === 'object' && !Array.isArray(raw.studioChecks)) ? raw.studioChecks : {}
+    };
+    return clean;
+  },
+
+  async openCloudSyncModal() {
+    const promptFn = (window.UIModal && window.UIModal.prompt) ? window.UIModal.prompt.bind(window.UIModal) : window.prompt;
+    const alertFn = (window.UIModal && window.UIModal.alert) ? window.UIModal.alert.bind(window.UIModal) : window.alert;
+    const input = await promptFn(
+      '請輸入「動作:家庭代碼:PIN碼」\n• 上傳進度範例：push:myfamily:1234\n• 下載進度範例：pull:myfamily:1234',
+      'push:family01:1234',
+      '☁️ Vercel Redis 雲端同步'
+    );
+    if (!input || typeof input !== 'string') return;
+    const parts = input.trim().split(':');
+    if (parts.length < 3) {
+      alertFn('⚠️ 格式錯誤，請輸入 動作:家庭代碼:PIN碼（例如 push:family01:1234）');
+      return;
+    }
+    const [action, code, pin] = parts.map(s => s.trim());
+    if (action === 'pull') {
+      await this.cloudSyncPull(code, pin);
+    } else {
+      await this.cloudSyncPush(code, pin);
+    }
+  },
+
+  async cloudSyncPush(code, pin) {
+    const alertFn = (window.UIModal && window.UIModal.alert) ? window.UIModal.alert.bind(window.UIModal) : window.alert;
+    try {
+      const res = await fetch('/api/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, pin, data: { profiles: this.profiles, activeProfileId: this.activeProfileId } })
+      });
+      const json = await res.json();
+      if (res.status === 501 || json.error === 'REDIS_NOT_CONFIGURED') {
+        alertFn('☁️ 尚未在 Vercel 設定 Redis 資料庫（KV_REST_API_URL / KV_REST_API_TOKEN）。請先在 Vercel 連接 Redis，或改用「匯出 / 匯入代碼」備份！');
+        return;
+      }
+      if (!res.ok) {
+        alertFn(`⚠️ 雲端上傳失敗：${json.error || res.status}`);
+        return;
+      }
+      if (window.UIModal && window.UIModal.toast) window.UIModal.toast('☁️ 進度已成功上傳至雲端！');
+    } catch (e) {
+      alertFn('⚠️ 無法連線至雲端同步 API（離線模式請使用匯出代碼）。');
+    }
+  },
+
+  async cloudSyncPull(code, pin) {
+    const alertFn = (window.UIModal && window.UIModal.alert) ? window.UIModal.alert.bind(window.UIModal) : window.alert;
+    try {
+      const res = await fetch(`/api/progress?code=${encodeURIComponent(code)}&pin=${encodeURIComponent(pin)}`);
+      const json = await res.json();
+      if (res.status === 501 || json.error === 'REDIS_NOT_CONFIGURED') {
+        alertFn('☁️ 尚未在 Vercel 設定 Redis 資料庫（KV_REST_API_URL / KV_REST_API_TOKEN）。請先在 Vercel 連接 Redis，或改用「匯出 / 匯入代碼」備份！');
+        return;
+      }
+      if (!res.ok || !json.data || !json.data.profiles) {
+        alertFn(`⚠️ 雲端下載失敗：${json.error || '找不到資料或 PIN 碼錯誤'}`);
+        return;
+      }
+      this.profiles['kid-10'] = this.sanitizeProfile(json.data.profiles['kid-10'], this.profiles['kid-10']);
+      this.profiles['kid-8'] = this.sanitizeProfile(json.data.profiles['kid-8'], this.profiles['kid-8']);
+      if (json.data.activeProfileId === 'kid-8' || json.data.activeProfileId === 'kid-10') {
+        this.activeProfileId = json.data.activeProfileId;
+      }
+      this.save();
+      this.renderAll();
+      if (window.UIModal && window.UIModal.toast) window.UIModal.toast('☁️ 已成功從雲端同步進度！');
+    } catch (e) {
+      alertFn('⚠️ 無法連線至雲端同步 API（離線模式請使用匯出代碼）。');
+    }
   },
 
   exportProgress() {
@@ -723,9 +1035,17 @@ window.AppState = {
       if (!code) return;
       try {
         const parsed = JSON.parse(decodeURIComponent(atob(code.trim())));
-        if (parsed && parsed.profiles) {
-          this.profiles = parsed.profiles;
-          if (parsed.activeProfileId) this.activeProfileId = parsed.activeProfileId;
+        if (parsed && parsed.profiles && typeof parsed.profiles === 'object' &&
+            (parsed.profiles['kid-10'] || parsed.profiles['kid-8'])) {
+          if (parsed.profiles['kid-10']) {
+            this.profiles['kid-10'] = this.sanitizeProfile(parsed.profiles['kid-10'], this.profiles['kid-10']);
+          }
+          if (parsed.profiles['kid-8']) {
+            this.profiles['kid-8'] = this.sanitizeProfile(parsed.profiles['kid-8'], this.profiles['kid-8']);
+          }
+          if (parsed.activeProfileId === 'kid-10' || parsed.activeProfileId === 'kid-8') {
+            this.activeProfileId = parsed.activeProfileId;
+          }
           this.save();
           this.renderAll();
           if (window.UIModal && window.UIModal.toast) {
@@ -1179,6 +1499,112 @@ window.AppState = {
             <path d="M 320 184 Q 480 198 650 184" fill="none" stroke="#38bdf8" stroke-width="3"/>
           </svg>
         `, '造船位置：① 到 Model 分頁按 Create ➔ Weld 黏合積木 ② 確認船身 Anchored=false ③ 放進 VehicleSeat 就能開船！');
+
+      case 'win11-taskbar':
+        return wrap(`
+          <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="220" fill="#0f172a"/>
+            <!-- Desktop Window -->
+            <rect x="44" y="20" width="632" height="132" rx="10" fill="#f8fafc" stroke="#38bdf8" stroke-width="2"/>
+            <rect x="44" y="20" width="632" height="30" rx="10" fill="#e2e8f0"/>
+            <text x="64" y="40" fill="#0f172a" font-size="12" font-weight="800">📁 我的作業視窗</text>
+            <!-- Top-right window buttons -->
+            <rect x="572" y="24" width="26" height="22" rx="4" fill="#cbd5e1"/><text x="581" y="39" fill="#0f172a" font-size="12" font-weight="900">─</text>
+            <rect x="604" y="24" width="26" height="22" rx="4" fill="#cbd5e1"/><text x="612" y="39" fill="#0f172a" font-size="12" font-weight="900">□</text>
+            <rect x="636" y="24" width="26" height="22" rx="4" fill="#ef4444"/><text x="644" y="39" fill="#fff" font-size="12" font-weight="900">✕</text>
+            <circle cx="650" cy="24" r="10" fill="#facc15"/><text x="646" y="28" fill="#0f172a" font-size="11" font-weight="900">1</text>
+            <text x="80" y="96" fill="#475569" font-size="13" font-weight="700">提示：右上角三個按鈕分別是「─ 縮小」、「□ 放大」、「✕ 關閉」</text>
+            <!-- Bottom Taskbar -->
+            <rect x="0" y="168" width="720" height="52" fill="#1e293b"/>
+            <rect x="240" y="176" width="36" height="36" rx="8" fill="#0284c7"/><text x="249" y="200" fill="#fff" font-size="18">⊞</text>
+            <circle cx="240" cy="176" r="10" fill="#22c55e"/><text x="236" y="180" fill="#0f172a" font-size="11" font-weight="900">2</text>
+            <rect x="286" y="178" width="120" height="32" rx="16" fill="#334155"/><text x="300" y="199" fill="#cbd5e1" font-size="11" font-weight="700">🔍 搜尋程式</text>
+            <rect x="418" y="176" width="36" height="36" rx="8" fill="#f59e0b"/><text x="427" y="200" fill="#fff" font-size="16">📁</text>
+            <rect x="464" y="176" width="36" height="36" rx="8" fill="#16a34a"/><text x="473" y="200" fill="#fff" font-size="16">🌐</text>
+            <text x="580" y="198" fill="#fde047" font-size="12" font-weight="800">中 / 英 🔊 🔋</text>
+            <circle cx="580" cy="176" r="10" fill="#38bdf8"/><text x="576" y="180" fill="#0f172a" font-size="11" font-weight="900">3</text>
+          </svg>
+        `, 'Windows 11 畫面地圖：① 視窗右上角縮小/放大/關閉 ② 底部藍色 ⊞ 開始按鈕 ③ 右下角可看中/英輸入法與電量！');
+
+      case 'chrome-tabs-search':
+        return wrap(`
+          <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="220" fill="#1e293b"/>
+            <!-- Browser Tabs -->
+            <rect x="20" y="18" width="170" height="34" rx="8" fill="#ffffff"/>
+            <text x="34" y="40" fill="#0f172a" font-size="12" font-weight="800">🚀 數位小探險家  ✕</text>
+            <rect x="198" y="22" width="140" height="30" rx="8" fill="#475569"/>
+            <text x="212" y="42" fill="#e2e8f0" font-size="11" font-weight="700">🔍 新分頁  ✕</text>
+            <circle cx="356" cy="36" r="13" fill="#22c55e"/><text x="351" y="41" fill="#0f172a" font-size="16" font-weight="900">+</text>
+            <circle cx="356" cy="16" r="10" fill="#facc15"/><text x="352" y="20" fill="#0f172a" font-size="11" font-weight="900">1</text>
+            <!-- Address Bar -->
+            <rect x="20" y="54" width="680" height="46" rx="8" fill="#f8fafc"/>
+            <text x="36" y="82" fill="#64748b" font-size="16" font-weight="900">←  →  ↻</text>
+            <rect x="118" y="62" width="510" height="30" rx="15" fill="#e2e8f0" stroke="#38bdf8" stroke-width="2"/>
+            <text x="134" y="82" fill="#0f172a" font-size="12" font-weight="700">🔒 https://www.google.com</text>
+            <circle cx="118" cy="62" r="10" fill="#ef4444"/><text x="114" y="66" fill="#fff" font-size="11" font-weight="900">2</text>
+            <rect x="642" y="62" width="44" height="30" rx="8" fill="#fef08a" stroke="#eab308"/>
+            <text x="656" y="82" fill="#b45309" font-size="16" font-weight="900">★</text>
+            <circle cx="686" cy="62" r="10" fill="#3b82f6"/><text x="682" y="66" fill="#fff" font-size="11" font-weight="900">3</text>
+            <!-- Content Tip -->
+            <rect x="20" y="114" width="680" height="88" rx="10" fill="#0f172a" stroke="#334155"/>
+            <text x="40" y="148" fill="#86efac" font-size="13" font-weight="800">✅ 看到網址列左邊有 🔒 鎖頭圖示代表連線安全！</text>
+            <text x="40" y="178" fill="#fde047" font-size="12" font-weight="700">💡 搜尋時避開寫著「贊助 / 廣告」的連結，找真正需要的網站！</text>
+          </svg>
+        `, '瀏覽器操作位置：① 按 + 開新分頁 (Ctrl+T) ② 網址列確認 🔒 安全鎖頭 ③ 按右邊 ★ 星星存成書籤！');
+
+      case 'ai-prompt-box':
+        return wrap(`
+          <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="220" fill="#0f172a"/>
+            <!-- 3 Prompt Formula Blocks -->
+            <rect x="24" y="24" width="210" height="90" rx="10" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2"/>
+            <text x="38" y="48" fill="#93c5fd" font-size="12" font-weight="900">① 角色 (Role)</text>
+            <text x="38" y="76" fill="#ffffff" font-size="12" font-weight="700">「你是一位親切的</text>
+            <text x="38" y="96" fill="#ffffff" font-size="12" font-weight="700">國小自然科學老師」</text>
+            <rect x="255" y="24" width="210" height="90" rx="10" fill="#14532d" stroke="#4ade80" stroke-width="2"/>
+            <text x="269" y="48" fill="#86efac" font-size="12" font-weight="900">② 任務 (Task)</text>
+            <text x="269" y="76" fill="#ffffff" font-size="12" font-weight="700">「用 3 個簡單步驟</text>
+            <text x="269" y="96" fill="#ffffff" font-size="12" font-weight="700">解釋為什麼天會下雨」</text>
+            <rect x="486" y="24" width="210" height="90" rx="10" fill="#713f12" stroke="#facc15" stroke-width="2"/>
+            <text x="500" y="48" fill="#fde047" font-size="12" font-weight="900">③ 限制 (Rule)</text>
+            <text x="500" y="76" fill="#ffffff" font-size="12" font-weight="700">「給 8 歲孩子看，</text>
+            <text x="500" y="96" fill="#ffffff" font-size="12" font-weight="700">不超過 100 字！」</text>
+            <!-- Chat Input Box -->
+            <rect x="24" y="136" width="672" height="58" rx="14" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+            <text x="44" y="170" fill="#cbd5e1" font-size="13" font-weight="700">💬 把 ①＋②＋③ 組合起來貼進對話框，再按右邊送出 ➔</text>
+            <circle cx="664" cy="165" r="18" fill="#2563eb"/><text x="656" y="171" fill="#fff" font-size="15" font-weight="900">➤</text>
+          </svg>
+        `, 'AI 魔法咒語公式：① 設定角色 + ② 說明任務 + ③ 加上字數或年齡限制 = 超棒的 AI 回答！');
+
+      case 'scratch-blocks-ui':
+        return wrap(`
+          <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="220" fill="#1e293b"/>
+            <!-- Left Block Palette -->
+            <rect x="16" y="16" width="170" height="188" rx="8" fill="#0f172a" stroke="#475569"/>
+            <text x="28" y="38" fill="#f8fafc" font-size="11" font-weight="800">🧩 積木區 (Blocks)</text>
+            <circle cx="16" cy="16" r="10" fill="#facc15"/><text x="12" y="20" fill="#0f172a" font-size="11" font-weight="900">1</text>
+            <rect x="28" y="54" width="144" height="26" rx="6" fill="#eab308"/><text x="38" y="71" fill="#0f172a" font-size="11" font-weight="900">⚑ 當綠旗被點擊</text>
+            <rect x="28" y="90" width="144" height="26" rx="6" fill="#f97316"/><text x="38" y="107" fill="#fff" font-size="11" font-weight="900">🔁 重複無限次</text>
+            <rect x="28" y="126" width="144" height="26" rx="6" fill="#3b82f6"/><text x="38" y="143" fill="#fff" font-size="11" font-weight="900">➡️ 移動 10 點</text>
+            <rect x="28" y="162" width="144" height="26" rx="6" fill="#a855f7"/><text x="38" y="179" fill="#fff" font-size="11" font-weight="900">💬 說出「你好！」</text>
+            <!-- Middle Script Workspace -->
+            <rect x="200" y="16" width="270" height="188" rx="8" fill="#f8fafc" stroke="#38bdf8" stroke-width="2"/>
+            <text x="214" y="38" fill="#0f172a" font-size="11" font-weight="800">🛠️ 程式區 (把積木拖過來拼)</text>
+            <circle cx="200" cy="16" r="10" fill="#38bdf8"/><text x="196" y="20" fill="#0f172a" font-size="11" font-weight="900">2</text>
+            <rect x="224" y="56" width="160" height="30" rx="6" fill="#eab308"/><text x="236" y="76" fill="#0f172a" font-size="12" font-weight="900">⚑ 當綠旗被點擊</text>
+            <rect x="224" y="88" width="170" height="84" rx="6" fill="#f97316"/><text x="236" y="108" fill="#fff" font-size="12" font-weight="900">🔁 重複無限次</text>
+            <rect x="242" y="118" width="140" height="32" rx="6" fill="#3b82f6"/><text x="254" y="138" fill="#fff" font-size="12" font-weight="900">➡️ x 改變 10</text>
+            <!-- Right Stage -->
+            <rect x="484" y="16" width="220" height="188" rx="8" fill="#ecfeff" stroke="#22c55e" stroke-width="2"/>
+            <circle cx="508" cy="36" r="13" fill="#22c55e"/><text x="502" y="41" fill="#fff" font-size="14" font-weight="900">⚑</text>
+            <circle cx="484" cy="16" r="10" fill="#22c55e"/><text x="480" y="20" fill="#0f172a" font-size="11" font-weight="900">3</text>
+            <text x="530" y="40" fill="#0f172a" font-size="11" font-weight="800">按綠旗開始玩！</text>
+            <text x="572" y="122" fill="#0f172a" font-size="40">🐱</text>
+            <text x="518" y="182" fill="#475569" font-size="11" font-weight="700">舞台區 (角色會在這裡動)</text>
+          </svg>
+        `, 'Scratch 介面位置：① 左邊挑積木 ② 中間拼起來 ③ 右邊按綠色 ⚑ 旗幟執行遊戲！');
 
       default:
         return '';

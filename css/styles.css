@@ -1531,3 +1531,125 @@ body.show-en .en-sub {
   border-color: #22c55e;
   color: #166534;
 }
+
+/* ============================================================================
+   Zhuyin Companion Font (Bpmf Iansui) & 8-year-old Simpler Mode
+   ============================================================================ */
+body.zhuyin-font,
+body.zhuyin-font button,
+body.zhuyin-font input,
+body.zhuyin-font select {
+  font-family: 'Bpmf Iansui', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif !important;
+}
+
+body.zhuyin-font .slide-body,
+body.zhuyin-font .quiz-opt,
+body.zhuyin-font .world-desc {
+  line-height: 2.05;
+  font-size: 1.08rem;
+}
+
+/* Accessibility & Keyboard Navigation */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+/* Daily Quest Banner */
+.daily-quest-card {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 2px solid #f59e0b;
+  border-radius: 18px;
+  padding: 1.1rem 1.35rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.14);
+}
+
+/* Studio Real-World Mission Checklist */
+.studio-checklist {
+  margin-top: 1.25rem;
+  background: #f0fdf4;
+  border: 2px solid #86efac;
+  border-radius: 16px;
+  padding: 1.1rem 1.25rem;
+}
+
+.studio-check-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.65rem;
+  margin-top: 0.45rem;
+  background: #ffffff;
+  border: 1.5px solid #bbf7d0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  color: #14532d;
+}
+
+.studio-check-item.checked {
+  background: #dcfce7;
+  text-decoration: line-through;
+  opacity: 0.85;
+}
+
+/* Quiz Retry Feedback */
+.quiz-feedback-wrong {
+  margin-top: 0.65rem;
+  background: #fef2f2;
+  border: 2px solid #fca5a5;
+  color: #991b1b;
+  padding: 0.65rem 0.9rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+/* Typing History Chart */
+.typing-history-box {
+  margin-top: 1.25rem;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1rem 1.2rem;
+}
+
+/* Parent Dashboard */
+.parent-dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.15rem;
+  margin-top: 1rem;
+}
+
+.parent-kid-card {
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  border-radius: 18px;
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 768px) {
+  .top-nav {
+    padding: 0.65rem 0.85rem;
+  }
+  .nav-btn,
+  .btn-primary,
+  .btn-secondary {
+    min-height: 44px;
+  }
+  .daily-quest-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

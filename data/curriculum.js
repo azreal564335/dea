@@ -213,6 +213,7 @@ window.CURRICULUM_LESSONS = [
 * **\`—\` 最小化 (Minimize)**：把視窗暫時「縮到最底下工作列休息」，**東西不會不見**！再點一下底下的圖示就會彈回來。
 * **\`□\` 最大化 / 還原 (Maximize / Restore)**：把視窗變大填滿整個螢幕；再按一次會變回原本大小。
 * **\`✕\` 關閉 (Close)**：徹底把這個視窗關掉（關掉前記得先存檔！）。`,
+        visualType: 'win11-taskbar',
         highlight: '✨ Windows 11 隱藏神技（分割畫面 Snap Layout）：把滑鼠移到右上角中間的「□ 最大化按鈕」上面停 1 秒（不要點下去），會跳出「左右分半」的格子！讓你左邊看教學、右邊打字練習！'
       },
       {
@@ -474,6 +475,7 @@ window.CURRICULUM_LESSONS = [
 2. **第二排：導航按鈕與網址列 (URL Bar)**：
    * **\`←\` 上一頁 (Back)**：不小心點錯連結時，按左箭頭退回剛剛的頁面。
    * **\`↻\` 重新整理 (Refresh)**：網頁卡住時按一下重新載入。`,
+        visualType: 'chrome-tabs-search',
         highlight: '⭐ 必學神技（加入書籤 Bookmark）：在網址列最右邊有一顆「星星 ★ 圖示」！點一下星星，就能把「數位小探險家學院」釘選在書籤列，以後打開瀏覽器點一下就進來了！'
       },
       {
@@ -515,6 +517,16 @@ window.CURRICULUM_LESSONS = [
         ],
         correct: 0,
         explain: '沒錯！看完的分頁隨手按 ✕ 關掉，保持 3～5 個分頁最清爽快速！'
+      },
+      {
+        q: '在瀏覽器網址列左邊看到什麼圖示，代表這個網站有加密連線比較安全？',
+        options: [
+          '🔒 安全鎖頭圖示 (HTTPS)',
+          '💣 炸彈圖示',
+          '📢 紅色大喇叭'
+        ],
+        correct: 0,
+        explain: '完全正確！看到 🔒 鎖頭圖示就代表網站連線有加密保護，可以安心瀏覽！'
       }
     ]
   },
@@ -685,6 +697,16 @@ window.CURRICULUM_LESSONS = [
         ],
         correct: 0,
         explain: '太棒了！保護自己的真實姓名、學校與密碼，才是真正的網路安全小達人！'
+      },
+      {
+        q: '如果要幫自己的帳號設定密碼，哪一種密碼最安全、不容易被猜到？',
+        options: [
+          '英文大小寫＋數字＋符號的組合（而且不告訴陌生人）',
+          '123456',
+          '自己的生日或電話號碼'
+        ],
+        correct: 0,
+        explain: '滿分！絕對不要用 123456 或生日當密碼，混合英文數字與符號最安全！'
       }
     ]
   },
@@ -752,6 +774,16 @@ window.CURRICULUM_LESSONS = [
         ],
         correct: 0,
         explain: '完全正確！誠實告訴爸爸媽媽永遠是最安全、最聰明的決定！'
+      },
+      {
+        q: '在網路上留言給別人之前，我們應該先問自己哪一個「三秒鐘魔法問題」？',
+        options: [
+          '「如果現在這個人就站在我面前，我會微笑著對他說這句話嗎？」',
+          '「這句話能不能讓別人哭出來？」',
+          '「我的電腦電池還剩幾趴？」'
+        ],
+        correct: 0,
+        explain: '太溫暖了！螢幕背後都是真人，做個有禮貌的數位小公民最棒！'
       }
     ]
   },
@@ -908,6 +940,16 @@ window.CURRICULUM_LESSONS = [
         ],
         correct: 0,
         explain: '太聰明了！知道 AI 也會出錯、懂得檢查答案的人，才是真正的 AI 高手！'
+      },
+      {
+        q: '在使用 AI 聊天機器人時，下列哪件事「絕對不能」輸入告訴 AI？',
+        options: [
+          '自己的真實姓名、住家地址、學校班級或帳號密碼',
+          '「請用簡單的話解釋什麼是恐龍」',
+          '「請幫我出 3 題有趣的英文猜謎」'
+        ],
+        correct: 0,
+        explain: '保護隱私 100 分！永遠不要把個人隱私與密碼告訴 AI 喔！'
       }
     ]
   },
@@ -938,6 +980,7 @@ window.CURRICULUM_LESSONS = [
 2. 🎯 **第 2 塊：任務 (Task)** — *「請幫我解釋『黑洞是什麼』以及『掉進黑洞會怎樣』...」*
 3. 👶 **第 3 塊：對象與程度 (Level)** — *「我是 9 歲的小學生，請用生活化的比喻和繁體中文解釋...」*
 4. 📦 **第 4 塊：格式 (Format)** — *「請列成 3 個簡單重點，並在最後出 1 題有趣的選擇題考考我！」*`,
+        visualType: 'ai-prompt-box',
         highlight: '🌟 魔法公式口訣：【扮演誰 (Role)】＋【做什麼 (Task)】＋【講給幾歲聽 (Level)】＋【怎麼呈現 (Format)】！'
       },
       {
@@ -978,6 +1021,16 @@ window.CURRICULUM_LESSONS = [
         ],
         correct: 0,
         explain: '沒錯！結合自己喜歡的主題來學英文單字與例句，學得最快最開心！'
+      },
+      {
+        q: '在「四大魔法提示詞公式」中，告訴 AI「請列成 3 個重點並出 1 題測驗」，屬於哪一個部分？',
+        options: [
+          '格式 (Format)',
+          '電腦密碼 (Password)',
+          '關機鍵 (Shut down)'
+        ],
+        correct: 0,
+        explain: '完全正確！Format (格式) 能指定 AI 用條列、表格或小測驗的方式回答，讀起來超輕鬆！'
       }
     ]
   },
@@ -1048,6 +1101,16 @@ window.CURRICULUM_LESSONS = [
         ],
         correct: 0,
         explain: '完全正確！AI 最有耐心了，隨時可以請它「換個更簡單的比喻」或「舉個例子」，直到你真的聽懂為止！'
+      },
+      {
+        q: '下列哪一種才藝或技能，適合請 AI 當「步驟教練 (Step-by-Step Coach)」陪你練習？',
+        options: [
+          '摺紙、西洋棋開局、英文對話、Scratch 小遊戲全都可以！',
+          '只有數學考試可以，其他都不行',
+          'AI 什麼都不會教'
+        ],
+        correct: 0,
+        explain: '答對了！無論是手作、桌遊、英文或寫程式，AI 都能當你 24 小時的耐心教練！'
       }
     ]
   },
@@ -1118,6 +1181,16 @@ window.CURRICULUM_LESSONS = [
         ],
         correct: 0,
         explain: '完全正確！Art Style (藝術風格) 是決定整張畫作感覺最神奇的魔法調味料！'
+      },
+      {
+        q: '在使用 AI 畫圖時，下列哪一個「光線氛圍 (Lighting)」關鍵字最適合表現溫暖奇幻的感覺？',
+        options: [
+          'Warm Sunlight / 溫暖閃耀的金色陽光',
+          '把電腦螢幕關掉',
+          'Delete 鍵'
+        ],
+        correct: 0,
+        explain: '答對了！加上光線氛圍 (Lighting) 能讓整張圖片像電影海報一樣有立體感！'
       }
     ]
   },
@@ -1150,7 +1223,20 @@ window.CURRICULUM_LESSONS = [
   1. **卡關時求「提示 (Hint)」**：*「這題數學應用題我看不懂，**請不要直接給我答案**，請給我一個小提示，一步步引導我自己算出來！」*
   2. **自己寫完請 AI「健檢 (Feedback)」**：*「這是我自己寫的短文，請幫我看看有沒有錯別字，並建議我可以怎麼把形容詞改得更生動？」*
   3. **考前請 AI「出練習題考我」**：*「我明天要考自然科第 3 單元，請出 5 題選擇題考我，等我作答後再幫我批改！」*`,
+        simpleBody: `寫作業時，AI 就像你的 **小教練**：
+* ❌ **不要直接抄答案**：全部叫 AI 寫，大腦會變懶惰喔！
+* ✅ **請 AI 給你小提示**：說「請不要告訴我答案，給我一個小提示就好！」
+* ✅ **寫完請 AI 檢查**：自己先寫好，再請 AI 幫忙找錯字！`,
         highlight: '🏆 聰明學習者黃金咒語：「請不要直接給我答案，請給我一個提示 (Hint)，一步一步引導我自己想出來！」'
+      },
+      {
+        title: '🔍 跟 AI 一起「腦力激盪 (Brainstorm)」找靈感！',
+        titleEn: 'Brainstorming Ideas Together Without Losing Your Own Voice',
+        body: `做學校報告或寫故事沒靈感時，可以請 AI 當你的點子夥伴：
+* **問法範例**：*「我想寫一個跟恐龍有關的冒險故事，請給我 3 個不同的故事開頭點子，讓我自己挑一個來寫！」*
+* **記住**：點子可以跟 AI 討論，但 **最後的故事與報告要用自己的話寫出來**，這樣才是最棒的原創作品！`,
+        simpleBody: `想不到故事要寫什麼？可以請 AI 幫忙想 3 個點子，**再挑一個自己最喜歡的用自己的話寫出來！**`,
+        highlight: '💡 好問題 + 自己動腦 = 最強數位小探險家！'
       }
     ],
     simulator: {
@@ -1178,6 +1264,16 @@ window.CURRICULUM_LESSONS = [
         ],
         correct: 0,
         explain: '完全正確！作品是自己的心血，AI 則是幫你挑錯字、給建議的貼心小助教！'
+      },
+      {
+        q: '明天要考自然科，想請 AI 幫你複習，哪一種問法最有效？',
+        options: [
+          '請 AI 出 5 題選擇題考我，等我回答完再告訴我哪裡錯、為什麼',
+          '叫 AI 幫我去學校代考',
+          '請 AI 畫一隻恐龍就去睡覺'
+        ],
+        correct: 0,
+        explain: '太棒了！讓 AI 出題目考自己，是最聰明的考前複習法！'
       }
     ]
   },
@@ -1327,6 +1423,16 @@ window.CURRICULUM_LESSONS = [
         ],
         correct: 0,
         explain: '答得好！深底亮字、淺底深字，高對比能確保教室最後一排的同學也能輕鬆閱讀！'
+      },
+      {
+        q: '除了文字清楚之外，在簡報中加入「主視覺大圖 (Hero Visual)」有什麼好處？',
+        options: [
+          '能立刻抓住觀眾注意力，讓大家一眼就看懂你要表達的主題',
+          '讓電腦硬碟馬上裝滿',
+          '把文字全部遮住不讓大家看'
+        ],
+        correct: 0,
+        explain: '太棒了！一張好圖勝過千言萬語，好簡報一定是「少字＋大圖＋高對比」！'
       }
     ]
   },
@@ -1357,6 +1463,7 @@ window.CURRICULUM_LESSONS = [
 * 🔁 **橘色【控制迴圈 (Control/Loop)】**：\`重複無限次 (Forever)\` —— 讓遊戲每秒 60 次不斷更新、角色動個不停！
 * ❓ **六角形【條件判斷 (If-Then)】**：\`如果 <碰到 碗?> 那麼\` —— 發生碰撞時該執行什麼動作！
 * 📦 **橘紅色【變數積木 (Variables)】**：\`將 [得分] 改變 1\` —— 每次成功就讓分數向上加！`,
+        visualType: 'scratch-blocks-ui',
         highlight: '💡 工程師思維：程式不是魔法，是把一個大任務拆成一步一步的小積木命令！'
       },
       {
@@ -1538,6 +1645,11 @@ window.CURRICULUM_LESSONS = [
         highlight: '⚓ 必背口訣：「空中積木要聽話，Anchored 一定要打勾！」'
       }
     ],
+    studioChecklist: [
+      '打開 Roblox Studio 並建立一個 Baseplate 空白地圖',
+      '用 Home ➔ Part 新增 3 塊積木，用 Move/Scale/Rotate 排成階梯',
+      '在 Properties 把 3 塊積木的 Anchored 全部打勾並按 Play 測試'
+    ],
     simulator: {
       type: 'roblox-studio-basics',
       title: '🧰 Roblox Studio 互動工作台：新增積木、調色並測試 Anchored 重力！',
@@ -1617,6 +1729,11 @@ window.CURRICULUM_LESSONS = [
         highlight: '💡 小技巧：在 Roblox Studio 可以直接搜尋官方內建的 Obby 範本，觀察它怎麼擺放 Checkpoint！'
       }
     ],
+    studioChecklist: [
+      '擺放 SpawnLocation 出生點與 5 個綠色安全跳台 (Anchored ✓)',
+      '做一個紅色 Neon 材質的岩漿區，並從 Toolbox 放進 Checkpoint',
+      '自己按 Play 從起點一路跳到終點確認跳得過去'
+    ],
     simulator: {
       type: 'roblox-obby-builder',
       title: '🏃 3D 跑酷地圖工坊 (Obby Builder & Playtester)：蓋好馬上自己玩！',
@@ -1693,6 +1810,11 @@ window.CURRICULUM_LESSONS = [
         visualType: 'rbx-script-editor',
         highlight: '🛡️ 防呆小常識：加金幣時要設一個 `debounce`（冷卻開關），才不會踩一下瞬間加 100 次！'
       }
+    ],
+    studioChecklist: [
+      '在 Explorer 對加速板 Part 按 + 新增一個 Script',
+      '寫入 part.Touched 事件並修改 Humanoid.WalkSpeed = 40',
+      '按 Play 走上加速板，感受角色衝刺的速度！'
     ],
     simulator: {
       type: 'roblox-lua-lab',
@@ -1771,6 +1893,11 @@ window.CURRICULUM_LESSONS = [
         highlight: '🔒 安全第一：不隨便使用來源不明的腳本，並和爸媽一起確認隱私權限設定！'
       }
     ],
+    studioChecklist: [
+      '檢查從 Toolbox 放進的模型裡有沒有可疑 Script',
+      '點左上角 File ➔ Publish to Roblox 上傳作品',
+      '在 Game Settings ➔ Permissions 先設為 Private 或 Friends'
+    ],
     simulator: {
       type: 'roblox-game-architect',
       title: '🏆 多元遊戲藍圖工坊：選擇 4 種遊戲類型，組裝核心循環並通過發佈檢查！',
@@ -1838,9 +1965,28 @@ window.CURRICULUM_LESSONS = [
 2. **隨機災難 (\`math.random\`)**：系統從 5 種災難中隨機抽一個（🌊 洪水、☄️ 隕石、🌪️ 龍捲風、🌋 火山、⚡ 雷暴）。
 3. **物理破壞魔法**：平常房子都是 \`Anchored = true\`，但龍捲風經過時會把 \`Anchored\` 變成 \`false\`，房子就真的吹飛了！
 4. **生存結算**：撐到倒數 0 秒還沒掉進海裡的玩家，名字就會出現在勝利排行榜！`,
+        simpleBody: `這套遊戲其實只有 4 步驟：
+1. 大家先在 **安全大廳** 倒數。
+2. 傳送到小島，系統 **隨機抽一種災難**。
+3. 災難把房子的 **Anchored 關掉**，積木就會飛起來！
+4. 撐到時間結束就贏了！`,
         visualType: 'rbx-disaster-unanchor',
         highlight: '⏱️ 設計心法：每一回合只要 60~90 秒，節奏快又刺激，大家就會一直按「再玩一局」！'
+      },
+      {
+        title: '⏱️ 回合制倒數與地圖重置 (Reset) 魔法',
+        titleEn: 'Round Timer & Map Cloning Reset',
+        body: `為什麼房子被龍捲風吹散後，下一局又會變回整整齊齊的新房子？
+* **秘密武器：\`ServerStorage\` 備份庫**！
+* 設計師把完好無缺的小島地圖複製一份放在 \`ServerStorage\` 裡，每回合開始前再 \`:Clone()\` 複製一組新的放回 \`Workspace\`！`,
+        simpleBody: `房子被吹壞沒關係！只要在 \`ServerStorage\` 存一份備份，下一局再複製出來就變回新房子囉！`,
+        highlight: '🧠 程式思維：先把「完整地圖」備份起來，每局就能一秒重置！'
       }
+    ],
+    studioChecklist: [
+      '在 Baseplate 上蓋一個「安全大廳」並放進 SpawnLocation',
+      '用 5 塊積木蓋一間小房子並把 Anchored 打勾',
+      '試著取消屋頂的 Anchored，按 Play 看看物理掉落效果'
     ],
     simulator: {
       type: 'roblox-disaster-lab',
@@ -1867,6 +2013,16 @@ window.CURRICULUM_LESSONS = [
         ],
         correct: 0,
         explain: '太聰明了！動態切換 Anchored = false 就是 Roblox 物理破壞特效的秘密！'
+      },
+      {
+        q: '為了讓被災難吹壞的房子在下一回合變回全新的樣子，設計師通常會把原始地圖備份放在哪裡？',
+        options: [
+          'ServerStorage（伺服器備份倉庫），每局再 Clone 複製出來',
+          '玩家的口袋裡',
+          '直接用橡皮擦擦掉螢幕'
+        ],
+        correct: 0,
+        explain: '完全正確！用 ServerStorage:Clone() 複製新地圖是最經典的重生技巧！'
       }
     ]
   },
@@ -1894,9 +2050,27 @@ window.CURRICULUM_LESSONS = [
 2. **成長計時器 (\`task.wait\`)**：每過幾秒鐘，腳本把植物慢慢放大 (**Scale**)，成熟時還會發光！
 3. **靠近按 \`E\` 採收 (\`ProximityPrompt\`)**：在 Roblox Studio 只要把 \`ProximityPrompt\` 放進 Part 裡，玩家靠近就會自動出現帥氣的按 \`E\` 互動圈圈！
 4. **賣掉換金幣升級**：拿著果實到商店換金幣，買「2 倍澆水壺」或「金色稀有種子」！`,
+        simpleBody: `種菜遊戲為什麼好玩？
+1. 種下 **小種子**，等幾秒它會慢慢長大發光！
+2. 走過去會跳出 **按 E 採收** (\`ProximityPrompt\`)！
+3. 把果實賣掉換金幣，買更強的澆水壺！`,
         visualType: 'rbx-proximity-prompt',
         highlight: '🌟 設計師秘訣：讓玩家每 10 秒就看到一點小收穫，成就感就會源源不絕！'
+      },
+      {
+        title: '✨ 讓果實慢慢長大與發光的魔法：Size 與 ParticleEmitter',
+        titleEn: 'Visual Feedback: Growing Size & Sparkles',
+        body: `要讓玩家一眼看出「水果成熟可以採收了！」，Roblox Studio 有兩個超簡單技巧：
+* **改變大小 (\`Part.Size\`)**：用 \`for\` 迴圈每秒把果實的 \`Size\` 放大一點點，看起來就像真的在長大！
+* **加上閃亮粒子 (\`Sparkles\` / \`ParticleEmitter\`)**：成熟時打開閃光特效，玩家遠遠看到就會衝過來按 \`E\`！`,
+        simpleBody: `果實成熟時讓它 **變大顆** 又 **閃閃發光**，大家一眼就知道可以按 E 採收囉！`,
+        highlight: '✨ 好的視覺提示，不用寫很多字玩家也看得懂怎麼玩！'
       }
+    ],
+    studioChecklist: [
+      '新增一個紅色球體 (Sphere) 當作草莓果實',
+      '在 Explorer 對草莓按 + 加入 ProximityPrompt',
+      '把 ActionText 改成「採收草莓」並按 Play 靠近看 [E] 提示'
     ],
     simulator: {
       type: 'roblox-garden-sim',
@@ -1923,6 +2097,16 @@ window.CURRICULUM_LESSONS = [
         ],
         correct: 0,
         explain: '沒錯！「收集 ➔ 變現 ➔ 升級變得更快」就是所有 Simulator 遊戲迷人的核心！'
+      },
+      {
+        q: '想讓玩家遠遠就能看出哪一顆果實已經成熟可以採收，最適合搭配哪種視覺提示？',
+        options: [
+          '把果實 Size 放大並加上閃亮粒子 (Sparkles / ParticleEmitter)',
+          '把果實設成完全透明看不見',
+          '把遊戲關閉'
+        ],
+        correct: 0,
+        explain: '超棒！放大 Size 加閃光特效讓玩家一秒就知道「成熟啦！」'
       }
     ]
   },
@@ -1948,6 +2132,7 @@ window.CURRICULUM_LESSONS = [
         body: `為什麼 *Brookhaven* 的房子這麼好玩？因為到處都可以點！
 * **會開關的門**：放進 \`ClickDetector\`，點一下把門的 \`Transparency = 0.8\`、\`CanCollide = false\`（變成半透明可穿過）！
 * **會亮的檯燈**：點一下切換 \`PointLight.Enabled = true/false\`，晚上開燈超溫馨！`,
+        simpleBody: `只要在門或檯燈裡放進 **ClickDetector**，滑鼠點一下就能開門、開燈，房子馬上變好玩！`,
         visualType: 'rbx-click-detector',
         highlight: '💡 小巧思：只要一個門把加上 ClickDetector，整間房子立刻充滿生命力！'
       },
@@ -1957,8 +2142,14 @@ window.CURRICULUM_LESSONS = [
         body: `* **Step 1 抽主題**：例如「太空探險家 🚀」或「恐龍派對 🦕」。
 * **Step 2 限時換裝**：玩家點選衣櫃裡的帽子、披風、顏色（改變 \`HumanoidDescription\` 或配件）。
 * **Step 3 走秀給星**：站上發光伸展台，大家互給 1~5 顆星選出冠軍！`,
+        simpleBody: `時尚舞台 3 步驟：① 抽主題 ② 限時換衣服 ③ 上台走秀互給星星！`,
         highlight: '✨ 友善提醒：設計評分系統時，鼓勵大家公平給星、稱讚別人的創意喔！'
       }
+    ],
+    studioChecklist: [
+      '做一扇高高的門 Part，在 Explorer 按 + 加入 ClickDetector',
+      '在門旁邊放一顆燈泡球體，並加入 PointLight 燈光元件',
+      '思考一個你最想設計的走秀主題（例如：機器人派對）'
     ],
     simulator: {
       type: 'roblox-rp-stage',
@@ -1985,6 +2176,16 @@ window.CURRICULUM_LESSONS = [
         ],
         correct: 0,
         explain: '太棒了！清晰的「主題 ➔ 創作 ➔ 展示評分」流程讓大家玩得超開心！'
+      },
+      {
+        q: '當《Brookhaven》的大門被點擊打開時，通常會把門的哪兩個屬性改成「半透明且可以走過去」？',
+        options: [
+          'Transparency = 0.8 且 CanCollide = false',
+          'Anchored = false 且 Size = 0',
+          'Color = Red 且 WalkSpeed = 0'
+        ],
+        correct: 0,
+        explain: '專業級觀念！CanCollide = false 就能讓玩家順利穿過打開的門！'
       }
     ]
   },
@@ -2012,9 +2213,28 @@ window.CURRICULUM_LESSONS = [
 1. **放好木板、船頭與駕駛座 (\`VehicleSeat\`)**。
 2. **用 \`WeldConstraint\` 把每一塊積木「黏」在一起**：這樣整艘船就會變成一個一起移動、一起浮在水面上的超級載具！
 3. **材質決定重量與硬度**：木頭輕又會浮、鐵塊重但耐撞石頭、推進器 (**Thruster**) 給你滿滿加速力！`,
+        simpleBody: `造船不會散開的秘密就是 **WeldConstraint 強力膠**！
+1. 船身積木要把 \`Anchored\` 關掉，船才會動。
+2. 用 \`WeldConstraint\` 把木板跟駕駛座黏在一起。
+3. 坐上 \`VehicleSeat\` 就能開船去尋寶啦！`,
         visualType: 'rbx-weld-seat',
         highlight: '🔧 必懂對比：固定不動的跑酷平台用 \`Anchored = true\`；會動會開的船與車用 \`Anchored = false\` ＋ \`WeldConstraint\`！'
+      },
+      {
+        title: '🪵 材質與物理測試：為什麼木頭會浮、鐵塊比較沉？',
+        titleEn: 'Material Density, Buoyancy & Thrusters',
+        body: `在 Roblox 物理引擎裡，你選的 **\`Material\`（材質）** 不只改變外觀，還會影響重量：
+* **🪵 Wood（木頭）**：密度小於水，放進水裡會自動浮起來！
+* **⚙️ Metal（金屬）**：比較重、比較耐撞，適合放在船頭擋住大石頭！
+* **🚀 推進器（LinearVelocity / Thruster）**：給船一個往前推的力，衝過急流！`,
+        simpleBody: `**木頭** 輕又會浮，**金屬** 重又耐撞！聰明的船長會用木頭做船底、金屬保護船頭！`,
+        highlight: '🏆 造船大師秘訣：先做一艘小小的測試船下水，再慢慢加裝推進器與盾牌！'
       }
+    ],
+    studioChecklist: [
+      '用 3 塊 Wood 材質的 Part 拼成船底（保持 Anchored 取消勾選）',
+      '放上一個 VehicleSeat 駕駛座並對準船頭方向',
+      '在 Model ➔ Create ➔ Weld 把船身與座椅黏起來按 Play 試開！'
     ],
     simulator: {
       type: 'roblox-boat-builder',
@@ -2041,6 +2261,16 @@ window.CURRICULUM_LESSONS = [
         ],
         correct: 0,
         explain: '完全正確！VehicleSeat 就是專門用來駕駛車子、船隻與飛機的座椅元件！🎉'
+      },
+      {
+        q: '在 Roblox 物理引擎裡，如果想要船身容易浮在水面上，船底最適合選用哪一種材質？',
+        options: [
+          'Wood（木頭，重量輕且浮力好）',
+          '純鉛塊',
+          '岩漿磚'
+        ],
+        correct: 0,
+        explain: '答對了！木頭輕又會浮，最適合當船底；金屬則適合放在船頭擋石頭！'
       }
     ]
   }

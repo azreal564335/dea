@@ -496,6 +496,54 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
       assert(!!d.querySelector('.visual-caption')?.textContent.trim(), `Lesson ${lid} diagram #${idx + 1} has non-empty caption`);
     });
   }
+
+  console.log('\n--- 13. Improvement Plan Features & Content Lint ---');
+  // 13a. Content lint: every lesson has >= 2 cards and >= 3 quiz questions
+  for (const lesson of window.CURRICULUM_LESSONS) {
+    assert(Array.isArray(lesson.cards) && lesson.cards.length >= 2, `Content lint: ${lesson.id} has >= 2 cards (${lesson.cards.length})`);
+    assert(Array.isArray(lesson.quiz) && lesson.quiz.length >= 3, `Content lint: ${lesson.id} has >= 3 quiz questions (${lesson.quiz.length})`);
+  }
+
+  // 13b. Worlds 1-4 visual diagrams
+  for (const lid of ['w1-l2', 'w2-l1', 'w3-l2', 'w4-l2']) {
+    window.AppState.navigate('lesson', lid);
+    window.AppState.setLessonStep('learn');
+    const diagrams = window.document.querySelectorAll('.slide-visual-diagram svg');
+    assert(diagrams.length >= 1, `World 1-4 lesson ${lid} renders annotated SVG diagram`);
+  }
+
+  // 13c. Shuffled quiz order varies display positions
+  const firstPositions = new Set();
+  for (const lesson of window.CURRICULUM_LESSONS) {
+    const order = window.AppState.getShuffledQuizOrder(lesson.id, 0, lesson.quiz[0].options.length);
+    firstPositions.add(order.indexOf(lesson.quiz[0].correct));
+  }
+  assert(firstPositions.size >= 2, `Shuffled quiz order places correct answers across multiple positions (${[...firstPositions].join(',')})`);
+
+  // 13d. Dynamic stars based on quizMistakes
+  window.AppState.quizMistakes['w1-l1'] = 2;
+  window.AppState.getProfile().completedLessons['w1-l1'] = null;
+  window.AppState.completeLesson('w1-l1', 50);
+  assert(window.AppState.getProfile().completedLessons['w1-l1'].stars === 2, '2 quiz mistakes yield 2 stars');
+  window.AppState.quizMistakes['w1-l1'] = 4;
+  window.AppState.getProfile().completedLessons['w1-l1'] = null;
+  window.AppState.completeLesson('w1-l1', 50);
+  assert(window.AppState.getProfile().completedLessons['w1-l1'].stars === 1, '4 quiz mistakes yield 1 star');
+
+  // 13e. XSS escaping & Zhuyin font toggle
+  assert(window.AppState.escapeHtml('<script>x</script>') === '&lt;script&gt;x&lt;/script&gt;', 'escapeHtml escapes HTML tags');
+  window.AppState.toggleZhuyinFont();
+  const zState = window.AppState.zhuyinFont;
+  assert(window.document.body.classList.contains('zhuyin-font') === zState, 'toggleZhuyinFont syncs body.zhuyin-font class');
+
+  // 13f. Daily Quest & Parent Dashboard & Studio Checklist
+  window.AppState.navigate('map');
+  assert(!!window.document.querySelector('.daily-quest-card'), 'Daily Quest card rendered on World Map');
+  window.AppState.navigate('parent');
+  assert(window.document.querySelectorAll('.parent-profile-card').length === 2, 'Parent Dashboard renders both kid-10 and kid-8 comparison cards');
+  const xpBeforeCheck = window.AppState.getProfile().xp;
+  window.AppState.toggleStudioCheck('w5-l1', 0);
+  assert(window.AppState.getProfile().xp === xpBeforeCheck + 10, 'toggleStudioCheck awards +10 XP on first check');
 }
 
 async function main() {
