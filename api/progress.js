@@ -12,9 +12,14 @@ function hashPin(pin) {
   return (h >>> 0).toString(16);
 }
 
+function getRedisConfig() {
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  return { url, token };
+}
+
 async function redisFetch(path, options = {}) {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
+  const { url, token } = getRedisConfig();
   if (!url || !token) return null;
   const res = await fetch(`${url}${path}`, {
     ...options,
@@ -34,7 +39,8 @@ module.exports = async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+  const { url, token } = getRedisConfig();
+  if (!url || !token) {
     return res.status(501).json({
       ok: false,
       error: 'REDIS_NOT_CONFIGURED',
