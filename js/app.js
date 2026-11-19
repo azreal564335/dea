@@ -22,6 +22,7 @@ window.AppState = {
   currentView: 'map', // 'map' | 'lesson' | 'dojo' | 'vocab' | 'certificate' | 'parent'
   currentLessonId: 'w1-l1',
   lessonStep: 'learn', // 'learn' | 'lab' | 'quiz'
+  currentCardIdx: 0,
   settingsMenuOpen: false,
   expandedWorldOverrides: {}, // { [profileId]: { [worldId]: boolean } }
   quizAnswers: {},
@@ -120,6 +121,16 @@ window.AppState = {
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && this.settingsMenuOpen) {
           this.closeSettingsMenu();
+          return;
+        }
+        if (this.currentView === 'lesson' && this.lessonStep === 'learn') {
+          const tag = e.target && e.target.tagName;
+          if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+          if (e.key === 'ArrowLeft') {
+            this.prevSlideCard();
+          } else if (e.key === 'ArrowRight') {
+            this.nextSlideCard();
+          }
         }
       });
     }
@@ -292,6 +303,7 @@ window.AppState = {
       this.soundEnabled = nextProf.soundEnabled;
     }
     this.quizAnswers = {};
+    this.quizMistakes = {};
     this.stopReadAloud();
     this.syncBodyClass();
     this.save();
@@ -492,6 +504,7 @@ window.AppState = {
     if (lessonId) {
       this.currentLessonId = lessonId;
       this.lessonStep = 'learn';
+      this.currentCardIdx = 0;
       this.quizAnswers = {};
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -500,9 +513,73 @@ window.AppState = {
 
   setLessonStep(step) {
     this.lessonStep = step;
+    if (step === 'learn') {
+      this.currentCardIdx = 0;
+    }
     this.stopReadAloud();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     this.renderMain();
+  },
+
+  setSlideCard(idx) {
+    const lesson = window.CURRICULUM_LESSONS.find(l => l.id === this.currentLessonId);
+    const total = (lesson && Array.isArray(lesson.cards)) ? lesson.cards.length : 1;
+    const clamped = Math.max(0, Math.min(total - 1, idx));
+    if (clamped === this.currentCardIdx) return;
+    this.currentCardIdx = clamped;
+    this.stopReadAloud();
+    const carousel = document.querySelector('.learn-carousel');
+    if (carousel) {
+      const cards = carousel.querySelectorAll('.slide-card');
+      cards.forEach((el, i) => {
+        el.classList.toggle('is-hidden', i !== clamped);
+      });
+      const dots = carousel.querySelectorAll('.carousel-dot');
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === clamped);
+        dot.setAttribute('aria-current', i === clamped ? 'true' : 'false');
+      });
+      const counter = carousel.querySelector('.carousel-counter');
+      if (counter) counter.textContent = `${clamped + 1} / ${total}`;
+      const prevBtn = carousel.querySelector('.carousel-prev-btn');
+      const nextBtn = carousel.querySelector('.carousel-next-btn');
+      if (prevBtn) prevBtn.disabled = clamped === 0;
+      if (nextBtn) nextBtn.disabled = clamped >= total - 1;
+    } else {
+      this.renderMain();
+    }
+  },
+
+  prevSlideCard() {
+    this.setSlideCard(this.currentCardIdx - 1);
+  },
+
+  nextSlideCard() {
+    this.setSlideCard(this.currentCardIdx + 1);
+  },
+
+  bindCarouselTouch(carouselEl) {
+    if (!carouselEl || carouselEl._swipeBound) return;
+    carouselEl._swipeBound = true;
+    let startX = null;
+    let startY = null;
+    carouselEl.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches.length === 1) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+    carouselEl.addEventListener('touchend', (e) => {
+      if (startX === null || !e.changedTouches || !e.changedTouches.length) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+      startX = null;
+      startY = null;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+        if (dx < 0) this.nextSlideCard();
+        else this.prevSlideCard();
+      }
+    }, { passive: true });
   },
 
   renderAll() {
@@ -542,6 +619,10 @@ window.AppState = {
         <button class="nav-tab ${this.currentView === 'vocab' ? 'active' : ''}"
                 onclick="window.AppState.navigate('vocab')">
           🔤 電腦英文單字卡
+        </button>
+        <button class="nav-tab ${this.currentView === 'badges' ? 'active' : ''}"
+                onclick="window.AppState.navigate('badges')">
+          🏆 徽章櫃 Badges
         </button>
         <button class="nav-tab ${this.currentView === 'certificate' ? 'active' : ''}"
                 onclick="window.AppState.navigate('certificate')">
@@ -624,6 +705,8 @@ window.AppState = {
       this.renderStandaloneDojo(mainEl);
     } else if (this.currentView === 'vocab') {
       this.renderVocabBank(mainEl);
+    } else if (this.currentView === 'badges') {
+      this.renderBadgeCabinet(mainEl);
     } else if (this.currentView === 'certificate') {
       this.renderCertificate(mainEl);
     } else if (this.currentView === 'parent') {
@@ -741,18 +824,19 @@ window.AppState = {
         const wLessons = window.CURRICULUM_LESSONS.filter(l => l.worldId === world.id);
         const wDoneCount = wLessons.filter(l => p.completedLessons[l.id]).length;
         const isExpanded = this.isWorldExpanded(world.id, currentWorldId);
+        const wColor = world.color || world.themeColor || '#0284c7';
         return `
-          <section class="world-section ${isExpanded ? '' : 'collapsed'}" id="section-${world.id}">
+          <section class="world-section themed-world ${isExpanded ? '' : 'collapsed'}" id="section-${world.id}" style="--world-color: ${wColor};">
             <div class="world-header" role="button" tabindex="0"
                  aria-expanded="${isExpanded ? 'true' : 'false'}"
                  onclick="window.AppState.toggleWorldCollapse('${world.id}', '${currentWorldId}')"
                  onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.AppState.toggleWorldCollapse('${world.id}', '${currentWorldId}');}">
               <div class="world-title-group">
-                <div class="world-icon-badge" style="background:${world.themeColor}18; border:2px solid ${world.themeColor};">
+                <div class="world-icon-badge" style="background:${wColor}18; border:2px solid ${wColor};">
                   ${world.icon}
                 </div>
                 <div>
-                  <div style="font-size:0.8rem; font-weight:900; color:${world.themeColor}; text-transform:uppercase;">
+                  <div style="font-size:0.8rem; font-weight:900; color:${wColor}; text-transform:uppercase;">
                     ${world.number} ・ ${world.titleEn}
                   </div>
                   <h2>${world.title}</h2>
@@ -760,7 +844,7 @@ window.AppState = {
                 </div>
               </div>
               <div class="world-header-right">
-                ${this.renderProgressRing(wDoneCount, wLessons.length, world.themeColor)}
+                ${this.renderProgressRing(wDoneCount, wLessons.length, 'var(--world-color)')}
                 <div style="background:#f8fafc; border:2px solid #e2e8f0; padding:0.45rem 0.95rem; border-radius:999px; font-weight:800; font-size:0.88rem;">
                   🏆 進度：${wDoneCount} / ${wLessons.length} 關 ${wDoneCount === wLessons.length ? '（🏅 已獲得' + world.badgeName + '！）' : ''}
                 </div>
@@ -786,7 +870,7 @@ window.AppState = {
                     </div>
                     <div class="lesson-card-footer">
                       <span>⏱️ ${lesson.duration}</span>
-                      <span style="color:${world.themeColor};">+${lesson.xp} XP 👉</span>
+                      <span style="color:${wColor};">+${lesson.xp} XP 👉</span>
                     </div>
                   </article>
                 `;
@@ -833,6 +917,8 @@ window.AppState = {
   // ==========================================================================
   renderLessonView(mainEl) {
     const lesson = window.CURRICULUM_LESSONS.find(l => l.id === this.currentLessonId) || window.CURRICULUM_LESSONS[0];
+    const world = window.CURRICULUM_WORLDS.find(w => w.id === lesson.worldId);
+    const worldColor = (world && (world.color || world.themeColor)) || '#0284c7';
     const lessonIdx = window.CURRICULUM_LESSONS.indexOf(lesson);
     const nextLesson = window.CURRICULUM_LESSONS[lessonIdx + 1] || null;
     const isCompleted = !!this.getProfile().completedLessons[lesson.id];
@@ -840,231 +926,266 @@ window.AppState = {
     const currentStepIdx = Math.max(0, stepOrder.indexOf(this.lessonStep));
     const prevStep = currentStepIdx > 0 ? stepOrder[currentStepIdx - 1] : null;
     const nextStep = currentStepIdx < stepOrder.length - 1 ? stepOrder[currentStepIdx + 1] : null;
+    const totalCards = Array.isArray(lesson.cards) ? lesson.cards.length : 0;
+    const activeCardIdx = Math.max(0, Math.min(totalCards - 1, this.currentCardIdx || 0));
 
     mainEl.innerHTML = `
-      <div class="lesson-view-header">
-        <button class="back-btn" onclick="window.AppState.navigate('map')">
-          ← 返回探險地圖
-        </button>
-        <div class="lesson-steps" role="navigation" aria-label="課程三步驟進度條">
-          <div class="lesson-steps-track">
-            <button type="button"
-                    class="lesson-step-pill ${this.lessonStep === 'learn' ? 'active' : (currentStepIdx > 0 ? 'done' : '')}"
-                    onclick="window.AppState.setLessonStep('learn')">
-              <span class="step-num">1</span>
-              <span>📖 學習 Learn</span>
-            </button>
-            <div class="lesson-step-connector ${currentStepIdx >= 1 ? 'done' : ''}" aria-hidden="true"></div>
-            <button type="button"
-                    class="lesson-step-pill ${this.lessonStep === 'lab' ? 'active' : (currentStepIdx > 1 ? 'done' : '')}"
-                    onclick="window.AppState.setLessonStep('lab')">
-              <span class="step-num">2</span>
-              <span>🧪 實驗 Lab</span>
-            </button>
-            <div class="lesson-step-connector ${currentStepIdx >= 2 ? 'done' : ''}" aria-hidden="true"></div>
-            <button type="button"
-                    class="lesson-step-pill ${this.lessonStep === 'quiz' ? 'active' : ''}"
-                    onclick="window.AppState.setLessonStep('quiz')">
-              <span class="step-num">3</span>
-              <span>🏆 測驗 Quiz</span>
-            </button>
-          </div>
-          <div class="lesson-step-nav-btns">
-            ${prevStep ? `
-              <button type="button" class="btn-secondary lesson-step-back-btn" onclick="window.AppState.setLessonStep('${prevStep}')">
-                ← 上一步 Back
+      <div class="lesson-themed-container" style="--world-color: ${worldColor};">
+        <div class="lesson-view-header">
+          <button class="back-btn" onclick="window.AppState.navigate('map')">
+            ← 返回探險地圖
+          </button>
+          <div class="lesson-steps" role="navigation" aria-label="課程三步驟進度條">
+            <div class="lesson-steps-track">
+              <button type="button"
+                      class="lesson-step-pill ${this.lessonStep === 'learn' ? 'active' : (currentStepIdx > 0 ? 'done' : '')}"
+                      onclick="window.AppState.setLessonStep('learn')">
+                <span class="step-num">1</span>
+                <span>📖 學習 Learn</span>
               </button>
-            ` : ''}
-            ${nextStep ? `
-              <button type="button" class="btn-primary lesson-step-next-btn" onclick="window.AppState.setLessonStep('${nextStep}')">
-                下一步 Next →
+              <div class="lesson-step-connector ${currentStepIdx >= 1 ? 'done' : ''}" aria-hidden="true"></div>
+              <button type="button"
+                      class="lesson-step-pill ${this.lessonStep === 'lab' ? 'active' : (currentStepIdx > 1 ? 'done' : '')}"
+                      onclick="window.AppState.setLessonStep('lab')">
+                <span class="step-num">2</span>
+                <span>🧪 實驗 Lab</span>
               </button>
-            ` : ''}
-          </div>
-        </div>
-      </div>
-
-      <div class="card-panel">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.25rem; border-bottom:2px solid #f1f5f9; padding-bottom:1rem;">
-          <div>
-            <span class="lesson-num-tag">單元 ${lesson.number} ・ +${lesson.xp} XP</span>
-            <h1 style="font-size:1.55rem; font-weight:900; margin-top:0.35rem;">${lesson.icon} ${lesson.title}</h1>
-            <div class="en-sub" style="font-size:0.95rem;">${lesson.titleEn}</div>
-          </div>
-          <div>
-            ${isCompleted ? `<span style="background:#dcfce7; color:#166534; padding:0.45rem 0.9rem; border-radius:999px; font-weight:900;">⭐⭐⭐ 本單元已通關！</span>` : ''}
+              <div class="lesson-step-connector ${currentStepIdx >= 2 ? 'done' : ''}" aria-hidden="true"></div>
+              <button type="button"
+                      class="lesson-step-pill ${this.lessonStep === 'quiz' ? 'active' : ''}"
+                      onclick="window.AppState.setLessonStep('quiz')">
+                <span class="step-num">3</span>
+                <span>🏆 測驗 Quiz</span>
+              </button>
+            </div>
+            <div class="lesson-step-nav-btns">
+              ${prevStep ? `
+                <button type="button" class="btn-secondary lesson-step-back-btn" onclick="window.AppState.setLessonStep('${prevStep}')">
+                  ← 上一步 Back
+                </button>
+              ` : ''}
+              ${nextStep ? `
+                <button type="button" class="btn-primary lesson-step-next-btn" onclick="window.AppState.setLessonStep('${nextStep}')">
+                  下一步 Next →
+                </button>
+              ` : ''}
+            </div>
           </div>
         </div>
 
-        ${this.lessonStep === 'learn' ? `
-          <!-- Step 1: Story & Concept Cards -->
-          <div>
-            ${lesson.cards.map((c, idx) => {
-              const cardText = (this.isSimpleMode() && c.simpleBody) ? c.simpleBody : c.body;
-              const canSpeak = this.supportsSpeechSynthesis();
-              const isSpeaking = this.speakingCardKey === `${lesson.id}:${idx}`;
-              return `
-              <div class="slide-card">
-                <div class="slide-card-header">
-                  <div>
-                    <h3>${c.title}</h3>
-                    <div class="en-sub" style="margin-bottom:0.5rem;">${c.titleEn || ''}</div>
-                  </div>
-                  ${canSpeak ? `
-                    <button type="button"
-                            class="read-aloud-btn ${isSpeaking ? 'speaking' : ''}"
-                            onclick="window.AppState.toggleReadAloudCard('${lesson.id}', ${idx})"
-                            aria-label="${isSpeaking ? '停止朗讀卡片' : '朗讀這張知識卡'}">
-                      ${isSpeaking ? '⏹️ 停止朗讀' : '🔊 朗讀 Read'}
-                    </button>
-                  ` : ''}
-                </div>
-                <div class="slide-body">${this.formatMarkdownBold(cardText)}</div>
-                ${c.visualType ? this.renderCardVisual(c.visualType) : ''}
-                ${c.highlight ? `<div class="slide-highlight">${c.highlight}</div>` : ''}
-              </div>
-            `;
-            }).join('')}
-
-            <!-- Essential English Tech Keywords -->
-            <div style="margin-top:1.75rem; background:#f8fafc; border:2px solid #e2e8f0; border-radius:16px; padding:1.25rem;">
-              <h3 style="font-size:1.15rem; font-weight:900; color:#0369a1;">
-                🔤 本單元必學「電腦與 AI 英文關鍵字」 (點喇叭可聽發音！)
-              </h3>
-              <div class="vocab-strip">
-                ${lesson.vocab.map(v => `
-                  <div class="vocab-chip">
-                    <div class="v-en">
-                      <span>${v.en}</span>
-                      <button onclick="window.AppState.speakEnglish('${v.en.replace(/'/g, '')}')"
-                              style="background:#e0f2fe; border:none; border-radius:6px; padding:2px 7px; cursor:pointer; font-size:0.85rem;"
-                              title="點擊聽英文發音">
-                        🔊 發音
-                      </button>
-                    </div>
-                    <div class="v-zh">${v.zh}</div>
-                    <div class="v-desc">${v.desc}</div>
-                  </div>
-                `).join('')}
-              </div>
+        <div class="card-panel">
+          <div class="lesson-title-banner">
+            <div>
+              <span class="lesson-num-tag">單元 ${lesson.number} ・ +${lesson.xp} XP</span>
+              <h1 style="font-size:1.55rem; font-weight:900; margin-top:0.35rem;">${lesson.icon} ${lesson.title}</h1>
+              <div class="en-sub" style="font-size:0.95rem;">${lesson.titleEn}</div>
             </div>
-
-            <div style="display:flex; justify-content:flex-end; margin-top:1.5rem;">
-              <button class="btn-primary" onclick="window.AppState.setLessonStep('lab')">
-                下一步：進入「🧪 實驗 Lab」 👉
-              </button>
+            <div>
+              ${isCompleted ? `<span style="background:#dcfce7; color:#166534; padding:0.45rem 0.9rem; border-radius:999px; font-weight:900;">⭐⭐⭐ 本單元已通關！</span>` : ''}
             </div>
           </div>
-        ` : ''}
 
-        ${this.lessonStep === 'lab' ? `
-          <!-- Step 2: Interactive Simulator Lab -->
-          <div>
-            <div style="background:#eff6ff; border:2px solid #bfdbfe; border-radius:14px; padding:1rem 1.25rem; margin-bottom:1rem;">
-              <h3 style="font-size:1.18rem; color:#1e40af; margin-bottom:0.25rem;">${lesson.simulator.title}</h3>
-              <p style="font-size:0.95rem; color:#1e3a8a; font-weight:700; white-space:pre-line;">${lesson.simulator.instruction}</p>
-            </div>
-
-            <div id="lesson-simulator-mount"></div>
-
-            ${lesson.studioChecklist ? `
-              <div class="studio-checklist" aria-label="真實 Roblox Studio 實作任務">
-                <div style="font-weight:900; color:#166534; font-size:1.02rem;">🛠️ 真實 Roblox Studio 實作挑戰（每勾一項 +10 XP！）</div>
-                ${lesson.studioChecklist.map((item, idx) => {
-                  const checkedList = (this.getProfile().studioChecks && this.getProfile().studioChecks[lesson.id]) || [];
-                  const isDone = checkedList.includes(idx);
+          ${this.lessonStep === 'learn' ? `
+            <!-- Step 1: Story & Concept Cards Carousel -->
+            <div class="learn-carousel" aria-label="知識卡片輪播">
+              <div class="carousel-cards-stage">
+                ${lesson.cards.map((c, idx) => {
+                  const cardText = (this.isSimpleMode() && c.simpleBody) ? c.simpleBody : c.body;
+                  const canSpeak = this.supportsSpeechSynthesis();
+                  const isSpeaking = this.speakingCardKey === `${lesson.id}:${idx}`;
                   return `
-                    <label class="studio-check-item ${isDone ? 'checked' : ''}" onclick="window.AppState.toggleStudioCheck('${lesson.id}', ${idx})">
-                      <input type="checkbox" ${isDone ? 'checked' : ''} style="width:18px; height:18px;" />
-                      <span>${item}</span>
-                    </label>
-                  `;
+                  <div class="slide-card ${idx === activeCardIdx ? '' : 'is-hidden'}" data-card-index="${idx}">
+                    <div class="slide-card-header">
+                      <div>
+                        <h3>${c.title}</h3>
+                        <div class="en-sub" style="margin-bottom:0.5rem;">${c.titleEn || ''}</div>
+                      </div>
+                      ${canSpeak ? `
+                        <button type="button"
+                                class="read-aloud-btn ${isSpeaking ? 'speaking' : ''}"
+                                onclick="window.AppState.toggleReadAloudCard('${lesson.id}', ${idx})"
+                                aria-label="${isSpeaking ? '停止朗讀卡片' : '朗讀這張知識卡'}">
+                          ${isSpeaking ? '⏹️ 停止朗讀' : '🔊 朗讀 Read'}
+                        </button>
+                      ` : ''}
+                    </div>
+                    <div class="slide-body">${this.formatMarkdownBold(cardText)}</div>
+                    ${c.visualType ? this.renderCardVisual(c.visualType) : ''}
+                    ${c.highlight ? `<div class="slide-highlight">${c.highlight}</div>` : ''}
+                  </div>
+                `;
                 }).join('')}
               </div>
-            ` : ''}
 
-            <div style="display:flex; justify-content:space-between; margin-top:1.5rem; flex-wrap:wrap; gap:0.75rem;">
-              <button class="btn-secondary" onclick="window.AppState.setLessonStep('learn')">
-                ← 回去看知識卡
-              </button>
-              <button class="btn-primary" onclick="window.AppState.setLessonStep('quiz')">
-                下一步：挑戰「🏆 測驗 Quiz」領取星星 👉
-              </button>
-            </div>
-          </div>
-        ` : ''}
-
-        ${this.lessonStep === 'quiz' ? `
-          <!-- Step 3: Mastery Quiz -->
-          <div>
-            <p style="font-weight:800; color:#475569; margin-bottom:1rem;">
-              🎯 答對下面全部 ${lesson.quiz.length} 題，就能獲得 <strong>+${lesson.xp} XP</strong>！（一次答對拿 ⭐⭐⭐ 三顆星！）
-            </p>
-            ${lesson.quiz.map((qItem, qIdx) => {
-              const chosen = this.quizAnswers[qIdx];
-              const isAnswered = chosen !== undefined;
-              const isCorrect = chosen === qItem.correct;
-              const order = this.getShuffledQuizOrder(lesson.id, qIdx, qItem.options.length);
-              const labels = ['🅰️', '🅱️', '🆎', '🆔'];
-              return `
-                <div class="quiz-question-card">
-                  <div style="font-weight:900; font-size:1.08rem; margin-bottom:0.5rem;">
-                    Q${qIdx + 1}. ${qItem.q}
-                  </div>
-                  ${order.map((origIdx, displayIdx) => {
-                    const opt = qItem.options[origIdx];
-                    let cls = 'quiz-option';
-                    if (isAnswered) {
-                      if (origIdx === qItem.correct && isCorrect) cls += ' correct';
-                      else if (origIdx === chosen && !isCorrect) cls += ' wrong';
-                    }
-                    return `
-                      <button class="${cls}" onclick="window.AppState.answerQuiz(${qIdx}, ${origIdx}, '${lesson.id}', ${lesson.xp})">
-                        ${labels[displayIdx] || '🔹'} ${opt}
-                      </button>
-                    `;
-                  }).join('')}
-                  ${isAnswered ? `
-                    <div class="${isCorrect ? '' : 'quiz-feedback-wrong'}" style="${isCorrect ? 'margin-top:0.75rem; padding:0.75rem 1rem; border-radius:10px; background:#dcfce7; font-weight:800; font-size:0.95rem;' : ''}">
-                      ${isCorrect ? `🎉 答對了！${qItem.explain}` : `💡 再試試看其他選項喔！提示：${qItem.explain}`}
-                    </div>
-                  ` : ''}
+              <div class="carousel-controls">
+                <button type="button"
+                        class="btn-secondary carousel-prev-btn"
+                        onclick="window.AppState.prevSlideCard()"
+                        ${activeCardIdx === 0 ? 'disabled' : ''}
+                        aria-label="上一張知識卡">
+                  ◀ 上一張
+                </button>
+                <div class="carousel-dots" role="tablist" aria-label="卡片頁數">
+                  ${lesson.cards.map((_, idx) => `
+                    <button type="button"
+                            class="carousel-dot ${idx === activeCardIdx ? 'active' : ''}"
+                            onclick="window.AppState.setSlideCard(${idx})"
+                            aria-label="第 ${idx + 1} 張卡片"
+                            aria-current="${idx === activeCardIdx ? 'true' : 'false'}"></button>
+                  `).join('')}
+                  <span class="carousel-counter">${activeCardIdx + 1} / ${totalCards}</span>
                 </div>
-              `;
-            }).join('')}
+                <button type="button"
+                        class="btn-secondary carousel-next-btn"
+                        onclick="window.AppState.nextSlideCard()"
+                        ${activeCardIdx >= totalCards - 1 ? 'disabled' : ''}
+                        aria-label="下一張知識卡">
+                  下一張 ▶
+                </button>
+              </div>
 
-            ${this.isQuizAllCorrect(lesson) ? (() => {
-              const earnedStars = (this.getProfile().completedLessons[lesson.id]?.stars) || 3;
-              const starIcons = '⭐'.repeat(earnedStars);
-              return `
-              <div style="background:linear-gradient(135deg, #dcfce7 0%, #fef9c3 100%); border:3px solid #22c55e; border-radius:18px; padding:1.5rem; text-align:center; margin-top:1.25rem;">
-                <div style="font-size:2.5rem;">🎉${starIcons}🎉</div>
-                <h3 style="font-size:1.35rem; font-weight:900; color:#14532d; margin:0.35rem 0;">
-                  恭喜過關！你已獲得本單元 ${earnedStars} 顆星與 +${lesson.xp} XP！
+              <!-- Essential English Tech Keywords -->
+              <div style="margin-top:1.75rem; background:#f8fafc; border:2px solid #e2e8f0; border-radius:16px; padding:1.25rem;">
+                <h3 style="font-size:1.15rem; font-weight:900; color:#0369a1;">
+                  🔤 本單元必學「電腦與 AI 英文關鍵字」 (點喇叭可聽發音！)
                 </h3>
-                <div style="display:flex; justify-content:center; gap:0.85rem; margin-top:1rem; flex-wrap:wrap;">
-                  <button class="btn-secondary" onclick="window.AppState.navigate('map')">
-                    🗺️ 返回探險地圖
-                  </button>
-                  ${nextLesson ? `
-                    <button class="btn-primary" onclick="window.AppState.navigate('lesson', '${nextLesson.id}')">
-                      🚀 前往下一關：單元 ${nextLesson.number} ${nextLesson.title} 👉
-                    </button>
-                  ` : `
-                    <button class="btn-primary" onclick="window.AppState.navigate('certificate')">
-                      🎓 領取「數位小探險家榮譽畢業證書」 👉
-                    </button>
-                  `}
+                <div class="vocab-strip">
+                  ${lesson.vocab.map(v => `
+                    <div class="vocab-chip">
+                      <div class="v-en">
+                        <span>${v.en}</span>
+                        <button onclick="window.AppState.speakEnglish('${v.en.replace(/'/g, '')}')"
+                                style="background:#e0f2fe; border:none; border-radius:6px; padding:2px 7px; cursor:pointer; font-size:0.85rem;"
+                                title="點擊聽英文發音">
+                          🔊 發音
+                        </button>
+                      </div>
+                      <div class="v-zh">${v.zh}</div>
+                      <div class="v-desc">${v.desc}</div>
+                    </div>
+                  `).join('')}
                 </div>
               </div>
-              `;
-            })() : ''}
-          </div>
-        ` : ''}
+
+              <div style="display:flex; justify-content:flex-end; margin-top:1.5rem;">
+                <button class="btn-primary" onclick="window.AppState.setLessonStep('lab')">
+                  下一步：進入「🧪 實驗 Lab」 👉
+                </button>
+              </div>
+            </div>
+          ` : ''}
+
+          ${this.lessonStep === 'lab' ? `
+            <!-- Step 2: Interactive Simulator Lab -->
+            <div>
+              <div style="background:#eff6ff; border:2px solid #bfdbfe; border-radius:14px; padding:1rem 1.25rem; margin-bottom:1rem;">
+                <h3 style="font-size:1.18rem; color:#1e40af; margin-bottom:0.25rem;">${lesson.simulator.title}</h3>
+                <p style="font-size:0.95rem; color:#1e3a8a; font-weight:700; white-space:pre-line;">${lesson.simulator.instruction}</p>
+              </div>
+
+              <div id="lesson-simulator-mount"></div>
+
+              ${lesson.studioChecklist ? `
+                <div class="studio-checklist" aria-label="真實 Roblox Studio 實作任務">
+                  <div style="font-weight:900; color:#166534; font-size:1.02rem;">🛠️ 真實 Roblox Studio 實作挑戰（每勾一項 +10 XP！）</div>
+                  ${lesson.studioChecklist.map((item, idx) => {
+                    const checkedList = (this.getProfile().studioChecks && this.getProfile().studioChecks[lesson.id]) || [];
+                    const isDone = checkedList.includes(idx);
+                    return `
+                      <label class="studio-check-item ${isDone ? 'checked' : ''}" onclick="window.AppState.toggleStudioCheck('${lesson.id}', ${idx})">
+                        <input type="checkbox" ${isDone ? 'checked' : ''} style="width:18px; height:18px;" />
+                        <span>${item}</span>
+                      </label>
+                    `;
+                  }).join('')}
+                </div>
+              ` : ''}
+
+              <div style="display:flex; justify-content:space-between; margin-top:1.5rem; flex-wrap:wrap; gap:0.75rem;">
+                <button class="btn-secondary" onclick="window.AppState.setLessonStep('learn')">
+                  ← 回去看知識卡
+                </button>
+                <button class="btn-primary" onclick="window.AppState.setLessonStep('quiz')">
+                  下一步：挑戰「🏆 測驗 Quiz」領取星星 👉
+                </button>
+              </div>
+            </div>
+          ` : ''}
+
+          ${this.lessonStep === 'quiz' ? `
+            <!-- Step 3: Mastery Quiz -->
+            <div>
+              <p style="font-weight:800; color:#475569; margin-bottom:1rem;">
+                🎯 答對下面全部 ${lesson.quiz.length} 題，就能獲得 <strong>+${lesson.xp} XP</strong>！（一次答對拿 ⭐⭐⭐ 三顆星！）
+              </p>
+              ${lesson.quiz.map((qItem, qIdx) => {
+                const chosen = this.quizAnswers[qIdx];
+                const isAnswered = chosen !== undefined;
+                const isCorrect = chosen === qItem.correct;
+                const order = this.getShuffledQuizOrder(lesson.id, qIdx, qItem.options.length);
+                const labels = ['🅰️', '🅱️', '🆎', '🆔'];
+                return `
+                  <div class="quiz-question-card">
+                    <div style="font-weight:900; font-size:1.08rem; margin-bottom:0.5rem;">
+                      Q${qIdx + 1}. ${qItem.q}
+                    </div>
+                    ${order.map((origIdx, displayIdx) => {
+                      const opt = qItem.options[origIdx];
+                      let cls = 'quiz-option';
+                      if (isAnswered) {
+                        if (origIdx === qItem.correct && isCorrect) cls += ' correct';
+                        else if (origIdx === chosen && !isCorrect) cls += ' wrong';
+                      }
+                      return `
+                        <button class="${cls}" onclick="window.AppState.answerQuiz(${qIdx}, ${origIdx}, '${lesson.id}', ${lesson.xp})">
+                          ${labels[displayIdx] || '🔹'} ${opt}
+                        </button>
+                      `;
+                    }).join('')}
+                    ${isAnswered ? `
+                      <div class="${isCorrect ? '' : 'quiz-feedback-wrong'}" style="${isCorrect ? 'margin-top:0.75rem; padding:0.75rem 1rem; border-radius:10px; background:#dcfce7; font-weight:800; font-size:0.95rem;' : ''}">
+                        ${isCorrect ? `🎉 答對了！${qItem.explain}` : `💡 再試試看其他選項喔！提示：${qItem.explain}`}
+                      </div>
+                    ` : ''}
+                  </div>
+                `;
+              }).join('')}
+
+              ${this.isQuizAllCorrect(lesson) ? (() => {
+                const earnedStars = (this.getProfile().completedLessons[lesson.id]?.stars) || 3;
+                const starIcons = '⭐'.repeat(earnedStars);
+                return `
+                <div style="background:linear-gradient(135deg, #dcfce7 0%, #fef9c3 100%); border:3px solid #22c55e; border-radius:18px; padding:1.5rem; text-align:center; margin-top:1.25rem;">
+                  <div style="font-size:2.5rem;">🎉${starIcons}🎉</div>
+                  <h3 style="font-size:1.35rem; font-weight:900; color:#14532d; margin:0.35rem 0;">
+                    恭喜過關！你已獲得本單元 ${earnedStars} 顆星與 +${lesson.xp} XP！
+                  </h3>
+                  <div style="display:flex; justify-content:center; gap:0.85rem; margin-top:1rem; flex-wrap:wrap;">
+                    <button class="btn-secondary" onclick="window.AppState.navigate('map')">
+                      🗺️ 返回探險地圖
+                    </button>
+                    ${nextLesson ? `
+                      <button class="btn-primary" onclick="window.AppState.navigate('lesson', '${nextLesson.id}')">
+                        🚀 前往下一關：單元 ${nextLesson.number} ${nextLesson.title} 👉
+                      </button>
+                    ` : `
+                      <button class="btn-primary" onclick="window.AppState.navigate('certificate')">
+                        🎓 領取「數位小探險家榮譽畢業證書」 👉
+                      </button>
+                    `}
+                  </div>
+                </div>
+                `;
+              })() : ''}
+            </div>
+          ` : ''}
+        </div>
       </div>
     `;
 
-    if (this.lessonStep === 'lab') {
+    if (this.lessonStep === 'learn') {
+      this.bindCarouselTouch(mainEl.querySelector('.learn-carousel'));
+    } else if (this.lessonStep === 'lab') {
       window.Simulators.render(lesson.simulator, 'lesson-simulator-mount');
     }
   },
@@ -1155,6 +1276,149 @@ window.AppState = {
               <div class="v-desc">${v.desc}</div>
             </div>
           `).join('')}
+        </div>
+      </div>
+    `;
+  },
+
+  // ==========================================================================
+  // VIEW 4B: BADGE CABINET
+  // ==========================================================================
+  renderBadgeCabinet(mainEl) {
+    const p = this.getProfile();
+    const completedLessons = p.completedLessons || {};
+    const completedDrills = p.completedDrills || {};
+    const doneLessonsCount = Object.keys(completedLessons).length;
+    const totalLessons = window.CURRICULUM_LESSONS.length;
+    const threeStarCount = Object.values(completedLessons).filter(item => item && item.stars === 3).length;
+    const uniqueDays = new Set(
+      Object.values(completedLessons)
+        .concat(p.drillHistory || [])
+        .map(item => (item && (item.completedAt || item.at)) ? String(item.completedAt || item.at).slice(0, 10) : null)
+        .filter(Boolean)
+    );
+    const doneDrillsCount = Object.keys(completedDrills).length;
+    const hasTypingData = !!(window.TYPING_DATA && Array.isArray(window.TYPING_DATA.categories));
+    const totalDrills = hasTypingData
+      ? window.TYPING_DATA.categories.reduce((sum, c) => sum + c.drills.length, 0)
+      : 0;
+
+    const worldBadges = window.CURRICULUM_WORLDS.map(world => {
+      const wLessons = window.CURRICULUM_LESSONS.filter(l => l.worldId === world.id);
+      const wDoneCount = wLessons.filter(l => !!completedLessons[l.id]).length;
+      const earned = wLessons.length > 0 && wDoneCount === wLessons.length;
+      const wColor = world.color || world.themeColor || '#0284c7';
+      return {
+        id: `badge-${world.id}`,
+        icon: world.icon,
+        title: world.badgeName || world.title,
+        subtitle: `${world.title} (${world.titleEn})`,
+        color: wColor,
+        earned,
+        hint: `完成「${world.title}」全部 ${wLessons.length} 堂課 (${wDoneCount}/${wLessons.length})`
+      };
+    });
+
+    const specialBadges = [
+      {
+        id: 'badge-first-lesson',
+        icon: '🌱',
+        title: '第一步探險 First Step',
+        subtitle: '小小探險家出發！',
+        color: '#10b981',
+        earned: doneLessonsCount >= 1,
+        hint: '完成任何 1 堂課程即可解鎖'
+      },
+      {
+        id: 'badge-three-star',
+        icon: '⭐',
+        title: '三星學霸 3-Star Quiz',
+        subtitle: '測驗一次全對！',
+        color: '#f59e0b',
+        earned: threeStarCount >= 1,
+        hint: '在任一單元測驗一次全對拿到 ⭐⭐⭐'
+      },
+      {
+        id: 'badge-streak',
+        icon: '🔥',
+        title: '學習小火苗 Daily Streak',
+        subtitle: '每天進步一點點',
+        color: '#ef4444',
+        earned: doneLessonsCount >= 3 || uniqueDays.size >= 2,
+        hint: `完成 3 堂課程解鎖 (${Math.min(doneLessonsCount, 3)}/3)`
+      }
+    ];
+
+    if (hasTypingData && totalDrills > 0) {
+      specialBadges.push({
+        id: 'badge-typing-rookie',
+        icon: '🎹',
+        title: '盲打新手 Typing Rookie',
+        subtitle: '手指找到 F 與 J！',
+        color: '#0284c7',
+        earned: doneDrillsCount >= 1,
+        hint: '在「中英打字道館」完成第 1 關'
+      });
+      specialBadges.push({
+        id: 'badge-typing-master',
+        icon: '🦅',
+        title: '獵鷹神手 Typing Pro',
+        subtitle: '十指盲打挑戰成功',
+        color: '#6366f1',
+        earned: doneDrillsCount >= 5,
+        hint: `在「中英打字道館」完成 5 關 (${Math.min(doneDrillsCount, 5)}/5)`
+      });
+    }
+
+    specialBadges.push({
+      id: 'badge-grand-explorer',
+      icon: '👑',
+      title: '全能探險王 Grand Master',
+      subtitle: '稱霸全部數位世界！',
+      color: '#a855f7',
+      earned: totalLessons > 0 && doneLessonsCount >= totalLessons,
+      hint: `完成全部 ${totalLessons} 堂課程 (${doneLessonsCount}/${totalLessons})`
+    });
+
+    const allBadges = [...worldBadges, ...specialBadges];
+    const earnedCount = allBadges.filter(b => b.earned).length;
+
+    const renderCard = (b) => `
+      <div class="badge-card ${b.earned ? 'earned' : 'locked'}" style="--badge-color: ${b.color};">
+        <div class="badge-icon-wrap">
+          <span class="badge-icon">${b.icon}</span>
+          ${b.earned ? '<span class="badge-earned-tag">✨ 已獲得</span>' : '<span class="badge-lock-tag">🔒 未解鎖</span>'}
+        </div>
+        <h3 class="badge-title">${this.escapeHtml(b.title)}</h3>
+        <div class="badge-subtitle">${this.escapeHtml(b.subtitle)}</div>
+        <div class="badge-hint">
+          ${b.earned ? '🎉 太厲害了！已經放進徽章櫃！' : `🔒 怎麼獲得：${this.escapeHtml(b.hint)}`}
+        </div>
+      </div>
+    `;
+
+    mainEl.innerHTML = `
+      <div class="card-panel badge-cabinet">
+        <div class="badge-cabinet-header">
+          <div>
+            <h1 style="font-size:1.55rem; font-weight:900; margin-bottom:0.25rem;">🏆 ${this.escapeHtml(p.name)} 的徽章櫃 Badges</h1>
+            <p style="color:var(--text-secondary); font-weight:700; margin:0;">
+              完成每個世界與特別挑戰，收集閃亮亮的榮譽徽章吧！
+            </p>
+          </div>
+          <div class="badge-summary-pill">
+            🏅 已收集 <strong>${earnedCount} / ${allBadges.length}</strong> 枚徽章
+          </div>
+        </div>
+
+        <h2 class="badge-section-heading">🗺️ 世界探險徽章 World Badges (${worldBadges.filter(b => b.earned).length}/${worldBadges.length})</h2>
+        <div class="badge-grid">
+          ${worldBadges.map(renderCard).join('')}
+        </div>
+
+        <h2 class="badge-section-heading" style="margin-top:1.75rem;">🌟 特別榮譽徽章 Special Badges (${specialBadges.filter(b => b.earned).length}/${specialBadges.length})</h2>
+        <div class="badge-grid">
+          ${specialBadges.map(renderCard).join('')}
         </div>
       </div>
     `;

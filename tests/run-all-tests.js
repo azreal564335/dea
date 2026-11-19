@@ -693,6 +693,93 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   const xpFlyup = window.document.querySelector('.xp-flyup');
   assert(!!confettiLayer && confettiPieces.length === 40, `Lesson completion spawns confetti burst (${confettiPieces.length} pieces)`);
   assert(!!xpFlyup && xpFlyup.textContent.includes(`+${w1l1.xp} XP`), 'Lesson completion spawns .xp-flyup element');
+
+  // 16. UI Batch 3: Content Presentation Tests
+  console.log('\n--- 16. UI Batch 3: Learn Card Carousel, Badge Cabinet, Per-World Themes ---');
+  // 16a. Learn cards carousel
+  window.AppState.navigate('lesson', 'w1-l1');
+  const carouselEl = window.document.querySelector('.learn-carousel');
+  const slideCards = window.document.querySelectorAll('.learn-carousel .slide-card');
+  const totalW1Cards = window.CURRICULUM_LESSONS[0].cards.length;
+  assert(!!carouselEl && slideCards.length === totalW1Cards,
+    `Carousel keeps all ${totalW1Cards} .slide-card elements in DOM`);
+  assert(!slideCards[0].classList.contains('is-hidden') && slideCards[1].classList.contains('is-hidden'),
+    'Carousel shows card 0 and hides card 1 via .is-hidden');
+  const dots = window.document.querySelectorAll('.carousel-dots .carousel-dot');
+  const counterEl = window.document.querySelector('.carousel-counter');
+  assert(dots.length === totalW1Cards && counterEl && counterEl.textContent.trim() === `1 / ${totalW1Cards}`,
+    `Carousel renders ${totalW1Cards} dots and counter "1 / ${totalW1Cards}"`);
+
+  // Click Next + verify read-aloud stops when changing cards
+  let carouselCancelCalled = false;
+  const savedSpeak2 = window.speechSynthesis.speak;
+  const savedCancel2 = window.speechSynthesis.cancel;
+  window.speechSynthesis.speak = () => {};
+  window.speechSynthesis.cancel = () => { carouselCancelCalled = true; };
+  window.AppState.toggleReadAloudCard('w1-l1', 0);
+  window.document.querySelector('.carousel-next-btn').click();
+  const slideCardsAfterNext = window.document.querySelectorAll('.learn-carousel .slide-card');
+  assert(window.AppState.currentCardIdx === 1 && slideCardsAfterNext[0].classList.contains('is-hidden') && !slideCardsAfterNext[1].classList.contains('is-hidden'),
+    'Clicking .carousel-next-btn advances to card 2');
+  assert(window.document.querySelector('.carousel-counter').textContent.trim() === `2 / ${totalW1Cards}`,
+    `Counter updates to "2 / ${totalW1Cards}"`);
+  assert(carouselCancelCalled === true && window.AppState.speakingCardKey === null,
+    'Changing carousel card stops active read-aloud speech');
+  window.speechSynthesis.speak = savedSpeak2;
+  window.speechSynthesis.cancel = savedCancel2;
+
+  // Keyboard ArrowLeft / ArrowRight & dot click & touch swipe
+  window.document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+  assert(window.AppState.currentCardIdx === 0, 'ArrowLeft keyboard key goes back to card 0');
+  window.document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+  assert(window.AppState.currentCardIdx === 1, 'ArrowRight keyboard key advances to card 1');
+  window.document.querySelectorAll('.carousel-dots .carousel-dot')[totalW1Cards - 1].click();
+  assert(window.AppState.currentCardIdx === totalW1Cards - 1, 'Clicking last carousel dot jumps to last card');
+  const touchStartEvt = new window.Event('touchstart', { bubbles: true });
+  touchStartEvt.touches = [{ clientX: 200, clientY: 100 }];
+  const touchEndEvt = new window.Event('touchend', { bubbles: true });
+  touchEndEvt.changedTouches = [{ clientX: 280, clientY: 105 }];
+  window.document.querySelector('.learn-carousel').dispatchEvent(touchStartEvt);
+  window.document.querySelector('.learn-carousel').dispatchEvent(touchEndEvt);
+  assert(window.AppState.currentCardIdx === totalW1Cards - 2, 'Touch swipe right moves to previous slide card');
+
+  // 16b. Badge cabinet view + nav tab + earned vs locked badges
+  const badgeNavTab = Array.from(window.document.querySelectorAll('.nav-tab')).find(btn => btn.textContent.includes('徽章櫃 Badges'));
+  assert(!!badgeNavTab, 'Header nav contains "🏆 徽章櫃 Badges" tab');
+  badgeNavTab.click();
+  assert(window.AppState.currentView === 'badges' && !!window.document.querySelector('.badge-cabinet'),
+    'Clicking Badges tab renders .badge-cabinet view');
+  // On kid-8 (w1-l1 completed), world-2 badge should be locked with 🔒, first-lesson & three-star should be earned
+  const badgeCardsKid8 = window.document.querySelectorAll('.badge-cabinet .badge-card');
+  const worldBadgesCount = window.CURRICULUM_WORLDS.length;
+  assert(badgeCardsKid8.length >= worldBadgesCount + 3,
+    `Badge cabinet shows all ${worldBadgesCount} world badges plus special badges (${badgeCardsKid8.length})`);
+  const lockedCardsKid8 = window.document.querySelectorAll('.badge-cabinet .badge-card.locked');
+  const earnedCardsKid8 = window.document.querySelectorAll('.badge-cabinet .badge-card.earned');
+  assert(lockedCardsKid8.length > 0 && lockedCardsKid8[0].textContent.includes('🔒'),
+    'Locked badges show .locked styling with 🔒 and how-to-earn hint');
+  assert(earnedCardsKid8.length >= 2, 'Completed w1-l1 unlocks First Step and 3-Star Quiz badges on kid-8');
+
+  // Switch to kid-10 (completed all lessons & drills) -> all world badges should be earned
+  window.AppState.switchProfile(); // kid-8 -> kid-10
+  window.AppState.navigate('badges');
+  const lockedCardsKid10 = window.document.querySelectorAll('.badge-cabinet .badge-card.locked');
+  assert(lockedCardsKid10.length === 0, 'kid-10 with all lessons & drills completed unlocks all badges in cabinet');
+  // Verify sanitizeProfile still preserves schema cleanly
+  const sanitizedCheck = window.AppState.sanitizeProfile({ name: 'Test', xp: 42 }, { id: 'kid-10', name: 'Fallback', avatar: '🚀' });
+  assert(sanitizedCheck.xp === 42 && sanitizedCheck.name === 'Test' && typeof sanitizedCheck.completedLessons === 'object',
+    'sanitizeProfile intact and backwards compatible');
+
+  // 16c. Per-world themes (--world-color CSS variable)
+  window.AppState.navigate('map');
+  const mapW5 = window.document.getElementById('section-world-5');
+  const expectedW5Color = window.CURRICULUM_WORLDS.find(w => w.id === 'world-5').themeColor;
+  assert(!!mapW5 && mapW5.style.getPropertyValue('--world-color').trim() === expectedW5Color,
+    `Map world section applies --world-color (${expectedW5Color})`);
+  window.AppState.navigate('lesson', 'w5-l1');
+  const lessonThemed = window.document.querySelector('.lesson-themed-container');
+  assert(!!lessonThemed && lessonThemed.style.getPropertyValue('--world-color').trim() === expectedW5Color,
+    `Lesson view applies --world-color (${expectedW5Color}) for world-5`);
 }
 
 async function main() {

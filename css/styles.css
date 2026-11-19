@@ -2220,3 +2220,311 @@ body.dark-mode footer {
   border-top-color: #334155 !important;
 }
 
+/* ============================================================================
+ * 🎨 BATCH 3: LEARN CARD CAROUSEL, BADGE CABINET, PER-WORLD THEMES
+ * ============================================================================ */
+
+/* 9. Learn Card Carousel */
+.learn-carousel {
+  position: relative;
+}
+
+.carousel-cards-stage {
+  position: relative;
+}
+
+.slide-card.is-hidden {
+  display: none;
+}
+
+.carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  flex-wrap: wrap;
+}
+
+.carousel-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.carousel-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  border: 2px solid var(--border-strong);
+  background: #ffffff;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.18s ease;
+}
+
+.carousel-dot.active {
+  width: 28px;
+  background: var(--world-color, var(--primary));
+  border-color: var(--world-color, var(--primary));
+}
+
+.carousel-counter {
+  margin-left: 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 900;
+  color: var(--text-secondary);
+}
+
+.carousel-prev-btn:disabled,
+.carousel-next-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+body.kid-mode-8 .carousel-prev-btn,
+body.kid-mode-8 .carousel-next-btn {
+  min-height: 56px;
+  min-width: 120px;
+}
+
+body.kid-mode-8 .carousel-dot {
+  width: 18px;
+  height: 18px;
+}
+
+body.kid-mode-8 .carousel-dot.active {
+  width: 36px;
+}
+
+/* 10. Badge Cabinet */
+.badge-cabinet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px dashed var(--border-light);
+}
+
+.badge-summary-pill {
+  background: #fef3c7;
+  border: 2px solid #f59e0b;
+  color: #92400e;
+  padding: 0.55rem 1.15rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.badge-section-heading {
+  font-size: 1.18rem;
+  font-weight: 900;
+  margin-bottom: 0.85rem;
+  color: var(--text-main);
+}
+
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1rem;
+}
+
+.badge-card {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.badge-card.earned {
+  border-color: var(--badge-color, var(--primary));
+  background: linear-gradient(180deg, #ffffff 0%, color-mix(in srgb, var(--badge-color, #0284c7) 10%, #ffffff) 100%);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+}
+
+.badge-card.earned:hover {
+  transform: translateY(-2px);
+}
+
+.badge-card.locked {
+  filter: grayscale(1);
+  opacity: 0.72;
+  background: #f8fafc;
+}
+
+.badge-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.badge-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.badge-earned-tag {
+  font-size: 0.75rem;
+  font-weight: 900;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-lock-tag {
+  font-size: 0.75rem;
+  font-weight: 900;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.badge-title {
+  font-size: 1.05rem;
+  font-weight: 900;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.badge-subtitle {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.badge-hint {
+  margin-top: auto;
+  padding-top: 0.55rem;
+  border-top: 1px dashed var(--border-light);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* 11. Per-World Themes (--world-color) */
+.world-section.themed-world {
+  border-top: 5px solid var(--world-color, var(--primary));
+}
+
+.world-section.themed-world .lesson-card:hover {
+  border-color: var(--world-color, var(--primary));
+}
+
+.lesson-themed-container .lesson-title-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 1.15rem 1.35rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--world-color, #0284c7) 14%, #ffffff) 0%, #ffffff 100%);
+  border: 2px solid color-mix(in srgb, var(--world-color, #0284c7) 35%, #e2e8f0);
+}
+
+.lesson-themed-container .lesson-num-tag {
+  background: color-mix(in srgb, var(--world-color, #0284c7) 15%, #ffffff);
+  color: var(--text-main);
+  border: 1px solid color-mix(in srgb, var(--world-color, #0284c7) 40%, transparent);
+}
+
+.lesson-themed-container .lesson-step-pill.active {
+  background: var(--world-color, var(--primary));
+  border-color: var(--world-color, var(--primary));
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.lesson-themed-container .lesson-step-pill.active .step-num {
+  background: #ffffff;
+  color: var(--world-color, var(--primary));
+  text-shadow: none;
+}
+
+.lesson-themed-container .btn-primary {
+  background: var(--world-color, var(--primary));
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
+}
+
+.lesson-themed-container .btn-primary:hover {
+  background: var(--world-color, var(--primary-hover));
+  filter: brightness(0.93);
+}
+
+.lesson-themed-container .slide-card {
+  border-left-color: var(--world-color, var(--primary));
+}
+
+/* Dark Mode Overrides for Batch 3 */
+body.dark-mode .carousel-controls {
+  background: #0f172a;
+  border-color: var(--border-light);
+}
+
+body.dark-mode .carousel-dot {
+  background: #334155;
+  border-color: #64748b;
+}
+
+body.dark-mode .carousel-dot.active {
+  background: var(--world-color, var(--primary));
+  border-color: var(--world-color, var(--primary));
+}
+
+body.dark-mode .badge-summary-pill {
+  background: #451a03;
+  border-color: #d97706;
+  color: #fde68a;
+}
+
+body.dark-mode .badge-card {
+  background: var(--bg-surface);
+  border-color: var(--border-light);
+}
+
+body.dark-mode .badge-card.earned {
+  background: linear-gradient(180deg, #1e293b 0%, color-mix(in srgb, var(--badge-color, #38bdf8) 20%, #0f172a) 100%);
+  border-color: var(--badge-color, #38bdf8);
+}
+
+body.dark-mode .badge-card.locked {
+  background: #0f172a;
+}
+
+body.dark-mode .badge-lock-tag {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+body.dark-mode .lesson-themed-container .lesson-title-banner {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--world-color, #38bdf8) 22%, #1e293b) 0%, #1e293b 100%);
+  border-color: color-mix(in srgb, var(--world-color, #38bdf8) 55%, #334155);
+  color: var(--text-main);
+}
+
+body.dark-mode .lesson-themed-container .lesson-num-tag {
+  background: color-mix(in srgb, var(--world-color, #38bdf8) 25%, #0f172a);
+  color: #f8fafc;
+}
+
+
