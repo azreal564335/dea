@@ -171,7 +171,20 @@ window.Simulators = {
     rpRunwayStars: 0,
 
     boatParts: { wood: false, iron: false, seat: false, thruster: false },
-    boatLaunched: false
+    boatLaunched: false,
+
+    // World 7 Scratch Island Labs
+    scSpaceBlockX: false,
+    scSpaceBlockY: false,
+    scShipX: 0,
+    scShipY: 0,
+    scScore: 0,
+    scHp: 3,
+    scRuleCoin: false,
+    scRuleLaser: false,
+    scCloneRate: 0.2,
+    scTimerLimit: 30,
+    scClonesFired: 0
   },
 
   render(simConfig, containerId) {
@@ -223,6 +236,12 @@ window.Simulators = {
         return this.renderRobloxRpStage(el, containerId);
       case 'roblox-boat-builder':
         return this.renderRobloxBoatBuilder(el, containerId);
+      case 'scratch-space-dodge':
+        return this.renderScratchSpaceDodge(el, containerId);
+      case 'scratch-collision-hp':
+        return this.renderScratchCollisionHp(el, containerId);
+      case 'scratch-clone-timer':
+        return this.renderScratchCloneTimer(el, containerId);
       default:
         el.innerHTML = `
           <div class="sim-box" style="text-align:center;">
@@ -3072,5 +3091,154 @@ window.Simulators = {
   boatLaunch(cid) {
     this.state.boatLaunched = true;
     this.render({ type: 'roblox-boat-builder' }, cid);
+  },
+
+  // ==========================================================================
+  // 7.1 SCRATCH SPACE DODGE (X/Y COORDINATES)
+  // ==========================================================================
+  renderScratchSpaceDodge(el, cid) {
+    const s = this.state;
+    const ready = s.scSpaceBlockX && s.scSpaceBlockY;
+    const shipLeft = Math.max(10, Math.min(86, 48 + s.scShipX));
+    const shipTop = Math.max(12, Math.min(78, 45 - s.scShipY));
+
+    el.innerHTML = `
+      <div class="sim-box">
+        <div style="font-weight:900; margin-bottom:0.65rem;">🧩 步驟 1：裝上 X / Y 方向鍵積木</div>
+        <div style="display:flex; gap:0.65rem; flex-wrap:wrap; margin-bottom:0.85rem;">
+          <button class="lua-line-btn ${s.scSpaceBlockX ? 'done' : ''}"
+                  onclick="window.Simulators.scToggleSpaceBlock('x', '${cid}')">
+            ${s.scSpaceBlockX ? '✅' : '➕'} 啟用 X 左右控制 (x 改變 ±20)
+          </button>
+          <button class="lua-line-btn ${s.scSpaceBlockY ? 'done' : ''}"
+                  onclick="window.Simulators.scToggleSpaceBlock('y', '${cid}')">
+            ${s.scSpaceBlockY ? '✅' : '➕'} 啟用 Y 上下控制 (y 改變 ±20)
+          </button>
+        </div>
+
+        <div style="position:relative; height:170px; background:#0f172a; border-radius:14px; border:2px solid #38bdf8; overflow:hidden; margin-bottom:0.85rem;">
+          <div style="position:absolute; left:50%; top:0; bottom:0; border-left:1px dashed #22c55e;"></div>
+          <div style="position:absolute; top:50%; left:0; right:0; border-top:1px dashed #ef4444;"></div>
+          <div style="position:absolute; top:8px; left:10px; color:#fde047; font-size:0.8rem; font-weight:900;">
+            📍 太空船座標：(X: ${s.scShipX * 3}, Y: ${s.scShipY * 3})
+          </div>
+          <div style="position:absolute; left:24%; top:24%; font-size:1.4rem;" title="隕石">☄️</div>
+          <div style="position:absolute; left:72%; top:62%; font-size:1.4rem;" title="隕石">☄️</div>
+          <div style="position:absolute; left:${shipLeft}%; top:${shipTop}%; transform:translate(-50%,-50%); font-size:2rem; transition:all 0.15s;">🛸</div>
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:0.5rem; flex-wrap:wrap;">
+          <button class="btn-secondary" ${s.scSpaceBlockX ? '' : 'disabled'} onclick="window.Simulators.scMoveShip(-10, 0, '${cid}')">⬅️ 左 (X-)</button>
+          <button class="btn-secondary" ${s.scSpaceBlockY ? '' : 'disabled'} onclick="window.Simulators.scMoveShip(0, 10, '${cid}')">⬆️ 上 (Y+)</button>
+          <button class="btn-secondary" ${s.scSpaceBlockY ? '' : 'disabled'} onclick="window.Simulators.scMoveShip(0, -10, '${cid}')">⬇️ 下 (Y-)</button>
+          <button class="btn-secondary" ${s.scSpaceBlockX ? '' : 'disabled'} onclick="window.Simulators.scMoveShip(10, 0, '${cid}')">➡️ 右 (X+)</button>
+        </div>
+        ${ready ? `<div style="margin-top:0.65rem; text-align:center; color:#16a34a; font-weight:900;">🎉 太棒了！X 與 Y 軸移動積木都已成功接上！</div>` : ''}
+      </div>
+    `;
+  },
+
+  scToggleSpaceBlock(axis, cid) {
+    if (axis === 'x') this.state.scSpaceBlockX = !this.state.scSpaceBlockX;
+    if (axis === 'y') this.state.scSpaceBlockY = !this.state.scSpaceBlockY;
+    this.render({ type: 'scratch-space-dodge' }, cid);
+  },
+
+  scMoveShip(dx, dy, cid) {
+    this.state.scShipX = Math.max(-35, Math.min(35, this.state.scShipX + dx));
+    this.state.scShipY = Math.max(-30, Math.min(30, this.state.scShipY + dy));
+    this.render({ type: 'scratch-space-dodge' }, cid);
+  },
+
+  // ==========================================================================
+  // 7.2 SCRATCH COLLISION & VARIABLES (SCORE + HP)
+  // ==========================================================================
+  renderScratchCollisionHp(el, cid) {
+    const s = this.state;
+    const gameOver = s.scHp <= 0;
+
+    el.innerHTML = `
+      <div class="sim-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+          <span style="background:#ffedd5; color:#c2410c; padding:0.35rem 0.8rem; border-radius:999px; font-weight:900;">🏆 分數 Score: ${s.scScore}</span>
+          <span style="background:#fee2e2; color:#b91c1c; padding:0.35rem 0.8rem; border-radius:999px; font-weight:900;">${'❤️'.repeat(Math.max(0, s.scHp)) || '💀'} 生命值 HP: ${s.scHp}</span>
+        </div>
+
+        <div style="display:flex; gap:0.65rem; flex-wrap:wrap; margin-bottom:0.85rem;">
+          <button class="lua-line-btn ${s.scRuleCoin ? 'done' : ''}" onclick="window.Simulators.scToggleRule('coin', '${cid}')">
+            ${s.scRuleCoin ? '✅' : '➕'} 裝上：碰到金幣 ➔ 分數 +1
+          </button>
+          <button class="lua-line-btn ${s.scRuleLaser ? 'done' : ''}" onclick="window.Simulators.scToggleRule('laser', '${cid}')">
+            ${s.scRuleLaser ? '✅' : '➕'} 裝上：碰到雷射 ➔ HP -1
+          </button>
+        </div>
+
+        <div style="display:flex; gap:0.65rem; flex-wrap:wrap;">
+          <button class="btn-primary" ${s.scRuleCoin && !gameOver ? '' : 'disabled'} onclick="window.Simulators.scHitEvent('coin', '${cid}')">🪙 模擬吃到金幣</button>
+          <button class="btn-secondary" ${s.scRuleLaser && !gameOver ? '' : 'disabled'} onclick="window.Simulators.scHitEvent('laser', '${cid}')">⚡ 模擬撞到雷射</button>
+          <button class="btn-secondary" onclick="window.Simulators.scHitEvent('reset', '${cid}')">⚑ 綠旗重設變數</button>
+        </div>
+
+        ${gameOver ? `
+          <div style="margin-top:0.8rem; padding:0.75rem; border-radius:12px; background:#fef2f2; border:2px solid #ef4444; color:#991b1b; font-weight:900; text-align:center;">
+            📢 廣播訊息 [Game Over]！HP 歸零囉，按「⚑ 綠旗重設變數」再玩一局！
+          </div>
+        ` : ''}
+      </div>
+    `;
+  },
+
+  scToggleRule(rule, cid) {
+    if (rule === 'coin') this.state.scRuleCoin = !this.state.scRuleCoin;
+    if (rule === 'laser') this.state.scRuleLaser = !this.state.scRuleLaser;
+    this.render({ type: 'scratch-collision-hp' }, cid);
+  },
+
+  scHitEvent(evt, cid) {
+    if (evt === 'coin') this.state.scScore += 1;
+    else if (evt === 'laser') this.state.scHp = Math.max(0, this.state.scHp - 1);
+    else if (evt === 'reset') { this.state.scScore = 0; this.state.scHp = 3; }
+    this.render({ type: 'scratch-collision-hp' }, cid);
+  },
+
+  // ==========================================================================
+  // 7.3 SCRATCH CLONES & TIMER LAB
+  // ==========================================================================
+  renderScratchCloneTimer(el, cid) {
+    const s = this.state;
+    el.innerHTML = `
+      <div class="sim-box">
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.85rem;">
+          <button class="btn-secondary" onclick="window.Simulators.scSetCloneRate(0.2, '${cid}')">⚡ 連發冷卻 0.2s ${s.scCloneRate === 0.2 ? '✅' : ''}</button>
+          <button class="btn-secondary" onclick="window.Simulators.scSetCloneRate(0.5, '${cid}')">🐢 連發冷卻 0.5s ${s.scCloneRate === 0.5 ? '✅' : ''}</button>
+          <button class="btn-secondary" onclick="window.Simulators.scSetTimerLimit(30, '${cid}')">⏱️ 計時器 30 秒 ${s.scTimerLimit === 30 ? '✅' : ''}</button>
+        </div>
+
+        <button class="btn-primary" style="width:100%;" onclick="window.Simulators.scFireClones('${cid}')">
+          🚀 建立自己的分身 (發射一波分身並自動清除！)
+        </button>
+
+        <div style="margin-top:0.85rem; padding:0.85rem; border-radius:12px; background:#0f172a; color:#f8fafc; text-align:center; font-weight:800;">
+          ${s.scClonesFired > 0
+            ? `✨ 已成功產生 ${s.scClonesFired} 顆子彈分身（冷卻 ${s.scCloneRate}s，限時 ${s.scTimerLimit}s）！飛出邊界後已執行「刪除此分身」🧹`
+            : '👆 點擊上方按鈕，測試「建立分身 ➔ 飛行 ➔ 刪除此分身」流程！'}
+        </div>
+      </div>
+    `;
+  },
+
+  scSetCloneRate(rate, cid) {
+    this.state.scCloneRate = rate;
+    this.render({ type: 'scratch-clone-timer' }, cid);
+  },
+
+  scSetTimerLimit(sec, cid) {
+    this.state.scTimerLimit = sec;
+    this.render({ type: 'scratch-clone-timer' }, cid);
+  },
+
+  scFireClones(cid) {
+    this.state.scClonesFired += 5;
+    this.render({ type: 'scratch-clone-timer' }, cid);
   }
 };

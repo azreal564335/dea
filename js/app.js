@@ -1606,6 +1606,68 @@ window.AppState = {
           </svg>
         `, 'Scratch 介面位置：① 左邊挑積木 ② 中間拼起來 ③ 右邊按綠色 ⚑ 旗幟執行遊戲！');
 
+      case 'scratch-xy-coords':
+        return wrap(`
+          <svg viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="230" fill="#1e293b"/>
+            <!-- Left: Coordinate Stage -->
+            <rect x="20" y="16" width="320" height="198" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+            <line x1="180" y1="28" x2="180" y2="202" stroke="#22c55e" stroke-width="2" stroke-dasharray="5 3"/>
+            <line x1="34" y1="115" x2="326" y2="115" stroke="#ef4444" stroke-width="2" stroke-dasharray="5 3"/>
+            <text x="155" y="42" fill="#86efac" font-size="11" font-weight="900">Y: +180 (上)</text>
+            <text x="155" y="200" fill="#86efac" font-size="11" font-weight="900">Y: -180 (下)</text>
+            <text x="32" y="108" fill="#fca5a5" font-size="11" font-weight="900">X: -240</text>
+            <text x="272" y="108" fill="#fca5a5" font-size="11" font-weight="900">X: +240</text>
+            <circle cx="180" cy="115" r="16" fill="#38bdf8" fill-opacity="0.25"/>
+            <text x="168" y="122" fill="#fff" font-size="22">🛸</text>
+            <text x="188" y="132" fill="#fde047" font-size="10" font-weight="800">(0, 0)</text>
+            <!-- Right: Code Blocks -->
+            <rect x="360" y="16" width="340" height="198" rx="10" fill="#f8fafc" stroke="#f97316" stroke-width="2"/>
+            <text x="376" y="40" fill="#0f172a" font-size="12" font-weight="900">🧩 滑順移動積木組合</text>
+            <rect x="376" y="54" width="190" height="28" rx="6" fill="#f97316"/><text x="388" y="72" fill="#fff" font-size="11" font-weight="900">🔁 重複無限次</text>
+            <rect x="394" y="88" width="248" height="28" rx="6" fill="#fb923c"/><text x="404" y="106" fill="#0f172a" font-size="11" font-weight="900">如果 &lt;向上鍵被按下?&gt; 那麼</text>
+            <rect x="414" y="120" width="160" height="26" rx="6" fill="#3b82f6"/><text x="424" y="137" fill="#fff" font-size="11" font-weight="900">⬆️ y 改變 10</text>
+            <rect x="394" y="152" width="248" height="28" rx="6" fill="#fb923c"/><text x="404" y="170" fill="#0f172a" font-size="11" font-weight="900">如果 &lt;向右鍵被按下?&gt; 那麼</text>
+            <rect x="414" y="182" width="160" height="24" rx="6" fill="#3b82f6"/><text x="424" y="198" fill="#fff" font-size="11" font-weight="900">➡️ x 改變 10</text>
+          </svg>
+        `, 'Scratch 座標口訣：① 紅線 X 軸控制左右 ② 綠線 Y 軸控制上下 ③ 用「重複無限次」包住方向鍵積木就會超滑順！');
+
+      case 'scratch-variables-if':
+        return wrap(`
+          <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="220" fill="#1e293b"/>
+            <rect x="16" y="16" width="200" height="188" rx="10" fill="#0f172a" stroke="#f97316" stroke-width="2"/>
+            <text x="28" y="38" fill="#fdba74" font-size="12" font-weight="900">📦 左側「變數」區</text>
+            <rect x="28" y="52" width="174" height="30" rx="6" fill="#ea580c"/><text x="40" y="71" fill="#fff" font-size="11" font-weight="900">+ 建立一個變數</text>
+            <rect x="28" y="96" width="174" height="26" rx="13" fill="#f97316"/><text x="44" y="113" fill="#fff" font-size="11" font-weight="900">🏆 分數: 0</text>
+            <rect x="28" y="132" width="174" height="26" rx="13" fill="#ef4444"/><text x="44" y="149" fill="#fff" font-size="11" font-weight="900">❤️ 生命值: 3</text>
+            <rect x="232" y="16" width="472" height="188" rx="10" fill="#f8fafc" stroke="#38bdf8" stroke-width="2"/>
+            <text x="248" y="38" fill="#0f172a" font-size="12" font-weight="900">💥 碰撞規則積木</text>
+            <rect x="248" y="52" width="280" height="28" rx="6" fill="#eab308"/><text x="260" y="70" fill="#0f172a" font-size="11" font-weight="900">⚑ 當綠旗被點擊 ➔ 分數設為 0、生命值設為 3</text>
+            <rect x="248" y="90" width="290" height="28" rx="6" fill="#fb923c"/><text x="260" y="108" fill="#0f172a" font-size="11" font-weight="900">如果 &lt;淺藍偵測：碰到 金幣?&gt; 那麼</text>
+            <rect x="268" y="122" width="180" height="24" rx="6" fill="#ea580c"/><text x="280" y="138" fill="#fff" font-size="11" font-weight="900">變數 [分數] 改變 1</text>
+            <rect x="248" y="156" width="430" height="28" rx="6" fill="#fb923c"/><text x="260" y="174" fill="#0f172a" font-size="11" font-weight="900">如果 &lt;碰到 雷射?&gt; ➔ 生命值改變 -1 ➔ 等待 0.5 秒</text>
+          </svg>
+        `, '① 左側橘紅「變數」區建立 分數 與 生命值 ② 綠旗開局先歸零/設滿 ③ 用淺藍「碰到...?」積木判斷加分或扣血！');
+
+      case 'scratch-clones-timer':
+        return wrap(`
+          <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+            <rect width="720" height="220" fill="#1e293b"/>
+            <rect x="16" y="16" width="330" height="188" rx="10" fill="#0f172a" stroke="#f59e0b" stroke-width="2"/>
+            <text x="32" y="40" fill="#fde047" font-size="12" font-weight="900">1️⃣ 本體生分身 (控制區)</text>
+            <rect x="32" y="56" width="210" height="28" rx="6" fill="#eab308"/><text x="44" y="74" fill="#0f172a" font-size="11" font-weight="900">當按下 [空白鍵]</text>
+            <rect x="32" y="92" width="210" height="28" rx="6" fill="#f97316"/><text x="44" y="110" fill="#fff" font-size="11" font-weight="900">👯‍♂️ 建立 [自己] 的分身</text>
+            <rect x="32" y="128" width="210" height="28" rx="6" fill="#f97316"/><text x="44" y="146" fill="#fff" font-size="11" font-weight="900">⏱️ 等待 0.2 秒 (射速冷卻)</text>
+            <rect x="364" y="16" width="340" height="188" rx="10" fill="#f8fafc" stroke="#22c55e" stroke-width="2"/>
+            <text x="380" y="40" fill="#0f172a" font-size="12" font-weight="900">2️⃣ 分身飛出去 + 清掉自己</text>
+            <rect x="380" y="56" width="220" height="28" rx="6" fill="#f97316"/><text x="392" y="74" fill="#fff" font-size="11" font-weight="900">當分身產生時 ➔ 顯示</text>
+            <rect x="380" y="92" width="260" height="28" rx="6" fill="#fb923c"/><text x="392" y="110" fill="#0f172a" font-size="11" font-weight="900">重複直到 &lt;碰到邊緣?&gt; ➔ y 改變 12</text>
+            <rect x="380" y="128" width="220" height="28" rx="6" fill="#dc2626"/><text x="392" y="146" fill="#fff" font-size="11" font-weight="900">🧹 刪除此分身 (必加！)</text>
+            <rect x="380" y="166" width="280" height="26" rx="6" fill="#0284c7"/><text x="392" y="183" fill="#fff" font-size="11" font-weight="900">⏱️ 偵測區：計時器重置 / 計時器 &gt; 30 結束</text>
+          </svg>
+        `, '分身與計時器位置：① 本體負責「建立自己的分身」 ② 分身負責飛行，飛出邊緣一定要「刪除此分身」 ③ 偵測區有「計時器」！');
+
       default:
         return '';
     }

@@ -97,8 +97,8 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   assert(typeof window.UIModal === 'object', 'window.UIModal is available');
   assert(typeof window.TypingDojo === 'object', 'window.TypingDojo is available');
   assert(typeof window.Simulators === 'object', 'window.Simulators is available');
-  assert(Array.isArray(window.CURRICULUM_WORLDS) && window.CURRICULUM_WORLDS.length === 6, 'All 6 curriculum worlds are loaded');
-  assert(Array.isArray(window.CURRICULUM_LESSONS) && window.CURRICULUM_LESSONS.length === 26, 'All 26 curriculum lessons are loaded');
+  assert(Array.isArray(window.CURRICULUM_WORLDS) && window.CURRICULUM_WORLDS.length === 7, 'All 7 curriculum worlds are loaded');
+  assert(Array.isArray(window.CURRICULUM_LESSONS) && window.CURRICULUM_LESSONS.length === 29, 'All 29 curriculum lessons are loaded');
   assert(Array.isArray(window.TYPING_DATA.categories) && window.TYPING_DATA.categories.length === 6, 'All 6 typing categories loaded');
 
   // Count total drills
@@ -378,6 +378,21 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
       window.Simulators.boatTogglePart('seat', 'lesson-simulator-mount');
       window.Simulators.boatLaunch('lesson-simulator-mount');
       assert(window.Simulators.state.boatLaunched === true, 'Build a Boat WeldConstraint vessel launched');
+    } else if (lesson.simulator.type === 'scratch-space-dodge') {
+      window.Simulators.scToggleSpaceBlock('x', 'lesson-simulator-mount');
+      window.Simulators.scToggleSpaceBlock('y', 'lesson-simulator-mount');
+      window.Simulators.scMoveShip(10, 10, 'lesson-simulator-mount');
+      assert(window.Simulators.state.scShipX === 10 && window.Simulators.state.scShipY === 10, 'Scratch Space Dodge X/Y ship moved');
+    } else if (lesson.simulator.type === 'scratch-collision-hp') {
+      window.Simulators.scToggleRule('coin', 'lesson-simulator-mount');
+      window.Simulators.scToggleRule('laser', 'lesson-simulator-mount');
+      window.Simulators.scHitEvent('coin', 'lesson-simulator-mount');
+      window.Simulators.scHitEvent('laser', 'lesson-simulator-mount');
+      assert(window.Simulators.state.scScore === 1 && window.Simulators.state.scHp === 2, 'Scratch Collision updated Score and HP');
+    } else if (lesson.simulator.type === 'scratch-clone-timer') {
+      window.Simulators.scSetCloneRate(0.2, 'lesson-simulator-mount');
+      window.Simulators.scFireClones('lesson-simulator-mount');
+      assert(window.Simulators.state.scClonesFired >= 5, 'Scratch Clone & Timer fired clones');
     }
 
     // Step 3: Quiz View
@@ -455,11 +470,11 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   assert(window.AppState.currentView === 'certificate', 'Navigated to certificate view');
   const certEl = window.document.getElementById('app-main');
   assert(certEl.textContent.includes('數位小探險家學院・榮譽證書'), 'Graduation Certificate title rendered');
-  assert(certEl.textContent.includes('26 / 26 堂數位課程'), 'All 26/26 lessons reflected on Certificate');
+  assert(certEl.textContent.includes('29 / 29 堂數位課程'), 'All 29/29 lessons reflected on Certificate');
   assert(certEl.textContent.includes('22 / 22 關中英盲打特訓'), 'All 22/22 typing drills reflected on Certificate');
   assert(certEl.textContent.includes('傳奇數位魔法師'), 'Awarded highest certification tier: 傳奇數位魔法師');
 
-  // 10. Test IslandScene World 6 Navigation & Routing
+  // 10. Test IslandScene World 7 Navigation & Routing
   console.log('\n--- Testing IslandScene 3D World Map Navigation ---');
   assert(typeof window.IslandScene === 'object', 'window.IslandScene object exists');
   let selectedTargetWorld = null;
@@ -470,23 +485,24 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
     { userData: { worldId: 'world-3', standPos: new window.THREE.Vector3(1.8, 2.75, 0.95) } },
     { userData: { worldId: 'world-4', standPos: new window.THREE.Vector3(5.4, 1.27, 0.85) } },
     { userData: { worldId: 'world-5', standPos: new window.THREE.Vector3(8.4, 1.85, -0.55) } },
-    { userData: { worldId: 'world-6', standPos: new window.THREE.Vector3(11.4, 2.45, 0.85) } }
+    { userData: { worldId: 'world-6', standPos: new window.THREE.Vector3(11.4, 2.45, 0.85) } },
+    { userData: { worldId: 'world-7', standPos: new window.THREE.Vector3(14.4, 1.95, -0.15) } }
   ];
   window.IslandScene.avatar = new window.THREE.Group();
   window.IslandScene.currentWorldId = 'world-1';
   window.IslandScene.avatarState.mode = 'idle';
 
-  window.IslandScene.travelToWorld('world-6', true);
+  window.IslandScene.travelToWorld('world-7', true);
   assert(window.IslandScene.avatarState.mode === 'moving', 'Avatar state switched to moving mode');
-  assert(window.IslandScene.avatarState.targetWorldId === 'world-6', 'Target world set to world-6');
-  assert(Array.isArray(window.IslandScene.avatarState.waypoints) && window.IslandScene.avatarState.waypoints.length === 7,
-    `Scenic waypoints to World 6 generated (count: ${window.IslandScene.avatarState.waypoints.length})`);
+  assert(window.IslandScene.avatarState.targetWorldId === 'world-7', 'Target world set to world-7');
+  assert(Array.isArray(window.IslandScene.avatarState.waypoints) && window.IslandScene.avatarState.waypoints.length === 8,
+    `Scenic waypoints to World 7 generated (count: ${window.IslandScene.avatarState.waypoints.length})`);
   const wpTypes = window.IslandScene.avatarState.waypoints.map(w => w.type);
   assert(wpTypes.includes('hop') && wpTypes.includes('swim') && wpTypes.includes('superjump'),
-    'Waypoints include hop, swim, and superjump segments to reach World 6');
+    'Waypoints include hop, swim, and superjump segments to reach World 7');
 
-  console.log('\n--- 12. Annotated UI Location Diagrams (World 5 & World 6) ---');
-  for (const lid of ['w5-l1', 'w5-l2', 'w5-l3', 'w5-l4', 'w6-l1', 'w6-l2', 'w6-l3', 'w6-l4']) {
+  console.log('\n--- 12. Annotated UI Location Diagrams (World 5, 6 & 7) ---');
+  for (const lid of ['w5-l1', 'w5-l2', 'w5-l3', 'w5-l4', 'w6-l1', 'w6-l2', 'w6-l3', 'w6-l4', 'w7-l1', 'w7-l2', 'w7-l3']) {
     window.AppState.navigate('lesson', lid);
     window.AppState.setLessonStep('learn');
     const diagrams = window.document.querySelectorAll('.slide-visual-diagram');

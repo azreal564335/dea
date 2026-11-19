@@ -145,6 +145,11 @@ digital-explorer-academy/
   * **P1 Learning Quality & 8yo Support:** Expanded all 26 lessons to have `>= 2` cards and `>= 3` quiz questions; added deterministic quiz option shuffling (`getShuffledQuizOrder`), 1–3 star calculation based on mistakes (`quizMistakes`), Daily Quest banner (`getDailyQuest`), Typing Dojo SVG progress chart (`drillHistory`) + `0.75x` CPM scaling for 8yo, real-world Roblox Studio checklists (`studioChecklist`), `simpleBody` for 8yo, and **Bopomofo/Zhuyin companion font (`Bpmf Iansui`)** auto-enabled for `kid-8` and toggleable in the header.
   * **P2 Platform & Parent Dashboard:** Added Vercel Redis cloud sync endpoint (`api/progress.js`) + Parent Dashboard comparison grid (`renderParentGuide`), PWA (`manifest.json`, `sw.js`), GitHub Actions CI (`.github/workflows/ci.yml`), accessibility `:focus-visible`, mobile responsive rules, and deferred/reduced-motion 3D Island initialization.
   * **P3 Worlds 1–4 Visual Guides:** Added annotated inline SVG UI diagrams (`win11-taskbar`, `chrome-tabs-search`, `ai-prompt-box`, `scratch-blocks-ui`) to `w1-l2`, `w2-l1`, `w3-l2`, `w4-l2`.
+* **World 7: Scratch 積木遊戲創意島 (Scratch Game Creator Island):**
+  * **Test Gate:** `npm run build && npm test` passed **709 / 709** assertions (**0 failures**).
+  * **Added 3D Island 7** in `js/island-scene.js` with quick-jump chip (`🐱 7. Scratch 創意島`) and 8-segment scenic waypoint routing.
+  * **Added 3 Interactive Scratch Lessons (`w7-l1`–`w7-l3`)** in `data/curriculum.js`, `js/simulators.js`, and `js/app.js` (X/Y Coordinates Space Dodge, Collision & Score/HP Variables, Clones & Timer + annotated SVG diagrams & 8yo `simpleBody`).
+  * **CI & Node Pinning:** Added `.nvmrc` (`24`), `"engines": { "node": ">=22.19.0" }`, and `node-version-file: '.nvmrc'` in `.github/workflows/ci.yml`.
 
 ---
 

@@ -112,11 +112,13 @@ window.IslandScene = {
     const w5Total = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-5').length || 4;
     const w6Done = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-6' && profile.completedLessons[l.id]).length;
     const w6Total = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-6').length || 4;
+    const w7Done = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-7' && profile.completedLessons[l.id]).length;
+    const w7Total = (window.CURRICULUM_LESSONS || []).filter(l => l.worldId === 'world-7').length || 3;
 
     container.innerHTML = `
       <div class="three-island-stage" id="${containerId}-stage" style="height: 390px;">
         <div class="three-hud-top">
-          <span class="three-pill-badge">🎮 點擊島嶼讓 ${profile.avatar} 跳石頭、游泳、或超級大跳躍探索六大世界！</span>
+          <span class="three-pill-badge">🎮 點擊島嶼讓 ${profile.avatar} 跳石頭、游泳、或超級大跳躍探索七大世界！</span>
           <span id="${containerId}-hover-label" class="three-hover-pill">✨ 拖曳可旋轉 3D 冒險地圖</span>
         </div>
         <div class="three-island-labels">
@@ -137,6 +139,9 @@ window.IslandScene = {
           </button>
           <button class="island-quick-chip w6" onclick="window.IslandScene.travelToWorld('world-6', true)">
             🗺️ 6. 熱門地圖拆解 (⭐${w6Done}/${w6Total})
+          </button>
+          <button class="island-quick-chip w7" onclick="window.IslandScene.travelToWorld('world-7', true)">
+            🐱 7. Scratch 創意島 (⭐${w7Done}/${w7Total})
           </button>
         </div>
       </div>
@@ -519,7 +524,31 @@ window.IslandScene = {
     island6.add(popMapsGroup);
     scene.add(island6);
 
-    this.islands = [island1, island2, island3, island4, island5, island6];
+    // =========================================================================
+    // ISLAND 7: 🐱 SCRATCH 積木遊戲創意島 (Scratch Game Creator Island)
+    // =========================================================================
+    const island7 = createFutureIsland(0xf97316, 0xfdba74);
+    island7.position.set(14.4, 1.5, -0.8);
+    island7.userData = {
+      worldId: 'world-7',
+      label: '🐱 World 7: Scratch 積木遊戲創意島・座標/變數/分身 (點擊探索！)',
+      standPos: new THREE.Vector3(14.4, 1.95, -0.15)
+    };
+    const scratchGroup = new THREE.Group();
+    scratchGroup.position.set(0, 0.5, -0.2);
+    const scratchColors = [0xfacc15, 0xf97316, 0x3b82f6];
+    scratchColors.forEach((col, i) => {
+      const blk = new THREE.Mesh(
+        new THREE.BoxGeometry(0.65, 0.22, 0.45),
+        new THREE.MeshStandardMaterial({ color: col, roughness: 0.35, flatShading: true })
+      );
+      blk.position.set(0, i * 0.26 + 0.15, 0);
+      scratchGroup.add(blk);
+    });
+    island7.add(scratchGroup);
+    scene.add(island7);
+
+    this.islands = [island1, island2, island3, island4, island5, island6, island7];
 
     // =========================================================================
     // STEPPING STONES (Between Island 1 & Water Swim Channel to Island 2)
@@ -568,6 +597,7 @@ window.IslandScene = {
     createChest(new THREE.Vector3(3.6, 0.3, -0.4), w3Done >= w3Total);
     createChest(new THREE.Vector3(6.9, 0.7, -0.6), w4Done >= w4Total);
     createChest(new THREE.Vector3(9.9, 1.3, -0.4), w5Done >= w5Total);
+    createChest(new THREE.Vector3(12.9, 1.4, -0.3), w6Done >= w6Total);
 
     // =========================================================================
     // 3D EXPLORER AVATAR (🦁 Lion or 🦊 Fox)
@@ -604,6 +634,7 @@ window.IslandScene = {
     if (w4Done > 0) startWorld = 'world-4';
     if (w5Done > 0) startWorld = 'world-5';
     if (w6Done > 0) startWorld = 'world-6';
+    if (w7Done > 0) startWorld = 'world-7';
     this.currentWorldId = startWorld;
     const initIsl = this.islands.find(i => i.userData.worldId === startWorld) || island1;
     avatarGroup.position.copy(initIsl.userData.standPos);
@@ -907,6 +938,7 @@ window.IslandScene = {
     const p4 = this.islands[3].userData.standPos;
     const p5 = this.islands[4] ? this.islands[4].userData.standPos : p4;
     const p6 = this.islands[5] ? this.islands[5].userData.standPos : p5;
+    const p7 = this.islands[6] ? this.islands[6].userData.standPos : p6;
 
     const waypoints = [];
     const cur = this.currentWorldId;
@@ -920,7 +952,8 @@ window.IslandScene = {
       2: () => { waypoints.push({ from: p2, to: p3, type: 'superjump' }); },
       3: () => { waypoints.push({ from: p3, to: p4, type: 'superjump' }); },
       4: () => { waypoints.push({ from: p4, to: p5, type: 'superjump' }); },
-      5: () => { waypoints.push({ from: p5, to: p6, type: 'superjump' }); }
+      5: () => { waypoints.push({ from: p5, to: p6, type: 'superjump' }); },
+      6: () => { waypoints.push({ from: p6, to: p7, type: 'superjump' }); }
     };
 
     const segmentsBackward = {
@@ -932,7 +965,8 @@ window.IslandScene = {
       3: () => { waypoints.push({ from: p3, to: p2, type: 'superjump' }); },
       4: () => { waypoints.push({ from: p4, to: p3, type: 'superjump' }); },
       5: () => { waypoints.push({ from: p5, to: p4, type: 'superjump' }); },
-      6: () => { waypoints.push({ from: p6, to: p5, type: 'superjump' }); }
+      6: () => { waypoints.push({ from: p6, to: p5, type: 'superjump' }); },
+      7: () => { waypoints.push({ from: p7, to: p6, type: 'superjump' }); }
     };
 
     const curIdx = parseInt(cur.replace('world-', ''), 10);
