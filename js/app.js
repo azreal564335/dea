@@ -16,6 +16,9 @@ window.AppState = {
   activeProfileId: 'kid-10',
   showEnglishSubtitles: true,
   zhuyinFont: false,
+  soundEnabled: true,
+  darkMode: false,
+  speakingCardKey: null,
   currentView: 'map', // 'map' | 'lesson' | 'dojo' | 'vocab' | 'certificate' | 'parent'
   currentLessonId: 'w1-l1',
   lessonStep: 'learn', // 'learn' | 'lab' | 'quiz'
@@ -31,6 +34,7 @@ window.AppState = {
       name: '10歲大探險家',
       avatar: '🦁',
       xp: 0,
+      soundEnabled: true,
       completedLessons: {}, // { 'w1-l1': { stars: 3, date: ... } }
       completedDrills: {},  // { 'hr-1': { cpm: 35 } }
       drillHistory: [],
@@ -41,6 +45,7 @@ window.AppState = {
       name: '8歲小探險家',
       avatar: '🦊',
       xp: 0,
+      soundEnabled: true,
       completedLessons: {},
       completedDrills: {},
       drillHistory: [],
@@ -61,7 +66,13 @@ window.AppState = {
     return this.activeProfileId === 'kid-8';
   },
 
+  isReducedMotion() {
+    return typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  },
+
   init() {
+    let hasSavedDarkMode = false;
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -76,11 +87,26 @@ window.AppState = {
         } else {
           this.zhuyinFont = this.activeProfileId === 'kid-8';
         }
+        if (typeof parsed.darkMode === 'boolean') {
+          this.darkMode = parsed.darkMode;
+          hasSavedDarkMode = true;
+        }
+        if (typeof parsed.soundEnabled === 'boolean') {
+          this.soundEnabled = parsed.soundEnabled;
+        }
       } else {
         this.zhuyinFont = this.activeProfileId === 'kid-8';
       }
     } catch (e) {
       console.warn('Could not read localStorage:', e);
+    }
+    if (!hasSavedDarkMode) {
+      this.darkMode = typeof window.matchMedia === 'function' &&
+        !!window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    const activeProf = this.getProfile();
+    if (typeof activeProf.soundEnabled === 'boolean') {
+      this.soundEnabled = activeProf.soundEnabled;
     }
     if (!this._listenersBound) {
       this._listenersBound = true;
@@ -106,10 +132,14 @@ window.AppState = {
 
   save() {
     try {
+      const activeProf = this.getProfile();
+      activeProf.soundEnabled = this.soundEnabled;
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         activeProfileId: this.activeProfileId,
         showEnglishSubtitles: this.showEnglishSubtitles,
         zhuyinFont: this.zhuyinFont,
+        soundEnabled: this.soundEnabled,
+        darkMode: this.darkMode,
         profiles: this.profiles
       }));
     } catch (e) {
@@ -140,7 +170,8 @@ window.AppState = {
 
   completeLesson(lessonId, xpReward, starsOverride) {
     const p = this.getProfile();
-    if (!p.completedLessons[lessonId]) {
+    const isFirstTime = !p.completedLessons[lessonId];
+    if (isFirstTime) {
       p.xp += xpReward;
     }
     const mistakes = this.quizMistakes[lessonId] || 0;
@@ -152,6 +183,89 @@ window.AppState = {
     };
     this.save();
     this.renderHeader();
+    this.triggerLessonCelebration(isFirstTime ? xpReward : 0);
+  },
+
+  playSuccessSound() {
+    if (!this.soundEnabled) return;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (typeof AudioCtx !== 'function') return;
+    try {
+      const ctx = new AudioCtx();
+      const notes = [523.25, 659.25, 783.99, 1046.5];
+      const now = ctx.currentTime;
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + i * 0.08);
+        gain.gain.setValueAtTime(0.001, now + i * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.12, now + i * 0.08 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.22);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.08);
+        osc.stop(now + i * 0.08 + 0.24);
+      });
+      setTimeout(() => {
+        if (ctx && typeof ctx.close === 'function') ctx.close().catch(() => {});
+      }, 900);
+    } catch (e) {
+      // Ignore audio failures in restricted environments
+    }
+  },
+
+  triggerLessonCelebration(xpAwarded) {
+    this.playSuccessSound();
+    if (this.isReducedMotion()) return;
+
+    // 1. Pure CSS/DOM Confetti burst (~40 pieces, auto-removed after ~2s)
+    const oldBurst = document.getElementById('celebration-confetti-layer');
+    if (oldBurst && oldBurst.parentNode) oldBurst.parentNode.removeChild(oldBurst);
+
+    const layer = document.createElement('div');
+    layer.id = 'celebration-confetti-layer';
+    layer.className = 'confetti-layer';
+    layer.setAttribute('aria-hidden', 'true');
+    const colors = ['#f59e0b', '#0284c7', '#10b981', '#ec4899', '#8b5cf6', '#ef4444'];
+    const pieceCount = 40;
+    for (let i = 0; i < pieceCount; i++) {
+      const piece = document.createElement('span');
+      piece.className = 'confetti-piece';
+      const angle = (i / pieceCount) * Math.PI * 2;
+      const dist = 90 + (i % 5) * 35;
+      const tx = Math.round(Math.cos(angle) * dist);
+      const ty = Math.round(Math.sin(angle) * dist - 60);
+      piece.style.left = `${45 + ((i * 7) % 11) - 5}%`;
+      piece.style.top = '42%';
+      piece.style.backgroundColor = colors[i % colors.length];
+      piece.style.setProperty('--tx', `${tx}px`);
+      piece.style.setProperty('--ty', `${ty}px`);
+      piece.style.setProperty('--rot', `${(i * 47) % 360}deg`);
+      piece.style.animationDelay = `${(i % 6) * 35}ms`;
+      layer.appendChild(piece);
+    }
+    document.body.appendChild(layer);
+    setTimeout(() => {
+      if (layer.parentNode) layer.parentNode.removeChild(layer);
+    }, 2000);
+
+    // 2. XP fly-up element toward header XP pill
+    if (xpAwarded > 0) {
+      const flyEl = document.createElement('div');
+      flyEl.className = 'xp-flyup';
+      flyEl.textContent = `+${xpAwarded} XP`;
+      const xpPill = document.querySelector('.xp-pill');
+      if (xpPill && typeof xpPill.getBoundingClientRect === 'function') {
+        const rect = xpPill.getBoundingClientRect();
+        flyEl.style.setProperty('--target-x', `${Math.round(rect.left + rect.width / 2)}px`);
+        flyEl.style.setProperty('--target-y', `${Math.round(rect.top + rect.height / 2)}px`);
+      }
+      document.body.appendChild(flyEl);
+      setTimeout(() => {
+        if (flyEl.parentNode) flyEl.parentNode.removeChild(flyEl);
+      }, 1500);
+    }
   },
 
   toggleStudioCheck(lessonId, idx) {
@@ -173,7 +287,12 @@ window.AppState = {
   switchProfile() {
     this.activeProfileId = this.activeProfileId === 'kid-10' ? 'kid-8' : 'kid-10';
     this.zhuyinFont = this.activeProfileId === 'kid-8';
+    const nextProf = this.getProfile();
+    if (typeof nextProf.soundEnabled === 'boolean') {
+      this.soundEnabled = nextProf.soundEnabled;
+    }
     this.quizAnswers = {};
+    this.stopReadAloud();
     this.syncBodyClass();
     this.save();
     this.renderAll();
@@ -213,6 +332,73 @@ window.AppState = {
     this.syncBodyClass();
     this.save();
     this.renderAll();
+  },
+
+  toggleSound() {
+    this.soundEnabled = !this.soundEnabled;
+    this.save();
+    this.renderHeader();
+  },
+
+  toggleDarkMode() {
+    this.darkMode = !this.darkMode;
+    this.syncBodyClass();
+    this.save();
+    this.renderHeader();
+  },
+
+  supportsSpeechSynthesis() {
+    return typeof window.speechSynthesis === 'object' && window.speechSynthesis !== null &&
+      typeof window.speechSynthesis.speak === 'function' &&
+      typeof window.SpeechSynthesisUtterance === 'function';
+  },
+
+  stopReadAloud() {
+    if (this.speakingCardKey && this.supportsSpeechSynthesis()) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch (e) {}
+    }
+    this.speakingCardKey = null;
+  },
+
+  toggleReadAloudCard(lessonId, cardIdx) {
+    if (!this.supportsSpeechSynthesis()) return;
+    const key = `${lessonId}:${cardIdx}`;
+    if (this.speakingCardKey === key) {
+      this.stopReadAloud();
+      this.renderMain();
+      return;
+    }
+    const lesson = window.CURRICULUM_LESSONS.find(l => l.id === lessonId);
+    const card = lesson && lesson.cards && lesson.cards[cardIdx];
+    if (!card) return;
+    const rawBody = (this.isSimpleMode() && card.simpleBody) ? card.simpleBody : card.body;
+    const cleanText = `${card.title}。${String(rawBody || '').replace(/\*\*|`|\n+/g, ' ').trim()}`;
+    try {
+      window.speechSynthesis.cancel();
+      const utter = new window.SpeechSynthesisUtterance(cleanText);
+      utter.lang = 'zh-TW';
+      utter.rate = 0.92;
+      this.speakingCardKey = key;
+      utter.onend = () => {
+        if (this.speakingCardKey === key) {
+          this.speakingCardKey = null;
+          if (this.currentView === 'lesson' && this.lessonStep === 'learn') {
+            this.renderMain();
+          }
+        }
+      };
+      utter.onerror = () => {
+        if (this.speakingCardKey === key) {
+          this.speakingCardKey = null;
+        }
+      };
+      window.speechSynthesis.speak(utter);
+    } catch (e) {
+      this.speakingCardKey = null;
+    }
+    this.renderMain();
   },
 
   toggleSettingsMenu(event) {
@@ -287,11 +473,22 @@ window.AppState = {
     } else {
       document.body.classList.remove('zhuyin-font');
     }
+    if (this.activeProfileId === 'kid-8') {
+      document.body.classList.add('kid-mode-8');
+    } else {
+      document.body.classList.remove('kid-mode-8');
+    }
+    if (this.darkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
   },
 
   navigate(view, lessonId) {
     this.currentView = view;
     this.settingsMenuOpen = false;
+    this.stopReadAloud();
     if (lessonId) {
       this.currentLessonId = lessonId;
       this.lessonStep = 'learn';
@@ -303,6 +500,7 @@ window.AppState = {
 
   setLessonStep(step) {
     this.lessonStep = step;
+    this.stopReadAloud();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     this.renderMain();
   },
@@ -391,6 +589,18 @@ window.AppState = {
                     aria-label="切換中英雙語顯示">
               <span>🌐 中英雙語 English</span>
               <span class="settings-item-badge">${this.showEnglishSubtitles ? 'ON' : 'OFF'}</span>
+            </button>
+            <button class="settings-menu-item ${this.soundEnabled ? 'en-on' : ''}" type="button" role="menuitem"
+                    onclick="window.AppState.toggleSound()"
+                    aria-label="切換成功音效">
+              <span>🔈 音效 Sound</span>
+              <span class="settings-item-badge">${this.soundEnabled ? 'ON' : 'OFF'}</span>
+            </button>
+            <button class="settings-menu-item ${this.darkMode ? 'en-on' : ''}" type="button" role="menuitem"
+                    onclick="window.AppState.toggleDarkMode()"
+                    aria-label="切換深色模式">
+              <span>🌙 深色模式 Dark</span>
+              <span class="settings-item-badge">${this.darkMode ? 'ON' : 'OFF'}</span>
             </button>
           </div>
         </div>
@@ -691,10 +901,24 @@ window.AppState = {
           <div>
             ${lesson.cards.map((c, idx) => {
               const cardText = (this.isSimpleMode() && c.simpleBody) ? c.simpleBody : c.body;
+              const canSpeak = this.supportsSpeechSynthesis();
+              const isSpeaking = this.speakingCardKey === `${lesson.id}:${idx}`;
               return `
               <div class="slide-card">
-                <h3>${c.title}</h3>
-                <div class="en-sub" style="margin-bottom:0.5rem;">${c.titleEn || ''}</div>
+                <div class="slide-card-header">
+                  <div>
+                    <h3>${c.title}</h3>
+                    <div class="en-sub" style="margin-bottom:0.5rem;">${c.titleEn || ''}</div>
+                  </div>
+                  ${canSpeak ? `
+                    <button type="button"
+                            class="read-aloud-btn ${isSpeaking ? 'speaking' : ''}"
+                            onclick="window.AppState.toggleReadAloudCard('${lesson.id}', ${idx})"
+                            aria-label="${isSpeaking ? '停止朗讀卡片' : '朗讀這張知識卡'}">
+                      ${isSpeaking ? '⏹️ 停止朗讀' : '🔊 朗讀 Read'}
+                    </button>
+                  ` : ''}
+                </div>
                 <div class="slide-body">${this.formatMarkdownBold(cardText)}</div>
                 ${c.visualType ? this.renderCardVisual(c.visualType) : ''}
                 ${c.highlight ? `<div class="slide-highlight">${c.highlight}</div>` : ''}

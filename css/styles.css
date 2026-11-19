@@ -1939,3 +1939,284 @@ select:focus-visible {
     align-items: flex-start;
   }
 }
+
+/* ============================================================================
+ * 🎉 BATCH 2: CELEBRATION CONFETTI, XP FLY-UP, READ-ALOUD, KID-8 & DARK MODE
+ * ============================================================================ */
+.confetti-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99990;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  opacity: 0;
+  animation: confettiBurst 1.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes confettiBurst {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg) scale(0.9);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--tx, 80px), calc(var(--ty, -80px) + 220px)) rotate(var(--rot, 360deg)) scale(0.75);
+  }
+}
+
+.xp-flyup {
+  position: fixed;
+  left: 50%;
+  top: 52%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, #f59e0b, #eab308);
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 1.25rem;
+  padding: 0.45rem 1.05rem;
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+  pointer-events: none;
+  z-index: 99995;
+  animation: xpFlyUp 1.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes xpFlyUp {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -26px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    left: var(--target-x, 82%);
+    top: var(--target-y, 28px);
+    transform: translate(-50%, -50%) scale(0.75);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-layer,
+  .confetti-piece,
+  .xp-flyup {
+    display: none !important;
+    animation: none !important;
+  }
+}
+
+/* Learn Card Read-Aloud Button */
+.slide-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.read-aloud-btn {
+  background: #e0f2fe;
+  border: 2px solid #7dd3fc;
+  color: #0369a1;
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.read-aloud-btn:hover {
+  background: #bae6fd;
+}
+
+.read-aloud-btn.speaking {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
+/* 8-Year-Old Big Tap Targets Mode */
+body.kid-mode-8 {
+  font-size: 18px;
+}
+
+body.kid-mode-8 .nav-tab,
+body.kid-mode-8 .btn-primary,
+body.kid-mode-8 .btn-secondary,
+body.kid-mode-8 .back-btn,
+body.kid-mode-8 .quiz-option,
+body.kid-mode-8 .lesson-step-pill,
+body.kid-mode-8 .read-aloud-btn,
+body.kid-mode-8 .continue-btn,
+body.kid-mode-8 .settings-menu-item {
+  min-height: 56px;
+  font-size: 1.08rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+body.kid-mode-8 .lesson-card {
+  min-height: 175px;
+  padding: 1.35rem;
+}
+
+body.kid-mode-8 .lesson-card h3 {
+  font-size: 1.24rem;
+}
+
+body.kid-mode-8 .lesson-card p,
+body.kid-mode-8 .slide-body {
+  font-size: 1.12rem;
+}
+
+/* Dark Mode Palette & Overrides */
+body.dark-mode {
+  --bg-page: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-subtle: #334155;
+  --bg-warm: #422006;
+  --text-main: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-light: #334155;
+  --border-strong: #475569;
+  --primary: #38bdf8;
+  --primary-hover: #0ea5e9;
+  --success-bg: #14532d;
+  --danger-bg: #7f1d1d;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 10px 26px rgba(0, 0, 0, 0.45);
+}
+
+body.dark-mode .top-nav {
+  background: rgba(15, 23, 42, 0.94);
+  border-bottom-color: var(--border-light);
+}
+
+body.dark-mode .hero-banner {
+  background: linear-gradient(125deg, #1e293b 0%, #0f172a 65%, #064e3b 100%);
+  border-color: #0369a1;
+}
+
+body.dark-mode .stat-box,
+body.dark-mode .card-panel,
+body.dark-mode .world-section,
+body.dark-mode .lesson-card,
+body.dark-mode .quiz-question-card,
+body.dark-mode .quiz-option,
+body.dark-mode .slide-card,
+body.dark-mode .btn-secondary,
+body.dark-mode .back-btn,
+body.dark-mode .settings-btn,
+body.dark-mode .settings-menu,
+body.dark-mode .lesson-step-pill,
+body.dark-mode .parent-kid-card,
+body.dark-mode .parent-profile-card,
+body.dark-mode .dojo-wrapper,
+body.dark-mode .drill-btn,
+body.dark-mode .typing-history-box {
+  background: var(--bg-surface);
+  color: var(--text-main);
+  border-color: var(--border-light);
+}
+
+body.dark-mode .lesson-card.completed {
+  background: linear-gradient(180deg, #1e293b 0%, #064e3b 100%);
+  border-color: #10b981;
+}
+
+body.dark-mode .settings-menu-item {
+  background: #0f172a;
+  color: var(--text-main);
+}
+
+body.dark-mode .settings-menu-item:hover {
+  background: #334155;
+}
+
+body.dark-mode .settings-menu-item.en-on {
+  background: #0c4a6e;
+  border-color: #0284c7;
+  color: #e0f2fe;
+}
+
+body.dark-mode .settings-item-badge {
+  background: #1e293b;
+  color: var(--text-secondary);
+  border-color: var(--border-strong);
+}
+
+body.dark-mode .profile-pill {
+  background: #451a03;
+  border-color: #b45309;
+  color: #fde68a;
+}
+
+body.dark-mode .xp-pill {
+  background: #064e3b;
+  border-color: #10b981;
+  color: #a7f3d0;
+}
+
+body.dark-mode .daily-quest-card {
+  background: linear-gradient(135deg, #451a03 0%, #78350f 100%);
+  border-color: #d97706;
+}
+
+body.dark-mode .daily-quest-card * {
+  color: #fef3c7 !important;
+}
+
+body.dark-mode .vocab-chip {
+  background: #0f172a;
+  border-color: #0369a1;
+}
+
+body.dark-mode .slide-highlight {
+  background: #451a03;
+  border-color: #b45309;
+  color: #fde68a;
+}
+
+body.dark-mode .read-aloud-btn {
+  background: #0c4a6e;
+  border-color: #0284c7;
+  color: #e0f2fe;
+}
+
+body.dark-mode .ui-modal-card,
+body.dark-mode .ui-modal-header,
+body.dark-mode .ui-modal-footer {
+  background: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+body.dark-mode .ui-modal-input {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+body.dark-mode footer {
+  background: #0f172a !important;
+  color: #94a3b8 !important;
+  border-top-color: #334155 !important;
+}
+

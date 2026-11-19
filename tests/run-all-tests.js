@@ -625,6 +625,74 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   window.document.querySelector('.lesson-step-back-btn').click();
   assert(window.AppState.lessonStep === 'learn' && window.document.querySelectorAll('.lesson-step-pill')[0].classList.contains('active'),
     'Back button returns from Lab to Learn');
+
+  // 15. UI Batch 2: Delight & Accessibility Tests
+  console.log('\n--- 15. UI Batch 2: Delight & Accessibility ---');
+  // 15a. kid-8 big tap mode body class
+  assert(window.AppState.activeProfileId === 'kid-8' && window.document.body.classList.contains('kid-mode-8'),
+    'kid-8 profile activates body.kid-mode-8 class');
+  window.AppState.switchProfile(); // kid-8 -> kid-10
+  assert(window.AppState.activeProfileId === 'kid-10' && !window.document.body.classList.contains('kid-mode-8'),
+    'Switching back to kid-10 removes body.kid-mode-8 class');
+  window.AppState.switchProfile(); // kid-10 -> kid-8
+
+  // 15b. Read-aloud button on learn cards (.read-aloud-btn)
+  window.AppState.navigate('lesson', 'w1-l1');
+  const readBtns = window.document.querySelectorAll('.read-aloud-btn');
+  assert(readBtns.length === window.CURRICULUM_LESSONS[0].cards.length,
+    `Each learn card renders a .read-aloud-btn when speechSynthesis is supported (${readBtns.length})`);
+  let spokenUtterance = null;
+  let cancelCalled = false;
+  const origSpeakFn = window.speechSynthesis.speak;
+  const origCancelFn = window.speechSynthesis.cancel;
+  window.speechSynthesis.speak = (u) => { spokenUtterance = u; };
+  window.speechSynthesis.cancel = () => { cancelCalled = true; };
+  readBtns[0].click();
+  assert(spokenUtterance && spokenUtterance.lang === 'zh-TW' && window.AppState.speakingCardKey === 'w1-l1:0',
+    'Clicking .read-aloud-btn speaks card with lang zh-TW');
+  window.document.querySelectorAll('.read-aloud-btn')[0].click();
+  assert(cancelCalled === true && window.AppState.speakingCardKey === null,
+    'Clicking .read-aloud-btn again stops speech');
+  window.speechSynthesis.speak = origSpeakFn;
+  window.speechSynthesis.cancel = origCancelFn;
+
+  // Hide read-aloud button when speechSynthesis unsupported
+  const savedSynth = window.speechSynthesis;
+  window.speechSynthesis = undefined;
+  window.AppState.renderMain();
+  assert(window.document.querySelectorAll('.read-aloud-btn').length === 0,
+    'Read-aloud buttons hidden when speechSynthesis is unsupported');
+  window.speechSynthesis = savedSynth;
+
+  // 15c. Sound toggle & Dark mode in settings menu
+  const settingsMenu2 = window.document.querySelector('.settings-menu');
+  assert(settingsMenu2.textContent.includes('音效 Sound') && settingsMenu2.textContent.includes('深色模式 Dark'),
+    'Settings menu contains sound toggle and dark mode toggle');
+  const prevSound = window.AppState.soundEnabled;
+  window.AppState.toggleSound();
+  assert(window.AppState.soundEnabled === !prevSound && window.AppState.getProfile().soundEnabled === !prevSound,
+    'toggleSound updates AppState and persists to profile');
+  window.AppState.toggleSound(); // restore
+
+  assert(window.document.body.classList.contains('dark-mode') === false, 'Dark mode initially off when prefers-color-scheme not dark');
+  window.AppState.toggleDarkMode();
+  assert(window.AppState.darkMode === true && window.document.body.classList.contains('dark-mode'),
+    'toggleDarkMode enables body.dark-mode');
+  window.AppState.toggleDarkMode();
+  assert(window.AppState.darkMode === false && !window.document.body.classList.contains('dark-mode'),
+    'toggleDarkMode disables body.dark-mode');
+
+  // 15d. Lesson completion celebration (confetti + XP flyup)
+  window.AppState.setLessonStep('quiz');
+  const w1l1 = window.CURRICULUM_LESSONS[0];
+  w1l1.quiz.forEach((q, qIdx) => {
+    window.AppState.answerQuiz(qIdx, q.correct, w1l1.id, w1l1.xp);
+  });
+  const confettiLayer = window.document.getElementById('celebration-confetti-layer');
+  const confettiPieces = window.document.querySelectorAll('.confetti-piece');
+  const xpFlyup = window.document.querySelector('.xp-flyup');
+  assert(!!confettiLayer && confettiPieces.length === 40, `Lesson completion spawns confetti burst (${confettiPieces.length} pieces)`);
+  assert(!!xpFlyup && xpFlyup.textContent.includes(`+${w1l1.xp} XP`), 'Lesson completion spawns .xp-flyup element');
 }
 
 async function main() {
