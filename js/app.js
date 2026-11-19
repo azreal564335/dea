@@ -637,7 +637,7 @@ window.AppState = {
       <div class="nav-right">
         <button class="profile-pill" onclick="window.AppState.switchProfile()" title="點擊切換 10歲 / 8歲 探險家檔案" aria-label="切換探險家檔案">
           <span>${p.avatar} ${safeName}</span>
-          <span style="font-size:0.75rem; background:#fde68a; padding:1px 6px; border-radius:999px;">切換</span>
+          <span class="profile-switch-tag">切換</span>
         </button>
         <div class="xp-pill" aria-label="探險家總積分">
           ⭐ ${p.xp} XP
@@ -787,10 +787,10 @@ window.AppState = {
       <section class="continue-banner" aria-label="快速繼續學習">
         ${allLessonsDone ? `
           <div class="continue-congrats">
-            <span style="font-size:1.6rem;">🎉</span>
+            <span class="congrats-emoji">🎉</span>
             <div>
-              <div style="font-weight:900; font-size:1.1rem; color:#14532d;">太棒了！全部 ${totalLessons} 堂課都通關囉！All Done!</div>
-              <div style="font-size:0.88rem; font-weight:700; color:#166534;">可以去「🎓 榮譽證書」領獎狀，或去「🎹 打字道館」破紀錄！</div>
+              <div class="congrats-title">太棒了！全部 ${totalLessons} 堂課都通關囉！All Done!</div>
+              <div class="congrats-sub">可以去「🎓 榮譽證書」領獎狀，或去「🎹 打字道館」破紀錄！</div>
             </div>
             <button class="btn-primary" onclick="window.AppState.navigate('certificate')">🎓 看榮譽證書</button>
           </div>
@@ -805,20 +805,29 @@ window.AppState = {
       <!-- 🎯 Daily Quest Card -->
       <section class="daily-quest-card" aria-label="今日探險任務">
         <div>
-          <div style="font-size:0.85rem; font-weight:900; color:#b45309;">🎯 今日探險任務 (Daily Quest)</div>
-          <div style="font-weight:900; font-size:1.05rem; color:#78350f; margin-top:0.15rem;">
+          <div class="daily-quest-tag">🎯 今日探險任務 (Daily Quest)</div>
+          <div class="daily-quest-title">
             1. 挑戰課程：單元 ${nextLesson.number} ${nextLesson.title}
             ${nextDrill ? ` ｜ 2. 打字特訓：${nextDrill.name}` : ''}
           </div>
         </div>
-        <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+        <div class="daily-quest-actions">
           <button class="btn-primary" onclick="window.AppState.navigate('lesson', '${nextLesson.id}')">🚀 去上課</button>
           <button class="btn-secondary" onclick="window.AppState.navigate('dojo')">🎹 練打字</button>
         </div>
       </section>
 
       <!-- 🏝️ Three.js 3D Floating Islands Interactive Stage -->
-      <div id="island-3d-canvas"></div>
+      <div id="island-3d-canvas">${(window.IslandScene && !this.isReducedMotion()) ? `
+        <div class="skeleton skeleton-island" role="status" aria-label="3D 浮空島嶼載入中">
+          <div class="congrats-emoji">🏝️✨</div>
+          <div class="lesson-vocab-heading">正在載入 3D 浮空探險島嶼 Loading 3D Islands...</div>
+        </div>
+      ` : `
+        <div class="skeleton-island-static">
+          🏝️ 探險島嶼地圖已就緒！點選下方世界展開課程關卡 👇
+        </div>
+      `}</div>
 
       ${window.CURRICULUM_WORLDS.map(world => {
         const wLessons = window.CURRICULUM_LESSONS.filter(l => l.worldId === world.id);
@@ -836,7 +845,7 @@ window.AppState = {
                   ${world.icon}
                 </div>
                 <div>
-                  <div style="font-size:0.8rem; font-weight:900; color:${wColor}; text-transform:uppercase;">
+                  <div class="world-number-label" style="color:${wColor};">
                     ${world.number} ・ ${world.titleEn}
                   </div>
                   <h2>${world.title}</h2>
@@ -845,7 +854,7 @@ window.AppState = {
               </div>
               <div class="world-header-right">
                 ${this.renderProgressRing(wDoneCount, wLessons.length, 'var(--world-color)')}
-                <div style="background:#f8fafc; border:2px solid #e2e8f0; padding:0.45rem 0.95rem; border-radius:999px; font-weight:800; font-size:0.88rem;">
+                <div class="world-progress-pill">
                   🏆 進度：${wDoneCount} / ${wLessons.length} 關 ${wDoneCount === wLessons.length ? '（🏅 已獲得' + world.badgeName + '！）' : ''}
                 </div>
                 <span class="world-collapse-chevron" aria-hidden="true">${isExpanded ? '▾' : '▸'}</span>
@@ -881,8 +890,7 @@ window.AppState = {
       }).join('')}
     `;
 
-    const prefersReducedMotion = typeof window.matchMedia === 'function' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReducedMotion = this.isReducedMotion();
     if (window.IslandScene && !prefersReducedMotion) {
       const mount3D = () => {
         if (this.currentView !== 'map') return;
@@ -977,11 +985,11 @@ window.AppState = {
           <div class="lesson-title-banner">
             <div>
               <span class="lesson-num-tag">單元 ${lesson.number} ・ +${lesson.xp} XP</span>
-              <h1 style="font-size:1.55rem; font-weight:900; margin-top:0.35rem;">${lesson.icon} ${lesson.title}</h1>
-              <div class="en-sub" style="font-size:0.95rem;">${lesson.titleEn}</div>
+              <h1 class="lesson-main-title">${lesson.icon} ${lesson.title}</h1>
+              <div class="en-sub lesson-title-en">${lesson.titleEn}</div>
             </div>
             <div>
-              ${isCompleted ? `<span style="background:#dcfce7; color:#166534; padding:0.45rem 0.9rem; border-radius:999px; font-weight:900;">⭐⭐⭐ 本單元已通關！</span>` : ''}
+              ${isCompleted ? `<span class="lesson-completed-pill">⭐⭐⭐ 本單元已通關！</span>` : ''}
             </div>
           </div>
 
@@ -998,7 +1006,7 @@ window.AppState = {
                     <div class="slide-card-header">
                       <div>
                         <h3>${c.title}</h3>
-                        <div class="en-sub" style="margin-bottom:0.5rem;">${c.titleEn || ''}</div>
+                        <div class="en-sub mb-sm">${c.titleEn || ''}</div>
                       </div>
                       ${canSpeak ? `
                         <button type="button"
@@ -1045,8 +1053,8 @@ window.AppState = {
               </div>
 
               <!-- Essential English Tech Keywords -->
-              <div style="margin-top:1.75rem; background:#f8fafc; border:2px solid #e2e8f0; border-radius:16px; padding:1.25rem;">
-                <h3 style="font-size:1.15rem; font-weight:900; color:#0369a1;">
+              <div class="lesson-vocab-panel">
+                <h3 class="lesson-vocab-heading">
                   🔤 本單元必學「電腦與 AI 英文關鍵字」 (點喇叭可聽發音！)
                 </h3>
                 <div class="vocab-strip">
@@ -1055,7 +1063,7 @@ window.AppState = {
                       <div class="v-en">
                         <span>${v.en}</span>
                         <button onclick="window.AppState.speakEnglish('${v.en.replace(/'/g, '')}')"
-                                style="background:#e0f2fe; border:none; border-radius:6px; padding:2px 7px; cursor:pointer; font-size:0.85rem;"
+                                class="vocab-speak-btn"
                                 title="點擊聽英文發音">
                           🔊 發音
                         </button>
@@ -1067,7 +1075,7 @@ window.AppState = {
                 </div>
               </div>
 
-              <div style="display:flex; justify-content:flex-end; margin-top:1.5rem;">
+              <div class="flex-end-mt">
                 <button class="btn-primary" onclick="window.AppState.setLessonStep('lab')">
                   下一步：進入「🧪 實驗 Lab」 👉
                 </button>
@@ -1078,22 +1086,28 @@ window.AppState = {
           ${this.lessonStep === 'lab' ? `
             <!-- Step 2: Interactive Simulator Lab -->
             <div>
-              <div style="background:#eff6ff; border:2px solid #bfdbfe; border-radius:14px; padding:1rem 1.25rem; margin-bottom:1rem;">
-                <h3 style="font-size:1.18rem; color:#1e40af; margin-bottom:0.25rem;">${lesson.simulator.title}</h3>
-                <p style="font-size:0.95rem; color:#1e3a8a; font-weight:700; white-space:pre-line;">${lesson.simulator.instruction}</p>
+              <div class="lab-instruction-banner">
+                <h3 class="lab-instruction-title">${lesson.simulator.title}</h3>
+                <p class="lab-instruction-body">${lesson.simulator.instruction}</p>
               </div>
 
-              <div id="lesson-simulator-mount"></div>
+              <div id="lesson-simulator-mount">
+                <div class="skeleton skeleton-sim" role="status" aria-label="互動實驗室載入中">
+                  <div class="skeleton-bar short"></div>
+                  <div class="skeleton-bar medium"></div>
+                  <div class="skeleton-bar tall"></div>
+                </div>
+              </div>
 
               ${lesson.studioChecklist ? `
                 <div class="studio-checklist" aria-label="真實 Roblox Studio 實作任務">
-                  <div style="font-weight:900; color:#166534; font-size:1.02rem;">🛠️ 真實 Roblox Studio 實作挑戰（每勾一項 +10 XP！）</div>
+                  <div class="studio-checklist-title">🛠️ 真實 Roblox Studio 實作挑戰（每勾一項 +10 XP！）</div>
                   ${lesson.studioChecklist.map((item, idx) => {
                     const checkedList = (this.getProfile().studioChecks && this.getProfile().studioChecks[lesson.id]) || [];
                     const isDone = checkedList.includes(idx);
                     return `
                       <label class="studio-check-item ${isDone ? 'checked' : ''}" onclick="window.AppState.toggleStudioCheck('${lesson.id}', ${idx})">
-                        <input type="checkbox" ${isDone ? 'checked' : ''} style="width:18px; height:18px;" />
+                        <input type="checkbox" class="studio-check-input" ${isDone ? 'checked' : ''} />
                         <span>${item}</span>
                       </label>
                     `;
@@ -1101,7 +1115,7 @@ window.AppState = {
                 </div>
               ` : ''}
 
-              <div style="display:flex; justify-content:space-between; margin-top:1.5rem; flex-wrap:wrap; gap:0.75rem;">
+              <div class="flex-between-mt">
                 <button class="btn-secondary" onclick="window.AppState.setLessonStep('learn')">
                   ← 回去看知識卡
                 </button>
@@ -1115,7 +1129,7 @@ window.AppState = {
           ${this.lessonStep === 'quiz' ? `
             <!-- Step 3: Mastery Quiz -->
             <div>
-              <p style="font-weight:800; color:#475569; margin-bottom:1rem;">
+              <p class="quiz-intro-tip">
                 🎯 答對下面全部 ${lesson.quiz.length} 題，就能獲得 <strong>+${lesson.xp} XP</strong>！（一次答對拿 ⭐⭐⭐ 三顆星！）
               </p>
               ${lesson.quiz.map((qItem, qIdx) => {
@@ -1126,7 +1140,7 @@ window.AppState = {
                 const labels = ['🅰️', '🅱️', '🆎', '🆔'];
                 return `
                   <div class="quiz-question-card">
-                    <div style="font-weight:900; font-size:1.08rem; margin-bottom:0.5rem;">
+                    <div class="quiz-question-title">
                       Q${qIdx + 1}. ${qItem.q}
                     </div>
                     ${order.map((origIdx, displayIdx) => {
@@ -1143,7 +1157,7 @@ window.AppState = {
                       `;
                     }).join('')}
                     ${isAnswered ? `
-                      <div class="${isCorrect ? '' : 'quiz-feedback-wrong'}" style="${isCorrect ? 'margin-top:0.75rem; padding:0.75rem 1rem; border-radius:10px; background:#dcfce7; font-weight:800; font-size:0.95rem;' : ''}">
+                      <div class="${isCorrect ? 'quiz-feedback-correct' : 'quiz-feedback-wrong'}">
                         ${isCorrect ? `🎉 答對了！${qItem.explain}` : `💡 再試試看其他選項喔！提示：${qItem.explain}`}
                       </div>
                     ` : ''}
@@ -1155,12 +1169,12 @@ window.AppState = {
                 const earnedStars = (this.getProfile().completedLessons[lesson.id]?.stars) || 3;
                 const starIcons = '⭐'.repeat(earnedStars);
                 return `
-                <div style="background:linear-gradient(135deg, #dcfce7 0%, #fef9c3 100%); border:3px solid #22c55e; border-radius:18px; padding:1.5rem; text-align:center; margin-top:1.25rem;">
-                  <div style="font-size:2.5rem;">🎉${starIcons}🎉</div>
-                  <h3 style="font-size:1.35rem; font-weight:900; color:#14532d; margin:0.35rem 0;">
+                <div class="quiz-pass-banner">
+                  <div class="quiz-pass-stars">🎉${starIcons}🎉</div>
+                  <h3 class="quiz-pass-title">
                     恭喜過關！你已獲得本單元 ${earnedStars} 顆星與 +${lesson.xp} XP！
                   </h3>
-                  <div style="display:flex; justify-content:center; gap:0.85rem; margin-top:1rem; flex-wrap:wrap;">
+                  <div class="quiz-pass-actions">
                     <button class="btn-secondary" onclick="window.AppState.navigate('map')">
                       🗺️ 返回探險地圖
                     </button>
@@ -1232,10 +1246,10 @@ window.AppState = {
 
     mainEl.innerHTML = `
       <div class="card-panel">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+        <div class="view-page-header">
           <div>
-            <h1 style="font-size:1.5rem; font-weight:900;">🎹 老鷹變獵鷹：中英盲打與注音特訓道館 (共 ${totalDrills} 關)</h1>
-            <p style="color:#475569; font-weight:700;">
+            <h1 class="view-page-title">🎹 老鷹變獵鷹：中英盲打與注音特訓道館 (共 ${totalDrills} 關)</h1>
+            <p class="view-page-sub mb-0">
               從最基礎的 <code>fff jjj</code>、<code>as asd</code>、<code>aaa bbb ccc</code>，一路練到「微軟注音四聲」與「Shift 中英切換」！每天練 10 分鐘，手指就會長出記憶喔！
             </p>
           </div>
@@ -1257,18 +1271,18 @@ window.AppState = {
 
     mainEl.innerHTML = `
       <div class="card-panel">
-        <h1 style="font-size:1.5rem; font-weight:900; margin-bottom:0.35rem;">🔤 電腦、網路與 AI 必備英文單字百寶箱 (${allVocab.length} 個核心單字)</h1>
-        <p style="color:#475569; font-weight:700; margin-bottom:1.25rem;">
+        <h1 class="view-page-title">🔤 電腦、網路與 AI 必備英文單字百寶箱 (${allVocab.length} 個核心單字)</h1>
+        <p class="view-page-sub">
           點每個單字右上角的「🔊 發音」按鈕，電腦就會唸純正的英文給你聽喔！
         </p>
         <div class="vocab-strip">
           ${allVocab.map(v => `
             <div class="vocab-chip">
-              <div style="font-size:0.72rem; font-weight:800; color:#64748b; margin-bottom:2px;">單元 ${v.lessonNum}</div>
+              <div class="vocab-lesson-tag">單元 ${v.lessonNum}</div>
               <div class="v-en">
                 <span>${v.en}</span>
                 <button onclick="window.AppState.speakEnglish('${v.en.split('(')[0].replace(/'/g, '').trim()}')"
-                        style="background:#e0f2fe; border:none; border-radius:6px; padding:2px 8px; cursor:pointer; font-size:0.82rem; font-weight:800;">
+                        class="vocab-speak-btn">
                   🔊 發音
                 </button>
               </div>
@@ -1401,8 +1415,8 @@ window.AppState = {
       <div class="card-panel badge-cabinet">
         <div class="badge-cabinet-header">
           <div>
-            <h1 style="font-size:1.55rem; font-weight:900; margin-bottom:0.25rem;">🏆 ${this.escapeHtml(p.name)} 的徽章櫃 Badges</h1>
-            <p style="color:var(--text-secondary); font-weight:700; margin:0;">
+            <h1 class="view-page-title">🏆 ${this.escapeHtml(p.name)} 的徽章櫃 Badges</h1>
+            <p class="view-page-sub-tight">
               完成每個世界與特別挑戰，收集閃亮亮的榮譽徽章吧！
             </p>
           </div>
@@ -1416,7 +1430,7 @@ window.AppState = {
           ${worldBadges.map(renderCard).join('')}
         </div>
 
-        <h2 class="badge-section-heading" style="margin-top:1.75rem;">🌟 特別榮譽徽章 Special Badges (${specialBadges.filter(b => b.earned).length}/${specialBadges.length})</h2>
+        <h2 class="badge-section-heading mt-lg">🌟 特別榮譽徽章 Special Badges (${specialBadges.filter(b => b.earned).length}/${specialBadges.length})</h2>
         <div class="badge-grid">
           ${specialBadges.map(renderCard).join('')}
         </div>
@@ -1435,33 +1449,33 @@ window.AppState = {
     const today = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
 
     mainEl.innerHTML = `
-      <div class="card-panel" style="text-align:center;">
-        <div style="border:6px double #d97706; background:linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #f0f9ff 100%); border-radius:20px; padding:2.5rem 1.5rem; max-width:780px; margin:0 auto;">
-          <div style="font-size:3rem;">🎓🏆🚀</div>
-          <div style="font-size:0.9rem; font-weight:900; color:#b45309; letter-spacing:0.15em; margin-top:0.4rem;">
+      <div class="card-panel text-center">
+        <div class="cert-frame">
+          <div class="cert-trophy-icons">🎓🏆🚀</div>
+          <div class="cert-eng-label">
             DIGITAL EXPLORER ACADEMY CERTIFICATE
           </div>
-          <h1 style="font-size:2rem; font-weight:900; color:#0f172a; margin:0.5rem 0;">
+          <h1 class="cert-main-title">
             數位小探險家學院・榮譽證書
           </h1>
-          <p style="font-size:1.1rem; color:#475569; margin-bottom:1.25rem;">
+          <p class="cert-lead">
             茲證明小小數位探險家：
           </p>
-          <div style="font-size:2.1rem; font-weight:900; color:#0284c7; border-bottom:3px solid #0284c7; display:inline-block; padding:0.2rem 2rem; margin-bottom:1.25rem;">
+          <div class="cert-recipient-name">
             ${p.avatar} ${this.escapeHtml(p.name)}
           </div>
-          <p style="font-size:1.05rem; color:#334155; max-width:600px; margin:0 auto 1.5rem; line-height:1.8;">
+          <p class="cert-body-copy">
             已成功在 <strong>Windows 11 筆電</strong> 上完成：
             <strong>${doneLessons} / ${totalLessons} 堂數位課程</strong> 與 <strong>${doneDrills} / ${window.TYPING_DATA.categories.reduce((sum, c) => sum + c.drills.length, 0)} 關中英盲打特訓</strong>，
             累積獲得 <strong>⭐ ${p.xp} XP</strong>！具備優秀的筆電操作、網路搜尋防詐與 AI 魔法應用能力！
           </p>
-          <div style="display:flex; justify-content:space-around; flex-wrap:wrap; gap:1rem; margin-top:1.5rem; padding-top:1rem; border-top:2px dashed #fde68a; font-weight:800; color:#64748b;">
+          <div class="cert-footer-meta">
             <span>📅 頒發日期：${today}</span>
             <span>🏅 認證等級：${doneLessons >= totalLessons ? '👑 傳奇數位魔法師' : doneLessons >= 6 ? '🌟 進階數位探險家' : '🌱 見習數位小達人'}</span>
           </div>
         </div>
 
-        <div style="margin-top:1.5rem; display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
+        <div class="cert-actions">
           <button class="btn-primary" onclick="window.print()">
             🖨️ 列印或另存 PDF 畢業證書
           </button>
@@ -1497,25 +1511,25 @@ window.AppState = {
 
       return `
         <div class="parent-profile-card">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem;">
-            <h3 style="margin:0; font-size:1.15rem; font-weight:900;">${prof.avatar} ${this.escapeHtml(prof.name)}</h3>
-            <span style="background:#fef3c7; color:#b45309; padding:0.2rem 0.7rem; border-radius:999px; font-weight:900; font-size:0.85rem;">⭐ ${prof.xp || 0} XP</span>
+          <div class="parent-card-head">
+            <h3 class="parent-card-name">${prof.avatar} ${this.escapeHtml(prof.name)}</h3>
+            <span class="parent-xp-badge">⭐ ${prof.xp || 0} XP</span>
           </div>
-          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.5rem; margin-bottom:0.75rem; text-align:center;">
-            <div style="background:#f8fafc; border-radius:10px; padding:0.5rem;">
-              <div style="font-weight:900; font-size:1.05rem; color:#0284c7;">${doneLessons}/${totalLessons}</div>
-              <div style="font-size:0.75rem; color:#64748b; font-weight:700;">完成課程</div>
+          <div class="parent-metrics-grid">
+            <div class="parent-metric-box">
+              <div class="parent-metric-val">${doneLessons}/${totalLessons}</div>
+              <div class="parent-metric-label">完成課程</div>
             </div>
-            <div style="background:#f8fafc; border-radius:10px; padding:0.5rem;">
-              <div style="font-weight:900; font-size:1.05rem; color:#d97706;">⭐ ${totalStars}</div>
-              <div style="font-size:0.75rem; color:#64748b; font-weight:700;">總星星數</div>
+            <div class="parent-metric-box">
+              <div class="parent-metric-val stars">⭐ ${totalStars}</div>
+              <div class="parent-metric-label">總星星數</div>
             </div>
-            <div style="background:#f8fafc; border-radius:10px; padding:0.5rem;">
-              <div style="font-weight:900; font-size:1.05rem; color:#16a34a;">${avgCpm} CPM</div>
-              <div style="font-size:0.75rem; color:#64748b; font-weight:700;">平均打字速</div>
+            <div class="parent-metric-box">
+              <div class="parent-metric-val cpm">${avgCpm} CPM</div>
+              <div class="parent-metric-label">平均打字速</div>
             </div>
           </div>
-          <div style="font-size:0.84rem; color:#475569; font-weight:700; line-height:1.5;">
+          <div class="parent-card-worlds">
             <strong>待探索世界：</strong>${incompleteWorlds.length ? incompleteWorlds.join('、') : '🎉 全數完成！'}
           </div>
         </div>
@@ -1524,14 +1538,14 @@ window.AppState = {
 
     mainEl.innerHTML = `
       <div class="card-panel">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem;">
+        <div class="parent-dash-header">
           <div>
-            <h1 style="font-size:1.55rem; font-weight:900; margin-bottom:0.35rem;">👨‍👩‍👧 家長儀表板與陪學指南</h1>
-            <p style="color:#475569; font-weight:700; margin:0;">
+            <h1 class="view-page-title">👨‍👩‍👧 家長儀表板與陪學指南</h1>
+            <p class="view-page-sub-tight">
               一眼掌握 10 歲與 8 歲孩子的學習進度、星星數、打字速度，並支援跨電腦雲端同步與列印報告。
             </p>
           </div>
-          <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+          <div class="daily-quest-actions">
             <button class="btn-primary" onclick="window.AppState.openCloudSyncModal()">☁️ 雲端同步 (Vercel Redis)</button>
             <button class="btn-secondary" onclick="window.print()">🖨️ 列印學習報告</button>
             <button class="btn-secondary" onclick="window.AppState.exportProgress()">💾 匯出代碼</button>
@@ -1743,7 +1757,7 @@ window.AppState = {
   formatMarkdownBold(str) {
     return String(str)
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/`([^`]+)`/g, '<code style="background:#e0f2fe; color:#0369a1; padding:2px 6px; border-radius:6px; font-weight:800;">$1</code>');
+      .replace(/`([^`]+)`/g, '<code class="inline-code-pill">$1</code>');
   },
 
   renderCardVisual(visualType) {

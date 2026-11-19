@@ -2527,4 +2527,419 @@ body.dark-mode .lesson-themed-container .lesson-num-tag {
   color: #f8fafc;
 }
 
+/* ============================================================================
+ * ✨ BATCH 4: EXTRACTED COMPONENT & UTILITY CLASSES + LOADING SKELETONS
+ * ============================================================================ */
+
+/* Shared Flex / Layout Utilities */
+.flex-row-gap-sm { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+.flex-row-gap-md { display: flex; gap: 0.65rem; flex-wrap: wrap; align-items: center; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; }
+.flex-end-mt { display: flex; justify-content: flex-end; margin-top: 1.5rem; }
+.flex-between-mt { display: flex; justify-content: space-between; margin-top: 1.5rem; flex-wrap: wrap; gap: 0.75rem; }
+.text-center { text-align: center; }
+.w-full { width: 100%; }
+.w-full-center { width: 100%; justify-content: center; }
+.mb-0 { margin-bottom: 0; }
+.mb-sm { margin-bottom: 0.5rem; }
+.mb-md { margin-bottom: 0.75rem; }
+.mb-lg { margin-bottom: 1rem; }
+.mt-lg { margin-top: 1.75rem; }
+.btn-compact { padding: 0.4rem 0.85rem; font-size: 0.85rem; }
+.btn-xs { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
+.btn-sm-pad { padding: 0.35rem 0.75rem; font-size: 0.82rem; }
+.flex-1-center { flex: 1; justify-content: center; }
+
+/* Header & Map Refactored Elements */
+.profile-switch-tag {
+  font-size: 0.75rem;
+  background: #fde68a;
+  color: #78350f;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+.congrats-emoji { font-size: 1.6rem; }
+.congrats-title { font-weight: 900; font-size: 1.1rem; color: #14532d; }
+.congrats-sub { font-size: 0.88rem; font-weight: 700; color: #166534; }
+
+.daily-quest-tag { font-size: 0.85rem; font-weight: 900; color: #b45309; }
+.daily-quest-title { font-weight: 900; font-size: 1.05rem; color: #78350f; margin-top: 0.15rem; }
+.daily-quest-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+.world-number-label { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; }
+.world-progress-pill {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.88rem;
+}
+
+/* Lesson View Refactored Elements */
+.lesson-main-title { font-size: 1.55rem; font-weight: 900; margin-top: 0.35rem; }
+.lesson-title-en { font-size: 0.95rem; }
+.lesson-completed-pill {
+  background: #dcfce7;
+  color: #166534;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.lesson-vocab-panel {
+  margin-top: 1.75rem;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.25rem;
+}
+
+.lesson-vocab-heading { font-size: 1.15rem; font-weight: 900; color: #0369a1; }
+.vocab-speak-btn {
+  background: #e0f2fe;
+  border: none;
+  border-radius: 6px;
+  padding: 2px 7px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.lab-instruction-banner {
+  background: #eff6ff;
+  border: 2px solid #bfdbfe;
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+.lab-instruction-title { font-size: 1.18rem; color: #1e40af; margin-bottom: 0.25rem; }
+.lab-instruction-body { font-size: 0.95rem; color: #1e3a8a; font-weight: 700; white-space: pre-line; }
+
+.studio-checklist-title { font-weight: 900; color: #166534; font-size: 1.02rem; }
+.studio-check-input { width: 18px; height: 18px; }
+
+.quiz-intro-tip { font-weight: 800; color: #475569; margin-bottom: 1rem; }
+.quiz-question-title { font-weight: 900; font-size: 1.08rem; margin-bottom: 0.5rem; }
+.quiz-feedback-correct {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: #dcfce7;
+  color: #14532d;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.quiz-pass-banner {
+  background: linear-gradient(135deg, #dcfce7 0%, #fef9c3 100%);
+  border: 3px solid #22c55e;
+  border-radius: 18px;
+  padding: 1.5rem;
+  text-align: center;
+  margin-top: 1.25rem;
+}
+.quiz-pass-stars { font-size: 2.5rem; }
+.quiz-pass-title { font-size: 1.35rem; font-weight: 900; color: #14532d; margin: 0.35rem 0; }
+.quiz-pass-actions { display: flex; justify-content: center; gap: 0.85rem; margin-top: 1rem; flex-wrap: wrap; }
+
+/* View Headers & Vocab / Dojo / Certificate / Parent Dashboard */
+.view-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.view-page-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 0.35rem; }
+.view-page-sub { color: var(--text-muted); font-weight: 700; margin-bottom: 1.25rem; }
+.view-page-sub-tight { color: var(--text-muted); font-weight: 700; margin: 0; }
+.vocab-lesson-tag { font-size: 0.72rem; font-weight: 800; color: #64748b; margin-bottom: 2px; }
+.inline-code-pill {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 800;
+}
+
+.cert-frame {
+  border: 6px double #d97706;
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #f0f9ff 100%);
+  border-radius: 20px;
+  padding: 2.5rem 1.5rem;
+  max-width: 780px;
+  margin: 0 auto;
+}
+.cert-trophy-icons { font-size: 3rem; }
+.cert-eng-label { font-size: 0.9rem; font-weight: 900; color: #b45309; letter-spacing: 0.15em; margin-top: 0.4rem; }
+.cert-main-title { font-size: 2rem; font-weight: 900; color: #0f172a; margin: 0.5rem 0; }
+.cert-lead { font-size: 1.1rem; color: #475569; margin-bottom: 1.25rem; }
+.cert-recipient-name {
+  font-size: 2.1rem;
+  font-weight: 900;
+  color: #0284c7;
+  border-bottom: 3px solid #0284c7;
+  display: inline-block;
+  padding: 0.2rem 2rem;
+  margin-bottom: 1.25rem;
+}
+.cert-body-copy { font-size: 1.05rem; color: #334155; max-width: 600px; margin: 0 auto 1.5rem; line-height: 1.8; }
+.cert-footer-meta {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 2px dashed #fde68a;
+  font-weight: 800;
+  color: #64748b;
+}
+.cert-actions { margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+
+.parent-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; }
+.parent-card-name { margin: 0; font-size: 1.15rem; font-weight: 900; }
+.parent-xp-badge { background: #fef3c7; color: #b45309; padding: 0.2rem 0.7rem; border-radius: 999px; font-weight: 900; font-size: 0.85rem; }
+.parent-metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 0.75rem; text-align: center; }
+.parent-metric-box { background: #f8fafc; border-radius: 10px; padding: 0.5rem; }
+.parent-metric-val { font-weight: 900; font-size: 1.05rem; color: #0284c7; }
+.parent-metric-val.stars { color: #d97706; }
+.parent-metric-val.cpm { color: #16a34a; }
+.parent-metric-label { font-size: 0.75rem; color: #64748b; font-weight: 700; }
+.parent-card-worlds { font-size: 0.84rem; color: #475569; font-weight: 700; line-height: 1.5; }
+.parent-dash-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem; }
+
+/* Typing Dojo Refactored Classes */
+.dojo-cat-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.drill-btn-row { display: flex; justify-content: space-between; align-items: center; }
+.dojo-stats-pill {
+  background: #1e293b;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  color: #38bdf8;
+  font-weight: 800;
+}
+.dojo-zhuyin-target {
+  background: #1e293b;
+  color: #fde047;
+  padding: 0.5rem 0.9rem;
+  border-radius: 10px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.08em;
+}
+.dojo-breakdown-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.65rem; }
+.dojo-breakdown-chip {
+  background: #1e293b;
+  border: 1px solid #334155;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+.dojo-breakdown-char { color: #4ade80; font-size: 1.05rem; }
+.dojo-breakdown-py { color: #cbd5e1; margin-left: 0.35rem; }
+.dojo-input-row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; }
+.dojo-hint-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.dojo-key-hint { font-size: 0.95rem; font-weight: 800; color: #fde047; }
+.kb-guide-caption { text-align: center; font-size: 0.82rem; font-weight: 800; color: #475569; margin-bottom: 0.5rem; }
+.kb-key-sub { font-size: 0.68rem; color: #94a3b8; }
+.kb-key-shift { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+.kb-key-enter { background: #dcfce7; border-color: #22c55e; color: #166534; }
+.kb-key-mod { width: 75px; }
+.kb-key-arrow { width: 95px; }
+.dojo-history-empty-title { font-weight: 800; color: #334155; }
+.dojo-history-empty-sub { font-size: 0.86rem; color: #64748b; margin-top: 0.25rem; }
+.dojo-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+}
+.dojo-history-title { color: #0f172a; }
+.dojo-history-latest { font-size: 0.84rem; color: #0369a1; font-weight: 800; }
+.dojo-history-svg { width: 100%; max-height: 95px; background: #ffffff; border-radius: 10px; border: 1px solid #cbd5e1; }
+
+/* Simulator Shared Component & Utility Classes */
+.sim-card {
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 1.15rem;
+}
+.sim-card-lg {
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 1.25rem;
+}
+.sim-card-col {
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.sim-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; }
+.sim-prompt-label { font-weight: 800; color: #92400e; }
+.sim-label-muted { font-size: 0.82rem; font-weight: 800; color: #475569; margin-bottom: 0.3rem; }
+.sim-sub-muted { font-size: 0.84rem; color: #64748b; }
+.sim-sub-note { font-size: 0.82rem; color: #475569; margin-bottom: 0.5rem; }
+.sim-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.sim-row-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
+.sim-row-between-sm { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; }
+.sim-title-dark { font-weight: 900; font-size: 0.9rem; color: #0f172a; }
+.sim-heading-md { font-size: 1.05rem; margin-bottom: 0.4rem; }
+.sim-text-primary { color: #0284c7; }
+
+/* 13. Loading Skeletons */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #e2e8f0;
+  border-radius: var(--radius-md);
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.55) 50%, transparent 100%);
+  animation: skeletonShimmer 1.35s infinite;
+}
+
+@keyframes skeletonShimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-island {
+  height: 340px;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+  border: 2px solid #bae6fd;
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #d1fae5 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.skeleton-island-static {
+  background: linear-gradient(135deg, #e0f2fe 0%, #d1fae5 100%);
+  border: 2px solid #7dd3fc;
+  border-radius: var(--radius-lg);
+  padding: 1.15rem 1.35rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 800;
+  color: #0369a1;
+}
+
+.skeleton-sim {
+  min-height: 220px;
+  padding: 1.35rem;
+  margin-top: 1rem;
+  border: 2px solid #bae6fd;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeleton-bar {
+  height: 18px;
+  border-radius: 8px;
+  background: rgba(148, 163, 184, 0.28);
+}
+
+.skeleton-bar.short { width: 45%; }
+.skeleton-bar.medium { width: 72%; }
+.skeleton-bar.tall { height: 110px; width: 100%; border-radius: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    display: none !important;
+    animation: none !important;
+  }
+}
+
+/* Dark Mode Overrides for Batch 4 */
+body.dark-mode .world-progress-pill,
+body.dark-mode .lesson-vocab-panel,
+body.dark-mode .parent-metric-box,
+body.dark-mode .sim-card,
+body.dark-mode .sim-card-lg,
+body.dark-mode .sim-card-col {
+  background: var(--bg-surface);
+  color: var(--text-main);
+  border-color: var(--border-light);
+}
+
+body.dark-mode .lab-instruction-banner {
+  background: #172554;
+  border-color: #1d4ed8;
+}
+body.dark-mode .lab-instruction-title { color: #93c5fd; }
+body.dark-mode .lab-instruction-body { color: #dbeafe; }
+
+body.dark-mode .quiz-intro-tip,
+body.dark-mode .view-page-sub,
+body.dark-mode .view-page-sub-tight,
+body.dark-mode .parent-card-worlds,
+body.dark-mode .sim-sub-muted,
+body.dark-mode .sim-sub-note,
+body.dark-mode .sim-label-muted {
+  color: var(--text-secondary);
+}
+
+body.dark-mode .sim-title-dark,
+body.dark-mode .dojo-history-title {
+  color: var(--text-main);
+}
+
+body.dark-mode .dojo-history-empty-title { color: #e2e8f0; }
+body.dark-mode .dojo-history-empty-sub { color: #94a3b8; }
+
+body.dark-mode .skeleton {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-mode .skeleton::after {
+  background: linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.18) 50%, transparent 100%);
+}
+
+body.dark-mode .skeleton-island-static {
+  background: #1e293b;
+  border-color: #0369a1;
+  color: #7dd3fc;
+}
+
+
 

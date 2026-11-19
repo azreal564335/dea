@@ -780,6 +780,62 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   const lessonThemed = window.document.querySelector('.lesson-themed-container');
   assert(!!lessonThemed && lessonThemed.style.getPropertyValue('--world-color').trim() === expectedW5Color,
     `Lesson view applies --world-color (${expectedW5Color}) for world-5`);
+
+  // 17. UI Batch 4: Polish (Inline Styles -> CSS Classes, Loading Skeletons)
+  console.log('\n--- 17. UI Batch 4: Inline Styles Refactor & Loading Skeletons ---');
+  // 17a. Island loading skeleton present before IslandScene.mount runs, removed after mount
+  const origRaf = window.requestAnimationFrame;
+  let deferredMountCb = null;
+  window.requestAnimationFrame = (cb) => { deferredMountCb = cb; return 1; };
+  window.AppState.navigate('map');
+  const islandMountEl = window.document.getElementById('island-3d-canvas');
+  assert(!!islandMountEl && !!islandMountEl.querySelector('.skeleton.skeleton-island'),
+    '3D island container renders .skeleton.skeleton-island placeholder while deferred/loading');
+  if (typeof deferredMountCb === 'function') deferredMountCb();
+  assert(!islandMountEl.querySelector('.skeleton-island'),
+    '3D island skeleton placeholder is removed once IslandScene mounts');
+  window.requestAnimationFrame = origRaf;
+
+  // 17b. Reduced-motion case renders static fallback without shimmer (.skeleton-island-static, no .skeleton)
+  const origMatchMedia = window.matchMedia;
+  window.matchMedia = (q) => ({ matches: q.includes('prefers-reduced-motion'), media: q, addListener() {}, removeListener() {} });
+  window.AppState.navigate('map');
+  const reducedIslandEl = window.document.getElementById('island-3d-canvas');
+  assert(!!reducedIslandEl && !!reducedIslandEl.querySelector('.skeleton-island-static') && !reducedIslandEl.querySelector('.skeleton'),
+    'Reduced-motion shows static fallback (.skeleton-island-static) without shimmer');
+  window.matchMedia = origMatchMedia;
+
+  // 17c. Simulator skeleton present before Simulators.render and replaced once rendered
+  const origSimRender = window.Simulators.render;
+  let simRenderIntercepted = false;
+  let skeletonSeenInMount = false;
+  window.Simulators.render = function (cfg, cid) {
+    simRenderIntercepted = true;
+    const mount = window.document.getElementById(cid);
+    skeletonSeenInMount = !!(mount && mount.querySelector('.skeleton.skeleton-sim'));
+    return origSimRender.call(this, cfg, cid);
+  };
+  window.AppState.navigate('lesson', 'w1-l1');
+  window.AppState.setLessonStep('lab');
+  window.Simulators.render = origSimRender;
+  const simMountAfter = window.document.getElementById('lesson-simulator-mount');
+  assert(simRenderIntercepted && skeletonSeenInMount,
+    '#lesson-simulator-mount contains .skeleton.skeleton-sim before simulator renders');
+  assert(!!simMountAfter && !simMountAfter.querySelector('.skeleton-sim'),
+    'Simulator skeleton is removed after Simulators.render completes');
+
+  // 17d. Verify key extracted CSS classes are used instead of inline styles
+  assert(!!window.document.querySelector('.lab-instruction-banner') && !!window.document.querySelector('.lab-instruction-title'),
+    'Lesson lab uses extracted .lab-instruction-banner and .lab-instruction-title classes');
+  window.AppState.navigate('map');
+  assert(!!window.document.querySelector('.world-progress-pill') && !!window.document.querySelector('.daily-quest-tag'),
+    'World map uses extracted .world-progress-pill and .daily-quest-tag classes');
+  window.AppState.navigate('certificate');
+  assert(!!window.document.querySelector('.cert-frame') && !!window.document.querySelector('.cert-recipient-name'),
+    'Certificate view uses extracted .cert-frame and .cert-recipient-name classes');
+  window.AppState.navigate('dojo');
+  assert(!!window.document.querySelector('.dojo-cat-tabs') && !!window.document.querySelector('.dojo-stats-pill'),
+    'Typing Dojo uses extracted .dojo-cat-tabs and .dojo-stats-pill classes');
 }
 
 async function main() {

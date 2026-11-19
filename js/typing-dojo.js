@@ -107,7 +107,7 @@ window.TypingDojo = {
     container.innerHTML = `
       <div class="dojo-wrapper">
         <!-- Category Tabs -->
-        <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+        <div class="dojo-cat-tabs">
           ${window.TYPING_DATA.categories.map(cat => `
             <button class="step-tab ${cat.id === category.id ? 'active' : ''}"
                     onclick="window.TypingDojo.selectCategory('${cat.id}', '${containerId}')">
@@ -124,7 +124,7 @@ window.TypingDojo = {
             return `
               <button class="drill-btn ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}"
                       onclick="window.TypingDojo.selectDrill('${d.id}', '${containerId}')">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div class="drill-btn-row">
                   <span>${d.name}</span>
                   <span>${isDone ? '⭐⭐⭐' : '⚪'}</span>
                 </div>
@@ -137,23 +137,23 @@ window.TypingDojo = {
         <div class="typing-target-box">
           <div class="typing-tip-bar">
             <span>💡 <strong>本關秘訣：</strong>${drill.tip}</span>
-            <span id="${containerId}-stats" style="background:#1e293b; padding:0.25rem 0.75rem; border-radius:999px; color:#38bdf8; font-weight:800;">
+            <span id="${containerId}-stats" class="dojo-stats-pill">
               速度：${cpm} 字/分 ｜ 準確度：${accuracy}%
             </span>
           </div>
 
           ${drill.zhuyinDisplay ? `
-            <div style="background:#1e293b; color:#fde047; padding:0.5rem 0.9rem; border-radius:10px; font-size:1.15rem; font-weight:800; margin-bottom:0.5rem; letter-spacing:0.08em;">
+            <div class="dojo-zhuyin-target">
               🇹🇼 對應注音目標：${drill.zhuyinDisplay}
             </div>
           ` : ''}
 
           ${drill.zhuyinBreakdown ? `
-            <div style="display:flex; flex-wrap:wrap; gap:0.6rem; margin-bottom:0.65rem;">
+            <div class="dojo-breakdown-row">
               ${drill.zhuyinBreakdown.map(item => `
-                <div style="background:#1e293b; border:1px solid #334155; padding:0.35rem 0.75rem; border-radius:8px; font-size:0.9rem;">
-                  <strong style="color:#4ade80; font-size:1.05rem;">${item.char}</strong>
-                  <span style="color:#cbd5e1; margin-left:0.35rem;">${item.py}</span>
+                <div class="dojo-breakdown-chip">
+                  <strong class="dojo-breakdown-char">${item.char}</strong>
+                  <span class="dojo-breakdown-py">${item.py}</span>
                 </div>
               `).join('')}
             </div>
@@ -163,7 +163,7 @@ window.TypingDojo = {
             ${charsHtml}
           </div>
 
-          <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-top:0.5rem;">
+          <div class="dojo-input-row">
             <input type="text"
                    id="${containerId}-input"
                    class="typing-input-field"
@@ -175,20 +175,20 @@ window.TypingDojo = {
                    spellcheck="false" />
           </div>
 
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem; flex-wrap:wrap; gap:0.5rem;">
-            <div id="${containerId}-key-hint" style="font-size:0.95rem; font-weight:800; color:#fde047;">
+          <div class="dojo-hint-bar">
+            <div id="${containerId}-key-hint" class="dojo-key-hint">
               ${this.isCompleted
                 ? '🎉 太棒了！你成功完成這一關！點右邊按鈕進入下一關！'
                 : keyInfo
                   ? `👉 下一個按鍵：【 ${nextExpectedChar === ' ' ? '空白鍵 Space' : nextExpectedChar.toUpperCase()} / 注音 ${keyInfo.zhuyin} 】— 請用「${keyInfo.hand}」${customHint}`
                   : '👉 請照著上方藍底游標的文字輸入！'}
             </div>
-            <div style="display:flex; gap:0.5rem;">
-              <button class="btn-secondary" style="padding:0.4rem 0.85rem; font-size:0.85rem;"
+            <div class="flex-row-gap-sm">
+              <button class="btn-secondary btn-compact"
                       onclick="window.TypingDojo.resetDrill('${containerId}')">
                 🔄 重新練習本關
               </button>
-              <button class="btn-primary" style="padding:0.4rem 0.95rem; font-size:0.85rem;"
+              <button class="btn-primary btn-compact"
                       onclick="window.TypingDojo.nextDrill('${containerId}')">
                 ⏭️ 下一關
               </button>
@@ -335,7 +335,7 @@ window.TypingDojo = {
           return `
             <button class="drill-btn ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}"
                     onclick="window.TypingDojo.selectDrill('${d.id}', '${containerId}')">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div class="drill-btn-row">
                 <span>${d.name}</span>
                 <span>${isDone ? '⭐⭐⭐' : '⚪'}</span>
               </div>
@@ -348,12 +348,12 @@ window.TypingDojo = {
 
   renderKeyboardHtml(nextExpectedChar) {
     return `
-      <div style="text-align:center; font-size:0.82rem; font-weight:800; color:#475569; margin-bottom:0.5rem;">
+      <div class="kb-guide-caption">
         💻 台灣注音雙語鍵盤導引（黃色發光鍵 ＝ 下一個要按的鍵；F 與 J 底下有藍色定位凸點！）
       </div>
       ${window.TYPING_DATA.keyboardLayout.map((row, rIdx) => `
         <div class="kb-row" style="padding-left:${rIdx * 14}px;">
-          ${rIdx === 3 ? `<div class="kb-key kb-key-wide" style="background:#fef3c7; border-color:#f59e0b; color:#92400e;">Shift (切換中/英)</div>` : ''}
+          ${rIdx === 3 ? `<div class="kb-key kb-key-wide kb-key-shift">Shift (切換中/英)</div>` : ''}
           ${row.map(k => {
             const isTarget = nextExpectedChar && nextExpectedChar.toLowerCase() === k.key;
             const fColor = this.getFingerColor(k.finger);
@@ -362,24 +362,24 @@ window.TypingDojo = {
                    style="border-bottom: 4px solid ${fColor};">
                 <div class="kb-key-top">
                   <span>${k.key.toUpperCase()}</span>
-                  <span style="font-size:0.68rem; color:#94a3b8;">${k.sub || ''}</span>
+                  <span class="kb-key-sub">${k.sub || ''}</span>
                 </div>
                 <div class="kb-key-zy">${k.zhuyin}</div>
               </div>
             `;
           }).join('')}
-          ${rIdx === 2 ? `<div class="kb-key kb-key-wide" style="background:#dcfce7; border-color:#22c55e; color:#166534;">Enter ↵ (確認)</div>` : ''}
-          ${rIdx === 3 ? `<div class="kb-key kb-key-wide" style="background:#fef3c7; border-color:#f59e0b; color:#92400e;">Shift (中/英)</div>` : ''}
+          ${rIdx === 2 ? `<div class="kb-key kb-key-wide kb-key-enter">Enter ↵ (確認)</div>` : ''}
+          ${rIdx === 3 ? `<div class="kb-key kb-key-wide kb-key-shift">Shift (中/英)</div>` : ''}
         </div>
       `).join('')}
       <div class="kb-row">
-        <div class="kb-key kb-key-wide" style="width:75px;">Ctrl</div>
-        <div class="kb-key kb-key-wide" style="width:75px;">Win ⊞</div>
-        <div class="kb-key kb-key-wide" style="width:75px;">Alt</div>
+        <div class="kb-key kb-key-wide kb-key-mod">Ctrl</div>
+        <div class="kb-key kb-key-wide kb-key-mod">Win ⊞</div>
+        <div class="kb-key kb-key-wide kb-key-mod">Alt</div>
         <div class="kb-key kb-key-space ${nextExpectedChar === ' ' ? 'highlight-target' : ''}">
           <span>Space 空白鍵（大拇指 / 注音一聲）</span>
         </div>
-        <div class="kb-key kb-key-wide" style="width:95px;">↓ 選字方向鍵</div>
+        <div class="kb-key kb-key-wide kb-key-arrow">↓ 選字方向鍵</div>
       </div>
 
       <!-- Finger Color Legend -->
@@ -446,8 +446,8 @@ window.TypingDojo = {
     if (history.length === 0) {
       return `
         <div class="typing-history-box">
-          <div style="font-weight:800; color:#334155;">📈 速度成長曲線（目標：${targetCpm} 字/分${isSimple ? ' · 8歲護航目標' : ''}）</div>
-          <div style="font-size:0.86rem; color:#64748b; margin-top:0.25rem;">完成 1 次打字練習後，這裡就會畫出你的進步曲線喔！</div>
+          <div class="dojo-history-empty-title">📈 速度成長曲線（目標：${targetCpm} 字/分${isSimple ? ' · 8歲護航目標' : ''}）</div>
+          <div class="dojo-history-empty-sub">完成 1 次打字練習後，這裡就會畫出你的進步曲線喔！</div>
         </div>
       `;
     }
@@ -463,11 +463,11 @@ window.TypingDojo = {
 
     return `
       <div class="typing-history-box">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.45rem;">
-          <strong style="color:#0f172a;">📈 最近 ${history.length} 次打字速度成長曲線（目標：${targetCpm} 字/分）</strong>
-          <span style="font-size:0.84rem; color:#0369a1; font-weight:800;">最新：${history[history.length - 1].cpm} 字/分 ・ ${history[history.length - 1].accuracy}%</span>
+        <div class="dojo-history-header">
+          <strong class="dojo-history-title">📈 最近 ${history.length} 次打字速度成長曲線（目標：${targetCpm} 字/分）</strong>
+          <span class="dojo-history-latest">最新：${history[history.length - 1].cpm} 字/分 ・ ${history[history.length - 1].accuracy}%</span>
         </div>
-        <svg viewBox="0 0 ${w} ${h}" style="width:100%; max-height:95px; background:#ffffff; border-radius:10px; border:1px solid #cbd5e1;">
+        <svg viewBox="0 0 ${w} ${h}" class="dojo-history-svg">
           ${pts.length > 1 ? `<polyline fill="none" stroke="#2563eb" stroke-width="3" points="${poly}"/>` : ''}
           ${pts.map(p => `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#f59e0b" stroke="#ffffff" stroke-width="2"><title>${p.cpm} 字/分 (${p.acc}%)</title></circle>`).join('')}
         </svg>

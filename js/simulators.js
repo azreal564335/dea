@@ -466,8 +466,8 @@ window.Simulators = {
       <div class="sim-box">
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem;">
           <!-- Task 1: Ctrl + Z Undo -->
-          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.1rem;">
-            <h4 style="font-size:1.05rem; margin-bottom:0.4rem;">🚨 救援任務 1：搶救消失的故事 (Ctrl + Z)</h4>
+          <div class="sim-card">
+            <h4 class="sim-heading-md">🚨 救援任務 1：搶救消失的故事 (Ctrl + Z)</h4>
             <p style="font-size:0.9rem; color:#475569; margin-bottom:0.75rem;">
               ${s.undoDone
                 ? '✅ <strong>已救回：</strong>「從前有一隻住在台北 101 頂樓的太空柴犬，牠每天晚上都會開飛碟去月球買雞排...」'
@@ -480,8 +480,8 @@ window.Simulators = {
           </div>
 
           <!-- Task 2: Ctrl + C & Ctrl + V -->
-          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.1rem;">
-            <h4 style="font-size:1.05rem; margin-bottom:0.4rem;">📋 救援任務 2：複製與貼上魔法 (Ctrl + C / V)</h4>
+          <div class="sim-card">
+            <h4 class="sim-heading-md">📋 救援任務 2：複製與貼上魔法 (Ctrl + C / V)</h4>
             <div style="background:#f1f5f9; padding:0.5rem; border-radius:8px; font-size:0.85rem; font-weight:700; margin-bottom:0.6rem;">
               魔法通行證：<span style="color:#0284c7;">SUPER-EXPLORER-888</span>
             </div>
@@ -499,8 +499,8 @@ window.Simulators = {
           </div>
 
           <!-- Task 3: File Naming & Ctrl + S -->
-          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.1rem;">
-            <h4 style="font-size:1.05rem; margin-bottom:0.4rem;">💾 救援任務 3：幫檔案取好名字並存檔 (Ctrl + S)</h4>
+          <div class="sim-card">
+            <h4 class="sim-heading-md">💾 救援任務 3：幫檔案取好名字並存檔 (Ctrl + S)</h4>
             <input type="text" id="${cid}-fname" value="${s.customFileName}"
                    style="width:100%; padding:0.5rem; border:2px solid #94a3b8; border-radius:8px; font-weight:700; margin-bottom:0.6rem;" />
             <button class="btn-primary" style="width:100%; justify-content:center;"
@@ -689,7 +689,7 @@ window.Simulators = {
           `).join('')}
         </div>
 
-        <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.25rem;">
+        <div class="sim-card-lg">
           <h4 style="font-size:1.1rem; color:#0f172a; margin-bottom:0.5rem;">${sc.title}</h4>
           <p style="font-size:0.95rem; font-weight:700; color:#0369a1; margin-bottom:0.65rem;">步驟 1：${sc.prompt}</p>
 
@@ -780,7 +780,7 @@ window.Simulators = {
     const cur = cases[this.state.scamIdx];
     el.innerHTML = `
       <div class="sim-box">
-        <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.25rem;">
+        <div class="sim-card-lg">
           <div style="font-size:0.85rem; font-weight:800; color:#64748b; margin-bottom:0.4rem;">
             案件 ${this.state.scamIdx + 1} / ${cases.length}
           </div>
@@ -852,24 +852,24 @@ window.Simulators = {
 
     el.innerHTML = `
       <div class="sim-box">
-        <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.25rem;">
+        <div class="sim-card-lg">
           <div style="margin-bottom:0.75rem;">
-            <div style="font-weight:800; color:#92400e;">🎭 1. 選擇角色 (Role)：</div>
+            <div class="sim-prompt-label">🎭 1. 選擇角色 (Role)：</div>
             <div class="prompt-chip-group">
               ${roles.map((r, i) => `<button class="prompt-chip ${s.roleIdx === i ? 'selected' : ''}" onclick="window.Simulators.setPromptPart('roleIdx', ${i}, '${cid}')">${r}</button>`).join('')}
             </div>
 
-            <div style="font-weight:800; color:#92400e;">🎯 2. 選擇任務 (Task — 含學英文單字)：</div>
+            <div class="sim-prompt-label">🎯 2. 選擇任務 (Task — 含學英文單字)：</div>
             <div class="prompt-chip-group">
               ${tasks.map((t, i) => `<button class="prompt-chip ${s.taskIdx === i ? 'selected' : ''}" onclick="window.Simulators.setPromptPart('taskIdx', ${i}, '${cid}')">${t}</button>`).join('')}
             </div>
 
-            <div style="font-weight:800; color:#92400e;">👶 3. 選擇年齡與程度 (Level)：</div>
+            <div class="sim-prompt-label">👶 3. 選擇年齡與程度 (Level)：</div>
             <div class="prompt-chip-group">
               ${levels.map((l, i) => `<button class="prompt-chip ${s.levelIdx === i ? 'selected' : ''}" onclick="window.Simulators.setPromptPart('levelIdx', ${i}, '${cid}')">${l}</button>`).join('')}
             </div>
 
-            <div style="font-weight:800; color:#92400e;">📦 4. 選擇呈現格式 (Format)：</div>
+            <div class="sim-prompt-label">📦 4. 選擇呈現格式 (Format)：</div>
             <div class="prompt-chip-group">
               ${formats.map((f, i) => `<button class="prompt-chip ${s.formatIdx === i ? 'selected' : ''}" onclick="window.Simulators.setPromptPart('formatIdx', ${i}, '${cid}')">${f}</button>`).join('')}
             </div>
@@ -990,7 +990,7 @@ window.Simulators = {
 
     el.innerHTML = `
       <div class="sim-box">
-        <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.25rem;">
+        <div class="sim-card-lg">
           <div style="font-weight:800; color:#92400e; margin-bottom:0.4rem;">🥋 步驟 1：挑選你想請 AI 教你的新技能（或自己打字輸入！）：</div>
           <div class="prompt-chip-group">
             ${skills.map((sk, idx) => `
@@ -1112,35 +1112,35 @@ window.Simulators = {
       <div class="sim-box">
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(310px, 1fr)); gap:1.25rem; align-items:start;">
           <!-- Left: 5-Ingredient Selector -->
-          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.15rem;">
-            <div style="font-weight:800; color:#92400e;">1️⃣ 主角 (Subject)：</div>
+          <div class="sim-card">
+            <div class="sim-prompt-label">1️⃣ 主角 (Subject)：</div>
             <div class="prompt-chip-group">
               ${subjects.map((item, i) => `<button class="prompt-chip ${s.imgSubjectIdx === i ? 'selected' : ''}" onclick="window.Simulators.setImgPart('imgSubjectIdx', ${i}, '${cid}')">${item.emoji} ${item.zh.replace('一隻', '').replace('一台', '')}</button>`).join('')}
             </div>
 
-            <div style="font-weight:800; color:#92400e;">2️⃣ 動作 (Action)：</div>
+            <div class="sim-prompt-label">2️⃣ 動作 (Action)：</div>
             <div class="prompt-chip-group">
               ${actions.map((item, i) => `<button class="prompt-chip ${s.imgActionIdx === i ? 'selected' : ''}" onclick="window.Simulators.setImgPart('imgActionIdx', ${i}, '${cid}')">${item.zh}</button>`).join('')}
             </div>
 
-            <div style="font-weight:800; color:#92400e;">3️⃣ 背景環境 (Setting / Background)：</div>
+            <div class="sim-prompt-label">3️⃣ 背景環境 (Setting / Background)：</div>
             <div class="prompt-chip-group">
               ${bgs.map((item, i) => `<button class="prompt-chip ${s.imgBgIdx === i ? 'selected' : ''}" onclick="window.Simulators.setImgPart('imgBgIdx', ${i}, '${cid}')">${item.zh}</button>`).join('')}
             </div>
 
-            <div style="font-weight:800; color:#92400e;">4️⃣ 藝術風格 (Art Style — 超關鍵！)：</div>
+            <div class="sim-prompt-label">4️⃣ 藝術風格 (Art Style — 超關鍵！)：</div>
             <div class="prompt-chip-group">
               ${styles.map((item, i) => `<button class="prompt-chip ${s.imgStyleIdx === i ? 'selected' : ''}" onclick="window.Simulators.setImgPart('imgStyleIdx', ${i}, '${cid}')">${item.badge}</button>`).join('')}
             </div>
 
-            <div style="font-weight:800; color:#92400e;">5️⃣ 光線與色彩 (Lighting)：</div>
+            <div class="sim-prompt-label">5️⃣ 光線與色彩 (Lighting)：</div>
             <div class="prompt-chip-group">
               ${lights.map((item, i) => `<button class="prompt-chip ${s.imgLightIdx === i ? 'selected' : ''}" onclick="window.Simulators.setImgPart('imgLightIdx', ${i}, '${cid}')">${item.zh}</button>`).join('')}
             </div>
           </div>
 
           <!-- Right: Live Visual Canvas Preview & Bilingual Prompts -->
-          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.15rem;">
+          <div class="sim-card">
             <div style="background:${bg.bgGrad}; border-radius:14px; min-height:230px; padding:1.25rem; color:white; display:flex; flex-direction:column; justify-content:space-between; align-items:center; text-align:center; position:relative; overflow:hidden; filter:${sty.filter}; border:4px solid ${lgt.glow};">
               <div style="background:rgba(15,23,42,0.75); padding:0.3rem 0.85rem; border-radius:999px; font-size:0.82rem; font-weight:800; color:${lgt.glow};">
                 ${sty.badge} ｜ ✨ 5 要素即時預覽畫布
@@ -1275,9 +1275,9 @@ window.Simulators = {
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:1rem;">
+        <div class="sim-grid-2">
           <!-- Left: Route Planner & Map View -->
-          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.1rem;">
+          <div class="sim-card">
             <div style="font-size:0.92rem; font-weight:800; color:#0369a1; margin-bottom:0.6rem;">
               1️⃣ 選擇交通導航方式 (Directions)：
             </div>
@@ -1466,7 +1466,7 @@ window.Simulators = {
             <h3 style="font-size:1.15rem; font-weight:900; color:#5b21b6; margin-bottom:0.2rem;">
               📊 簡報魔法改造實驗室：拯救混亂投影片
             </h3>
-            <div style="font-size:0.84rem; color:#64748b;">
+            <div class="sim-sub-muted">
               完成 3 大排版改造，讓學校報告從「不及格大魔王」變身「全班最高分」！
             </div>
           </div>
@@ -1476,9 +1476,9 @@ window.Simulators = {
           </button>
         </div>
 
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:1rem;">
+        <div class="sim-grid-2">
           <!-- Left: Rescue Action Toolbox -->
-          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.15rem;">
+          <div class="sim-card">
             <div style="font-size:0.95rem; font-weight:900; color:#4c1d95; margin-bottom:0.75rem;">
               🛠️ 簡報醫師工具箱 (3 步急救大改造)：
             </div>
@@ -1486,7 +1486,7 @@ window.Simulators = {
             <!-- Fix Step 1 -->
             <div style="margin-bottom:0.85rem; padding:0.8rem; border-radius:10px; background:${s.slideRescueStep1 ? '#f5f3ff' : '#f8fafc'}; border:2px solid ${s.slideRescueStep1 ? '#8b5cf6' : '#cbd5e1'};">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
-                <span style="font-weight:900; font-size:0.9rem; color:#0f172a;">
+                <span class="sim-title-dark">
                   1️⃣ 套用「三重點法則 (Rule of 3)」
                 </span>
                 <span style="font-size:0.8rem; font-weight:800; color:${s.slideRescueStep1 ? '#16a34a' : '#64748b'};">
@@ -1505,7 +1505,7 @@ window.Simulators = {
             <!-- Fix Step 2 -->
             <div style="margin-bottom:0.85rem; padding:0.8rem; border-radius:10px; background:${s.slideRescueStep2 ? '#f5f3ff' : '#f8fafc'}; border:2px solid ${s.slideRescueStep2 ? '#8b5cf6' : '#cbd5e1'};">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
-                <span style="font-weight:900; font-size:0.9rem; color:#0f172a;">
+                <span class="sim-title-dark">
                   2️⃣ 修正顏色對比度 (High Contrast)
                 </span>
                 <span style="font-size:0.8rem; font-weight:800; color:${s.slideRescueStep2 ? '#16a34a' : '#64748b'};">
@@ -1524,7 +1524,7 @@ window.Simulators = {
             <!-- Fix Step 3 -->
             <div style="padding:0.8rem; border-radius:10px; background:${s.slideRescueStep3 ? '#f5f3ff' : '#f8fafc'}; border:2px solid ${s.slideRescueStep3 ? '#8b5cf6' : '#cbd5e1'};">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
-                <span style="font-weight:900; font-size:0.9rem; color:#0f172a;">
+                <span class="sim-title-dark">
                   3️⃣ 插入焦點英雄大圖與圖說 (Hero Image)
                 </span>
                 <span style="font-size:0.8rem; font-weight:800; color:${s.slideRescueStep3 ? '#16a34a' : '#64748b'};">
@@ -1542,7 +1542,7 @@ window.Simulators = {
           </div>
 
           <!-- Right: Live Slide Preview Canvas -->
-          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.15rem; display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="sim-card-col">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
                 <span style="font-size:0.88rem; font-weight:800; color:#5b21b6;">
@@ -1660,7 +1660,7 @@ window.Simulators = {
             <h3 style="font-size:1.15rem; font-weight:900; color:#c026d3; margin-bottom:0.2rem;">
               🐱 Scratch 積木程式實驗室：拼裝並試玩「接蘋果遊戲」！
             </h3>
-            <div style="font-size:0.84rem; color:#64748b;">
+            <div class="sim-sub-muted">
               把程式邏輯拼裝成積木，在右側遊戲畫布啟動實戰！接住 10 顆蘋果破關！
             </div>
           </div>
@@ -1675,9 +1675,9 @@ window.Simulators = {
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:1rem;">
+        <div class="sim-grid-2">
           <!-- Left: Scratch Block Snapping Bench -->
-          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.15rem;">
+          <div class="sim-card">
             <div style="font-size:0.92rem; font-weight:900; color:#86198f; margin-bottom:0.75rem;">
               🧩 積木工作台 (點擊積木卡片，拼入主程式中)：
             </div>
@@ -1739,7 +1739,7 @@ window.Simulators = {
           </div>
 
           <!-- Right: Playable HTML5 2D Canvas Game Area -->
-          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.15rem; display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="sim-card-col">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
                 <span style="font-size:0.88rem; font-weight:800; color:#86198f;">
@@ -2026,7 +2026,7 @@ window.Simulators = {
             <h3 style="font-size:1.15rem; font-weight:900; color:#0284c7; margin-bottom:0.2rem;">
               🎬 AI 圖文與有聲故事實驗室：創作你的 3 幕冒險繪本！
             </h3>
-            <div style="font-size:0.84rem; color:#64748b;">
+            <div class="sim-sub-muted">
               選擇主角與情節，自動生成起承轉合 3 幕分鏡插圖提詞與雙語有聲書旁白！
             </div>
           </div>
@@ -2042,17 +2042,17 @@ window.Simulators = {
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:1rem;">
+        <div class="sim-grid-2">
           <!-- Left: Story Elements Configuration -->
-          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.15rem;">
+          <div class="sim-card">
             <div style="font-size:0.92rem; font-weight:900; color:#0369a1; margin-bottom:0.75rem;">
               🎨 繪本故事工坊 (選擇你的 4 大故事要素)：
             </div>
 
             <!-- Hero Selector -->
             <div style="margin-bottom:0.75rem;">
-              <div style="font-size:0.82rem; font-weight:800; color:#475569; margin-bottom:0.3rem;">1️⃣ 故事主角 (Hero)：</div>
-              <div class="prompt-chip-group" style="margin-bottom:0;">
+              <div class="sim-label-muted">1️⃣ 故事主角 (Hero)：</div>
+              <div class="prompt-chip-group mb-0">
                 ${heroes.map((h, i) => `
                   <button class="prompt-chip ${s.storyHeroIdx === i ? 'selected' : ''}"
                           onclick="window.Simulators.setStoryPart('storyHeroIdx', ${i}, '${cid}')">
@@ -2064,8 +2064,8 @@ window.Simulators = {
 
             <!-- Companion Selector -->
             <div style="margin-bottom:0.75rem;">
-              <div style="font-size:0.82rem; font-weight:800; color:#475569; margin-bottom:0.3rem;">2️⃣ 冒險同伴 (Companion)：</div>
-              <div class="prompt-chip-group" style="margin-bottom:0;">
+              <div class="sim-label-muted">2️⃣ 冒險同伴 (Companion)：</div>
+              <div class="prompt-chip-group mb-0">
                 ${companions.map((c, i) => `
                   <button class="prompt-chip ${s.storyCompanionIdx === i ? 'selected' : ''}"
                           onclick="window.Simulators.setStoryPart('storyCompanionIdx', ${i}, '${cid}')">
@@ -2077,8 +2077,8 @@ window.Simulators = {
 
             <!-- Setting Selector -->
             <div style="margin-bottom:0.75rem;">
-              <div style="font-size:0.82rem; font-weight:800; color:#475569; margin-bottom:0.3rem;">3️⃣ 冒險舞台 (Setting)：</div>
-              <div class="prompt-chip-group" style="margin-bottom:0;">
+              <div class="sim-label-muted">3️⃣ 冒險舞台 (Setting)：</div>
+              <div class="prompt-chip-group mb-0">
                 ${settings.map((st, i) => `
                   <button class="prompt-chip ${s.storySettingIdx === i ? 'selected' : ''}"
                           onclick="window.Simulators.setStoryPart('storySettingIdx', ${i}, '${cid}')">
@@ -2090,8 +2090,8 @@ window.Simulators = {
 
             <!-- Twist Selector -->
             <div>
-              <div style="font-size:0.82rem; font-weight:800; color:#475569; margin-bottom:0.3rem;">4️⃣ 考驗與解題難題 (Plot Twist)：</div>
-              <div class="prompt-chip-group" style="margin-bottom:0;">
+              <div class="sim-label-muted">4️⃣ 考驗與解題難題 (Plot Twist)：</div>
+              <div class="prompt-chip-group mb-0">
                 ${twists.map((tw, i) => `
                   <button class="prompt-chip ${s.storyTwistIdx === i ? 'selected' : ''}"
                           onclick="window.Simulators.setStoryPart('storyTwistIdx', ${i}, '${cid}')">
@@ -2103,7 +2103,7 @@ window.Simulators = {
           </div>
 
           <!-- Right: 3-Scene Storyboard Viewer -->
-          <div style="background:white; border:2px solid #cbd5e1; border-radius:14px; padding:1.15rem; display:flex; flex-direction:column; justify-content:space-between;">
+          <div class="sim-card-col">
             <div>
               <!-- Scene Tabs -->
               <div style="display:flex; gap:0.4rem; margin-bottom:0.75rem;">
