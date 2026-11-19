@@ -560,6 +560,71 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   const xpBeforeCheck = window.AppState.getProfile().xp;
   window.AppState.toggleStudioCheck('w5-l1', 0);
   assert(window.AppState.getProfile().xp === xpBeforeCheck + 10, 'toggleStudioCheck awards +10 XP on first check');
+
+  // 14. UI Batch 1: Navigation Makeover Tests
+  console.log('\n--- 14. UI Batch 1: Navigation Makeover ---');
+  // 14a. Settings menu in header contains the 3 toggles (rename, Zhuyin font, English) and closes on outside click / Escape
+  const settingsBtn = window.document.querySelector('.settings-btn');
+  const settingsMenu = window.document.querySelector('.settings-menu');
+  assert(!!settingsBtn && !!settingsMenu, 'Header renders .settings-btn and .settings-menu');
+  assert(!!window.document.querySelector('.profile-pill') && !!window.document.querySelector('.xp-pill'), 'Header keeps profile pill and XP pill visible');
+  const menuText = settingsMenu.textContent;
+  assert(menuText.includes('改名') && menuText.includes('注音字體') && menuText.includes('中英雙語'),
+    'Settings menu contains rename, Zhuyin font toggle, and bilingual/English toggle');
+  settingsBtn.click();
+  assert(window.AppState.settingsMenuOpen === true && window.document.querySelector('.settings-menu.open') !== null,
+    'Clicking .settings-btn opens .settings-menu');
+  window.document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assert(window.AppState.settingsMenuOpen === false, 'Pressing Escape closes .settings-menu');
+  window.document.querySelector('.settings-btn').click();
+  assert(window.AppState.settingsMenuOpen === true, 'Re-opened .settings-menu for outside click test');
+  window.document.body.click();
+  assert(window.AppState.settingsMenuOpen === false, 'Clicking outside closes .settings-menu');
+
+  // 14b. Map page: all-done congrats message when all lessons completed, and Continue button + collapsible worlds + SVG ring when unfinished
+  window.AppState.navigate('map');
+  assert(window.document.querySelector('.continue-congrats') !== null && window.document.querySelector('.continue-btn') === null,
+    'Continue button replaced with congrats message when all lessons are completed');
+
+  // Reset kid-8 to fresh progress to test unfinished map state
+  window.AppState.switchProfile(); // kid-10 -> kid-8 (fresh)
+  window.AppState.navigate('map');
+  const w1Sec = window.document.getElementById('section-world-1');
+  const w2Sec = window.document.getElementById('section-world-2');
+  assert(!!w1Sec && !w1Sec.classList.contains('collapsed'), 'First unfinished world (world-1) is expanded by default');
+  assert(!!w2Sec && w2Sec.classList.contains('collapsed'), 'Subsequent worlds (world-2) are collapsed by default');
+  assert(w2Sec.querySelectorAll('.lesson-card').length > 0, 'Collapsed world keeps lesson cards in the DOM');
+  const progressRings = window.document.querySelectorAll('.world-section .world-progress-ring svg');
+  assert(progressRings.length === window.CURRICULUM_WORLDS.length, `All ${window.CURRICULUM_WORLDS.length} world headers render an SVG progress ring`);
+
+  // Toggle collapse on world-1 and world-2 by clicking header
+  w1Sec.querySelector('.world-header').click();
+  assert(w1Sec.classList.contains('collapsed'), 'Clicking world-1 header collapses it');
+  w2Sec.querySelector('.world-header').click();
+  assert(!w2Sec.classList.contains('collapsed'), 'Clicking world-2 header expands it');
+
+  // 14c. Continue button opens next unfinished lesson
+  const continueBtn = window.document.querySelector('.continue-btn');
+  assert(!!continueBtn, 'Big .continue-btn rendered at top of map when unfinished lessons remain');
+  continueBtn.click();
+  assert(window.AppState.currentView === 'lesson' && window.AppState.currentLessonId === 'w1-l1',
+    'Clicking .continue-btn opens the next unfinished lesson (w1-l1)');
+
+  // 14d. Lesson 3-step progress bar (.lesson-steps) renders 3 steps + Next/Back navigation
+  const lessonStepsEl = window.document.querySelector('.lesson-steps');
+  assert(!!lessonStepsEl, 'Lesson page renders .lesson-steps progress bar');
+  const stepPills = lessonStepsEl.querySelectorAll('.lesson-step-pill');
+  assert(stepPills.length === 3, 'Lesson step bar renders 3 steps (Learn / Lab / Quiz)');
+  assert(lessonStepsEl.textContent.includes('學習 Learn') && lessonStepsEl.textContent.includes('實驗 Lab') && lessonStepsEl.textContent.includes('測驗 Quiz'),
+    'Lesson step bar displays 學習 Learn / 實驗 Lab / 測驗 Quiz labels');
+  assert(stepPills[0].classList.contains('active'), 'Step 1 (Learn) is highlighted initially');
+  window.document.querySelector('.lesson-step-next-btn').click();
+  assert(window.AppState.lessonStep === 'lab' && window.document.querySelectorAll('.lesson-step-pill')[1].classList.contains('active'),
+    'Next button advances from Learn to Lab and highlights step 2');
+  assert(!!window.document.getElementById('lesson-simulator-mount'), '#lesson-simulator-mount remains intact in Lab step');
+  window.document.querySelector('.lesson-step-back-btn').click();
+  assert(window.AppState.lessonStep === 'learn' && window.document.querySelectorAll('.lesson-step-pill')[0].classList.contains('active'),
+    'Back button returns from Lab to Learn');
 }
 
 async function main() {

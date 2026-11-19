@@ -209,6 +209,98 @@ body {
   color: #0369a1;
 }
 
+/* Header Settings Dropdown */
+.settings-dropdown-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.settings-btn {
+  background: #ffffff;
+  border: 2px solid var(--border-strong);
+  color: var(--text-secondary);
+  padding: 0.38rem 0.85rem;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.15s ease;
+}
+
+.settings-btn:hover,
+.settings-btn.open {
+  background: #e0f2fe;
+  border-color: #0284c7;
+  color: #0369a1;
+}
+
+.settings-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 240px;
+  background: #ffffff;
+  border: 2px solid var(--border-light);
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+  padding: 0.5rem;
+  z-index: 250;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.settings-menu.open {
+  display: flex;
+}
+
+.settings-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 10px;
+  border: 1.5px solid transparent;
+  background: #f8fafc;
+  color: var(--text-main);
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.14s ease;
+}
+
+.settings-menu-item:hover {
+  background: #f1f5f9;
+  border-color: var(--border-strong);
+}
+
+.settings-menu-item.en-on {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+  color: #0369a1;
+}
+
+.settings-item-badge {
+  font-size: 0.75rem;
+  font-weight: 900;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  max-width: 96px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ============================================================================
  * MAIN CONTAINER & WORLD MAP
  * ============================================================================ */
@@ -273,6 +365,60 @@ body {
   font-weight: 700;
 }
 
+/* Big Continue Button Banner */
+.continue-banner {
+  margin-bottom: 1.25rem;
+}
+
+.continue-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 55%, #10b981 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 18px;
+  padding: 1.05rem 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.25);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+  text-align: left;
+}
+
+.continue-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(2, 132, 199, 0.32);
+}
+
+.continue-btn-main {
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+}
+
+.continue-btn-sub {
+  font-size: 0.96rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+}
+
+.continue-congrats {
+  background: linear-gradient(135deg, #dcfce7 0%, #fef9c3 100%);
+  border: 2px solid #22c55e;
+  border-radius: 18px;
+  padding: 1rem 1.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+
 /* World Section Cards */
 .world-section {
   background: var(--bg-surface);
@@ -292,6 +438,55 @@ body {
   margin-bottom: 1.25rem;
   border-bottom: 2px dashed var(--border-light);
   flex-wrap: wrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.world-section.collapsed .world-header {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.world-section.collapsed .lesson-list {
+  display: none;
+}
+
+.world-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.world-progress-ring {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.world-progress-ring .ring-label {
+  position: absolute;
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: var(--text-main);
+}
+
+.world-collapse-chevron {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--text-muted);
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--bg-subtle);
 }
 
 .world-title-group {
@@ -457,6 +652,97 @@ body.show-en .en-sub {
   background: var(--primary);
   color: white;
   border-color: var(--primary);
+}
+
+/* 3-Step Lesson Progress Bar */
+.lesson-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.lesson-steps-track {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.lesson-step-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 2px solid var(--border-light);
+  background: #ffffff;
+  color: var(--text-secondary);
+  font-weight: 800;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lesson-step-pill .step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lesson-step-pill.done {
+  border-color: #86efac;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.lesson-step-pill.done .step-num {
+  background: #22c55e;
+  color: #ffffff;
+}
+
+.lesson-step-pill.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+}
+
+.lesson-step-pill.active .step-num {
+  background: #ffffff;
+  color: var(--primary);
+}
+
+.lesson-step-connector {
+  width: 22px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--border-strong);
+}
+
+.lesson-step-connector.done {
+  background: #22c55e;
+}
+
+.lesson-step-nav-btns {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lesson-step-back-btn,
+.lesson-step-next-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
 }
 
 .card-panel {

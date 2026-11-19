@@ -19,6 +19,8 @@ window.AppState = {
   currentView: 'map', // 'map' | 'lesson' | 'dojo' | 'vocab' | 'certificate' | 'parent'
   currentLessonId: 'w1-l1',
   lessonStep: 'learn', // 'learn' | 'lab' | 'quiz'
+  settingsMenuOpen: false,
+  expandedWorldOverrides: {}, // { [profileId]: { [worldId]: boolean } }
   quizAnswers: {},
   quizMistakes: {}, // { lessonId: number }
   quizOrderCache: {}, // { 'lessonId-qIdx': [origIdx...] }
@@ -79,6 +81,21 @@ window.AppState = {
       }
     } catch (e) {
       console.warn('Could not read localStorage:', e);
+    }
+    if (!this._listenersBound) {
+      this._listenersBound = true;
+      document.addEventListener('click', (e) => {
+        if (!this.settingsMenuOpen) return;
+        const wrap = document.querySelector('.settings-dropdown-wrap');
+        if (wrap && !wrap.contains(e.target)) {
+          this.closeSettingsMenu();
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.settingsMenuOpen) {
+          this.closeSettingsMenu();
+        }
+      });
     }
     this.syncBodyClass();
     this.renderAll();
@@ -198,6 +215,67 @@ window.AppState = {
     this.renderAll();
   },
 
+  toggleSettingsMenu(event) {
+    if (event && typeof event.stopPropagation === 'function') {
+      event.stopPropagation();
+    }
+    this.settingsMenuOpen = !this.settingsMenuOpen;
+    this.renderHeader();
+  },
+
+  closeSettingsMenu() {
+    if (!this.settingsMenuOpen) return;
+    this.settingsMenuOpen = false;
+    this.renderHeader();
+  },
+
+  isWorldExpanded(worldId, defaultCurrentWorldId) {
+    const overrides = (this.expandedWorldOverrides && this.expandedWorldOverrides[this.activeProfileId]) || {};
+    if (typeof overrides[worldId] === 'boolean') {
+      return overrides[worldId];
+    }
+    return worldId === defaultCurrentWorldId;
+  },
+
+  toggleWorldCollapse(worldId, defaultCurrentWorldId) {
+    if (!this.expandedWorldOverrides) this.expandedWorldOverrides = {};
+    if (!this.expandedWorldOverrides[this.activeProfileId]) {
+      this.expandedWorldOverrides[this.activeProfileId] = {};
+    }
+    const curr = this.isWorldExpanded(worldId, defaultCurrentWorldId);
+    this.expandedWorldOverrides[this.activeProfileId][worldId] = !curr;
+    const sec = document.getElementById(`section-${worldId}`);
+    if (sec) {
+      sec.classList.toggle('collapsed', curr);
+      const headerBtn = sec.querySelector('.world-header');
+      if (headerBtn) headerBtn.setAttribute('aria-expanded', String(!curr));
+      const chev = sec.querySelector('.world-collapse-chevron');
+      if (chev) chev.textContent = !curr ? '▾' : '▸';
+    } else {
+      this.renderMain();
+    }
+  },
+
+  renderProgressRing(doneCount, totalCount, color) {
+    const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+    const radius = 19;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (pct / 100) * circumference;
+    return `
+      <div class="world-progress-ring" title="已完成 ${doneCount} / ${totalCount} 堂課 (${pct}%)" aria-label="世界進度 ${pct}%">
+        <svg viewBox="0 0 48 48" width="48" height="48">
+          <circle class="ring-track" cx="24" cy="24" r="${radius}" fill="none" stroke="#e2e8f0" stroke-width="5"></circle>
+          <circle class="ring-fill" cx="24" cy="24" r="${radius}" fill="none" stroke="${color}" stroke-width="5"
+                  stroke-linecap="round"
+                  stroke-dasharray="${circumference.toFixed(2)}"
+                  stroke-dashoffset="${offset.toFixed(2)}"
+                  transform="rotate(-90 24 24)"></circle>
+        </svg>
+        <span class="ring-label">${pct}%</span>
+      </div>
+    `;
+  },
+
   syncBodyClass() {
     if (this.showEnglishSubtitles) {
       document.body.classList.add('show-en');
@@ -213,6 +291,7 @@ window.AppState = {
 
   navigate(view, lessonId) {
     this.currentView = view;
+    this.settingsMenuOpen = false;
     if (lessonId) {
       this.currentLessonId = lessonId;
       this.lessonStep = 'learn';
@@ -281,23 +360,40 @@ window.AppState = {
           <span>${p.avatar} ${safeName}</span>
           <span style="font-size:0.75rem; background:#fde68a; padding:1px 6px; border-radius:999px;">切換</span>
         </button>
-        <button class="lang-toggle-btn" onclick="window.AppState.renameCurrentProfile()" title="修改探險家名字" aria-label="修改探險家名字">
-          ✏️ 改名
-        </button>
         <div class="xp-pill" aria-label="探險家總積分">
           ⭐ ${p.xp} XP
         </div>
-        <button class="lang-toggle-btn ${this.zhuyinFont ? 'en-on' : ''}"
-                onclick="window.AppState.toggleZhuyinFont()"
-                title="切換國語課本注音字體 (Bpmf Iansui)"
-                aria-label="切換注音伴讀字體">
-          ${this.zhuyinFont ? '📖 注音字體 ON' : '📖 注音字體'}
-        </button>
-        <button class="lang-toggle-btn ${this.showEnglishSubtitles ? 'en-on' : ''}"
-                onclick="window.AppState.toggleEnglish()"
-                aria-label="切換中英雙語顯示">
-          ${this.showEnglishSubtitles ? '中+EN 雙語開啟' : '僅顯示中文'}
-        </button>
+        <div class="settings-dropdown-wrap">
+          <button class="settings-btn ${this.settingsMenuOpen ? 'open' : ''}"
+                  type="button"
+                  onclick="window.AppState.toggleSettingsMenu(event)"
+                  aria-haspopup="true"
+                  aria-expanded="${this.settingsMenuOpen ? 'true' : 'false'}"
+                  aria-label="開啟設定選單">
+            ⚙️ 設定
+          </button>
+          <div class="settings-menu ${this.settingsMenuOpen ? 'open' : ''}" role="menu" aria-label="學習設定選單">
+            <button class="settings-menu-item" type="button" role="menuitem"
+                    onclick="window.AppState.closeSettingsMenu(); window.AppState.renameCurrentProfile()"
+                    title="修改探險家名字" aria-label="修改探險家名字">
+              <span>✏️ 改名 Rename</span>
+              <span class="settings-item-badge">${safeName}</span>
+            </button>
+            <button class="settings-menu-item ${this.zhuyinFont ? 'en-on' : ''}" type="button" role="menuitem"
+                    onclick="window.AppState.toggleZhuyinFont()"
+                    title="切換國語課本注音字體 (Bpmf Iansui)"
+                    aria-label="切換注音伴讀字體">
+              <span>📖 注音字體 Zhuyin</span>
+              <span class="settings-item-badge">${this.zhuyinFont ? 'ON' : 'OFF'}</span>
+            </button>
+            <button class="settings-menu-item ${this.showEnglishSubtitles ? 'en-on' : ''}" type="button" role="menuitem"
+                    onclick="window.AppState.toggleEnglish()"
+                    aria-label="切換中英雙語顯示">
+              <span>🌐 中英雙語 English</span>
+              <span class="settings-item-badge">${this.showEnglishSubtitles ? 'ON' : 'OFF'}</span>
+            </button>
+          </div>
+        </div>
       </div>
     `;
   },
@@ -327,7 +423,9 @@ window.AppState = {
 
   getDailyQuest() {
     const p = this.getProfile();
-    const nextLesson = window.CURRICULUM_LESSONS.find(l => !p.completedLessons[l.id]) || window.CURRICULUM_LESSONS[0];
+    const firstUnfinished = window.CURRICULUM_LESSONS.find(l => !p.completedLessons[l.id]) || null;
+    const nextLesson = firstUnfinished || window.CURRICULUM_LESSONS[0];
+    const allLessonsDone = !firstUnfinished;
     let nextDrill = null;
     if (window.TYPING_DATA && window.TYPING_DATA.categories) {
       for (const cat of window.TYPING_DATA.categories) {
@@ -341,7 +439,7 @@ window.AppState = {
       }
       if (!nextDrill) nextDrill = window.TYPING_DATA.categories[0].drills[0];
     }
-    return { nextLesson, nextDrill };
+    return { nextLesson, nextDrill, allLessonsDone };
   },
 
   // ==========================================================================
@@ -356,7 +454,13 @@ window.AppState = {
     const totalDrills = (window.TYPING_DATA && window.TYPING_DATA.categories)
       ? window.TYPING_DATA.categories.reduce((sum, c) => sum + c.drills.length, 0)
       : 22;
-    const { nextLesson, nextDrill } = this.getDailyQuest();
+    const { nextLesson, nextDrill, allLessonsDone } = this.getDailyQuest();
+
+    const firstUnfinishedWorld = window.CURRICULUM_WORLDS.find(w => {
+      const wl = window.CURRICULUM_LESSONS.filter(l => l.worldId === w.id);
+      return wl.some(l => !p.completedLessons[l.id]);
+    });
+    const currentWorldId = firstUnfinishedWorld ? firstUnfinishedWorld.id : window.CURRICULUM_WORLDS[0].id;
 
     mainEl.innerHTML = `
       <section class="hero-banner">
@@ -386,6 +490,25 @@ window.AppState = {
         </div>
       </section>
 
+      <!-- ▶️ Big Continue Banner / Congrats when all done -->
+      <section class="continue-banner" aria-label="快速繼續學習">
+        ${allLessonsDone ? `
+          <div class="continue-congrats">
+            <span style="font-size:1.6rem;">🎉</span>
+            <div>
+              <div style="font-weight:900; font-size:1.1rem; color:#14532d;">太棒了！全部 ${totalLessons} 堂課都通關囉！All Done!</div>
+              <div style="font-size:0.88rem; font-weight:700; color:#166534;">可以去「🎓 榮譽證書」領獎狀，或去「🎹 打字道館」破紀錄！</div>
+            </div>
+            <button class="btn-primary" onclick="window.AppState.navigate('certificate')">🎓 看榮譽證書</button>
+          </div>
+        ` : `
+          <button class="continue-btn" type="button" onclick="window.AppState.navigate('lesson', '${nextLesson.id}')">
+            <span class="continue-btn-main">▶️ 繼續 Continue</span>
+            <span class="continue-btn-sub">下一關：單元 ${nextLesson.number} ${nextLesson.title}</span>
+          </button>
+        `}
+      </section>
+
       <!-- 🎯 Daily Quest Card -->
       <section class="daily-quest-card" aria-label="今日探險任務">
         <div>
@@ -407,9 +530,13 @@ window.AppState = {
       ${window.CURRICULUM_WORLDS.map(world => {
         const wLessons = window.CURRICULUM_LESSONS.filter(l => l.worldId === world.id);
         const wDoneCount = wLessons.filter(l => p.completedLessons[l.id]).length;
+        const isExpanded = this.isWorldExpanded(world.id, currentWorldId);
         return `
-          <section class="world-section" id="section-${world.id}">
-            <div class="world-header">
+          <section class="world-section ${isExpanded ? '' : 'collapsed'}" id="section-${world.id}">
+            <div class="world-header" role="button" tabindex="0"
+                 aria-expanded="${isExpanded ? 'true' : 'false'}"
+                 onclick="window.AppState.toggleWorldCollapse('${world.id}', '${currentWorldId}')"
+                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.AppState.toggleWorldCollapse('${world.id}', '${currentWorldId}');}">
               <div class="world-title-group">
                 <div class="world-icon-badge" style="background:${world.themeColor}18; border:2px solid ${world.themeColor};">
                   ${world.icon}
@@ -422,12 +549,16 @@ window.AppState = {
                   <p>${world.subtitle}</p>
                 </div>
               </div>
-              <div style="background:#f8fafc; border:2px solid #e2e8f0; padding:0.45rem 0.95rem; border-radius:999px; font-weight:800; font-size:0.88rem;">
-                🏆 進度：${wDoneCount} / ${wLessons.length} 關 ${wDoneCount === wLessons.length ? '（🏅 已獲得' + world.badgeName + '！）' : ''}
+              <div class="world-header-right">
+                ${this.renderProgressRing(wDoneCount, wLessons.length, world.themeColor)}
+                <div style="background:#f8fafc; border:2px solid #e2e8f0; padding:0.45rem 0.95rem; border-radius:999px; font-weight:800; font-size:0.88rem;">
+                  🏆 進度：${wDoneCount} / ${wLessons.length} 關 ${wDoneCount === wLessons.length ? '（🏅 已獲得' + world.badgeName + '！）' : ''}
+                </div>
+                <span class="world-collapse-chevron" aria-hidden="true">${isExpanded ? '▾' : '▸'}</span>
               </div>
             </div>
 
-            <div class="lessons-grid">
+            <div class="lesson-list lessons-grid">
               ${wLessons.map(lesson => {
                 const isDone = !!p.completedLessons[lesson.id];
                 const starsCount = isDone ? (p.completedLessons[lesson.id].stars || 3) : 0;
@@ -467,6 +598,9 @@ window.AppState = {
           onSelectWorld: (worldId) => {
             const sec = document.getElementById(`section-${worldId}`);
             if (sec) {
+              if (sec.classList.contains('collapsed')) {
+                this.toggleWorldCollapse(worldId, currentWorldId);
+              }
               sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
               sec.classList.add('island-highlight');
               setTimeout(() => sec.classList.remove('island-highlight'), 1400);
@@ -492,25 +626,51 @@ window.AppState = {
     const lessonIdx = window.CURRICULUM_LESSONS.indexOf(lesson);
     const nextLesson = window.CURRICULUM_LESSONS[lessonIdx + 1] || null;
     const isCompleted = !!this.getProfile().completedLessons[lesson.id];
+    const stepOrder = ['learn', 'lab', 'quiz'];
+    const currentStepIdx = Math.max(0, stepOrder.indexOf(this.lessonStep));
+    const prevStep = currentStepIdx > 0 ? stepOrder[currentStepIdx - 1] : null;
+    const nextStep = currentStepIdx < stepOrder.length - 1 ? stepOrder[currentStepIdx + 1] : null;
 
     mainEl.innerHTML = `
       <div class="lesson-view-header">
         <button class="back-btn" onclick="window.AppState.navigate('map')">
           ← 返回探險地圖
         </button>
-        <div class="step-tabs">
-          <button class="step-tab ${this.lessonStep === 'learn' ? 'active' : ''}"
-                  onclick="window.AppState.setLessonStep('learn')">
-            📖 1. 圖文知識卡 (${lesson.cards.length})
-          </button>
-          <button class="step-tab ${this.lessonStep === 'lab' ? 'active' : ''}"
-                  onclick="window.AppState.setLessonStep('lab')">
-            🎮 2. 互動實戰練習場
-          </button>
-          <button class="step-tab ${this.lessonStep === 'quiz' ? 'active' : ''}"
-                  onclick="window.AppState.setLessonStep('quiz')">
-            🏆 3. 闖關小測驗 (${lesson.quiz.length}題)
-          </button>
+        <div class="lesson-steps" role="navigation" aria-label="課程三步驟進度條">
+          <div class="lesson-steps-track">
+            <button type="button"
+                    class="lesson-step-pill ${this.lessonStep === 'learn' ? 'active' : (currentStepIdx > 0 ? 'done' : '')}"
+                    onclick="window.AppState.setLessonStep('learn')">
+              <span class="step-num">1</span>
+              <span>📖 學習 Learn</span>
+            </button>
+            <div class="lesson-step-connector ${currentStepIdx >= 1 ? 'done' : ''}" aria-hidden="true"></div>
+            <button type="button"
+                    class="lesson-step-pill ${this.lessonStep === 'lab' ? 'active' : (currentStepIdx > 1 ? 'done' : '')}"
+                    onclick="window.AppState.setLessonStep('lab')">
+              <span class="step-num">2</span>
+              <span>🧪 實驗 Lab</span>
+            </button>
+            <div class="lesson-step-connector ${currentStepIdx >= 2 ? 'done' : ''}" aria-hidden="true"></div>
+            <button type="button"
+                    class="lesson-step-pill ${this.lessonStep === 'quiz' ? 'active' : ''}"
+                    onclick="window.AppState.setLessonStep('quiz')">
+              <span class="step-num">3</span>
+              <span>🏆 測驗 Quiz</span>
+            </button>
+          </div>
+          <div class="lesson-step-nav-btns">
+            ${prevStep ? `
+              <button type="button" class="btn-secondary lesson-step-back-btn" onclick="window.AppState.setLessonStep('${prevStep}')">
+                ← 上一步 Back
+              </button>
+            ` : ''}
+            ${nextStep ? `
+              <button type="button" class="btn-primary lesson-step-next-btn" onclick="window.AppState.setLessonStep('${nextStep}')">
+                下一步 Next →
+              </button>
+            ` : ''}
+          </div>
         </div>
       </div>
 
@@ -567,7 +727,7 @@ window.AppState = {
 
             <div style="display:flex; justify-content:flex-end; margin-top:1.5rem;">
               <button class="btn-primary" onclick="window.AppState.setLessonStep('lab')">
-                下一步：進入「🎮 互動實戰練習場」 👉
+                下一步：進入「🧪 實驗 Lab」 👉
               </button>
             </div>
           </div>
@@ -604,7 +764,7 @@ window.AppState = {
                 ← 回去看知識卡
               </button>
               <button class="btn-primary" onclick="window.AppState.setLessonStep('quiz')">
-                下一步：挑戰「🏆 闖關小測驗」領取星星 👉
+                下一步：挑戰「🏆 測驗 Quiz」領取星星 👉
               </button>
             </div>
           </div>
