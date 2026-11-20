@@ -209,16 +209,20 @@ window.TypingDojo = {
       FullWrap.classList.toggle('is-locked-in', this.isLockedIn);
       FullWrap.style.setProperty('--elastic-y', '0px');
     }
+    if (document.documentElement) {
+      document.documentElement.classList.toggle('dojo-scroll-snap-active', !!(window.AppState && window.AppState.currentView === 'dojo'));
+    }
     const badge = document.getElementById(`${containerId}-lock-btn`);
     if (badge) {
       badge.classList.toggle('active', this.isLockedIn);
-      badge.innerHTML = this.isLockedIn ? '🔒 座艙已鎖定 (滾輪彈力解鎖)' : '🔓 捲動至打字區或打字自動鎖定';
+      badge.innerHTML = this.isLockedIn ? '🧲 磁吸置中鎖定中 (拉動捲軸彈力解鎖)' : '🔓 捲動至打字區自動磁吸置中';
     }
     if (this.isLockedIn) {
       this._lockCooldownUntil = 0;
       this.snapToCockpit(containerId);
       this.focusInput(containerId);
     } else {
+      this.lockedScrollY = null;
       this._lockCooldownUntil = Date.now() + 900;
     }
     if (window.AppState && typeof window.AppState.evaluateHeaderCompact === 'function') {
@@ -226,7 +230,21 @@ window.TypingDojo = {
     }
   },
 
-  snapToCockpit(containerId) {
+  computeCockpitCenterScrollY(containerId) {
+    const cockpit = document.querySelector(`#${containerId} .dojo-cockpit-card`) || document.querySelector(`#${containerId} .dojo-wrapper`);
+    if (!cockpit || typeof cockpit.getBoundingClientRect !== 'function') return null;
+    const navEl = document.getElementById('app-header');
+    const headerH = navEl ? (navEl.offsetHeight || 44) : 44;
+    const rect = cockpit.getBoundingClientRect();
+    if (rect.height === 0 && rect.top === 0) return null;
+    const curScroll = typeof window.scrollY === 'number' ? window.scrollY : 0;
+    const winH = window.innerHeight || 620;
+    const availH = Math.max(300, winH - headerH);
+    const idealTopInViewport = headerH + Math.max(6, Math.round((availH - rect.height) / 2));
+    return Math.max(85, Math.round(curScroll + rect.top - idealTopInViewport));
+  },
+
+  snapToCockpit(containerId, smooth = false) {
     const cockpit = document.querySelector(`#${containerId} .dojo-cockpit-card`) || document.querySelector(`#${containerId} .dojo-wrapper`);
     if (!cockpit) return;
     const navEl = document.getElementById('app-header');
@@ -234,43 +252,123 @@ window.TypingDojo = {
       window.AppState.headerCompact = true;
       navEl.classList.add('is-compact');
     }
-    if (typeof cockpit.getBoundingClientRect === 'function') {
-      const rect = cockpit.getBoundingClientRect();
-      const headerH = navEl ? (navEl.offsetHeight || 44) : 44;
-      if (Math.abs(rect.top - headerH) > 10 && (rect.height > 0 || rect.top !== 0)) {
-        const curScroll = typeof window.scrollY === 'number' ? window.scrollY : 0;
-        const targetY = Math.max(80, Math.round(curScroll + rect.top - headerH - 6));
-        window.scrollTo({ top: targetY, behavior: 'auto' });
-      }
+    const targetY = this.computeCockpitCenterScrollY(containerId);
+    if (targetY !== null) {
+      this.lockedScrollY = targetY;
+      this._isProgrammaticSnap = true;
+      window.scrollTo({ top: targetY, behavior: smooth ? 'smooth' : 'auto' });
+      setTimeout(() => { this._isProgrammaticSnap = false; }, smooth ? 260 : 60);
     }
   },
 
   checkScrollAutoLock(containerId) {
     if (this.dojoMode !== 'drill') return;
-    if (this.isLockedIn) return;
+    if (document.documentElement) {
+      document.documentElement.classList.add('dojo-scroll-snap-active');
+    }
+    if (this._isProgrammaticSnap) return;
+
+    const scrollY = typeof window.scrollY === 'number' ? window.scrollY : 0;
+
+    // 1. If ALREADY locked in: couple the native right-hand scrollbar directly to the magnetic center spring!
+    if (this.isLockedIn) {
+      const centerY = (typeof this.lockedScrollY === 'number')
+        ? this.lockedScrollY
+        : this.computeCockpitCenterScrollY(containerId);
+      if (centerY === null) return;
+      this.lockedScrollY = centerY;
+
+      const displacement = scrollY - centerY; // how far the native scrollbar moved from center
+      if (Math.abs(displacement) <= 2) return;
+
+      const wrapper = document.querySelector(`#${containerId} .dojo-wrapper`);
+      const cockpit = document.querySelector(`#${containerId} .dojo-cockpit-card`) || wrapper;
+
+      // If user dragged the scrollbar or scrolled past the magnetic escape threshold (105px), release lock!
+      if (Math.abs(displacement) >= 105) {
+        this.isLockedIn = false;
+        this.lockedScrollY = null;
+        this._lockCooldownUntil = Date.now() + 950;
+        this.elasticPullY = 0;
+        if (wrapper) {
+          wrapper.classList.remove('is-elastic-pulling', 'is-locked-in');
+          wrapper.classList.add('is-elastic-released');
+          wrapper.style.setProperty('--elastic-y', '0px');
+        }
+        if (cockpit && cockpit !== wrapper) {
+          cockpit.classList.remove('is-elastic-pulling', 'is-locked-in');
+          cockpit.classList.add('is-elastic-released');
+          cockpit.style.setProperty('--elastic-y', '0px');
+        }
+        const badge = document.getElementById(`${containerId}-lock-btn`);
+        if (badge) {
+          badge.classList.remove('active');
+          badge.innerHTML = '🔓 捲動至打字區自動磁吸置中';
+        }
+        if (window.AppState && typeof window.AppState.evaluateHeaderCompact === 'function') {
+          window.AppState.evaluateHeaderCompact();
+        }
+        setTimeout(() => {
+          if (wrapper) wrapper.classList.remove('is-elastic-released');
+          if (cockpit && cockpit !== wrapper) cockpit.classList.remove('is-elastic-released');
+        }, 420);
+        return;
+      }
+
+      // Otherwise, while inside the magnetic zone (< 105px), apply visual counter-tension & spring the native scrollbar back to center when scrolling pauses!
+      this.elasticPullY = Math.round(displacement * 0.42);
+      if (wrapper) {
+        wrapper.classList.add('is-elastic-pulling');
+        wrapper.style.setProperty('--elastic-y', `${this.elasticPullY}px`);
+      }
+      if (cockpit && cockpit !== wrapper) {
+        cockpit.classList.add('is-elastic-pulling');
+        cockpit.style.setProperty('--elastic-y', `${this.elasticPullY}px`);
+      }
+
+      if (this._scrollSnapBackTimer) clearTimeout(this._scrollSnapBackTimer);
+      this._scrollSnapBackTimer = setTimeout(() => {
+        if (!this.isLockedIn || this.lockedScrollY === null) return;
+        this.elasticPullY = 0;
+        if (wrapper) {
+          wrapper.classList.remove('is-elastic-pulling');
+          wrapper.style.setProperty('--elastic-y', '0px');
+        }
+        if (cockpit && cockpit !== wrapper) {
+          cockpit.classList.remove('is-elastic-pulling');
+          cockpit.style.setProperty('--elastic-y', '0px');
+        }
+        // Spring the native right-hand scrollbar smoothly back to the center of the cockpit!
+        this._isProgrammaticSnap = true;
+        window.scrollTo({ top: this.lockedScrollY, behavior: 'smooth' });
+        setTimeout(() => { this._isProgrammaticSnap = false; }, 260);
+      }, 150);
+      return;
+    }
+
+    // 2. If NOT locked in yet: when scrolling into the cockpit center zone, magnetically lock into center!
     if (this._lockCooldownUntil && Date.now() < this._lockCooldownUntil) return;
     const topSec = document.querySelector(`#${containerId} .dojo-top-stage-section`);
     const cockpit = document.querySelector(`#${containerId} .dojo-cockpit-card`);
     if (!topSec || !cockpit || typeof topSec.getBoundingClientRect !== 'function') return;
     const topRect = topSec.getBoundingClientRect();
     const cockRect = cockpit.getBoundingClientRect();
-    const scrollY = typeof window.scrollY === 'number' ? window.scrollY : 0;
-    // As soon as the user scrolls down past 80px (leaving the top stage section) and the cockpit is in view, snap & lock!
-    if ((topRect.height > 0 || topRect.bottom !== 0) && (scrollY >= 80 || topRect.top < 20) && cockRect.bottom > 240) {
-      this.toggleLockIn(containerId, true);
+    if ((topRect.height > 0 || topRect.bottom !== 0) && (scrollY >= 80 || topRect.top < 20) && cockRect.bottom > 240 && cockRect.top > -60) {
+      if (this._autoLockSettleTimer) clearTimeout(this._autoLockSettleTimer);
+      this._autoLockSettleTimer = setTimeout(() => {
+        if (!this.isLockedIn && (!this._lockCooldownUntil || Date.now() >= this._lockCooldownUntil)) {
+          this.toggleLockIn(containerId, true);
+        }
+      }, 90);
     }
   },
 
-  handleElasticDelta(deltaY, containerId, preventDefaultFn) {
+  handleElasticDelta(deltaY, containerId) {
     const wrapper = document.querySelector(`#${containerId} .dojo-wrapper`);
     const cockpit = document.querySelector(`#${containerId} .dojo-cockpit-card`) || wrapper;
     if (!wrapper || !this.isLockedIn) return false;
 
-    if (typeof preventDefaultFn === 'function') {
-      preventDefaultFn();
-    }
-
-    // Damped spring accumulation (0.38x resistance)
+    // Damped spring accumulation (0.38x resistance) coupled with native scrollY
     this.elasticPullY = Math.max(-130, Math.min(130, this.elasticPullY - deltaY * 0.38));
     wrapper.classList.add('is-elastic-pulling');
     wrapper.style.setProperty('--elastic-y', `${Math.round(this.elasticPullY)}px`);
@@ -283,8 +381,8 @@ window.TypingDojo = {
 
     // If pulled beyond elastic threshold, release the lock with spring rebound!
     if (Math.abs(this.elasticPullY) >= this.elasticResistanceThreshold) {
-      const pullDirection = deltaY;
       this.isLockedIn = false;
+      this.lockedScrollY = null;
       this._lockCooldownUntil = Date.now() + 1100;
       this.elasticPullY = 0;
       wrapper.classList.remove('is-elastic-pulling', 'is-locked-in');
@@ -298,13 +396,7 @@ window.TypingDojo = {
       const badge = document.getElementById(`${containerId}-lock-btn`);
       if (badge) {
         badge.classList.remove('active');
-        badge.innerHTML = '🔓 捲動至打字區或打字自動鎖定';
-      }
-      // On release, smoothly nudge scroll in the user's pull direction
-      if (typeof window.scrollBy === 'function' && pullDirection !== 0) {
-        try {
-          window.scrollBy({ top: pullDirection > 0 ? 180 : -220, behavior: 'smooth' });
-        } catch (e) {}
+        badge.innerHTML = '🔓 捲動至打字區自動磁吸置中';
       }
       if (window.AppState && typeof window.AppState.evaluateHeaderCompact === 'function') {
         window.AppState.evaluateHeaderCompact();
@@ -325,7 +417,12 @@ window.TypingDojo = {
         cockpit.classList.remove('is-elastic-pulling');
         cockpit.style.setProperty('--elastic-y', '0px');
       }
-    }, 180);
+      if (this.isLockedIn && typeof this.lockedScrollY === 'number') {
+        this._isProgrammaticSnap = true;
+        window.scrollTo({ top: this.lockedScrollY, behavior: 'smooth' });
+        setTimeout(() => { this._isProgrammaticSnap = false; }, 240);
+      }
+    }, 160);
     return false;
   },
 
@@ -334,37 +431,20 @@ window.TypingDojo = {
     if (!wrapper || wrapper._elasticBound) return;
     wrapper._elasticBound = true;
 
+    if (document.documentElement) {
+      document.documentElement.classList.toggle('dojo-scroll-snap-active', !!(window.AppState && window.AppState.currentView === 'dojo'));
+    }
+
     if (!this._windowScrollLockBound) {
       this._windowScrollLockBound = true;
       window.addEventListener('scroll', () => {
         if (window.AppState && window.AppState.currentView === 'dojo') {
           this.checkScrollAutoLock('standalone-dojo-mount');
+        } else if (document.documentElement) {
+          document.documentElement.classList.remove('dojo-scroll-snap-active');
         }
       }, { passive: true });
     }
-
-    wrapper.addEventListener('wheel', (e) => {
-      if (!this.isLockedIn) return;
-      this.handleElasticDelta(e.deltaY || 0, containerId, () => e.preventDefault());
-    }, { passive: false });
-
-    let touchStartY = null;
-    wrapper.addEventListener('touchstart', (e) => {
-      if (e.touches && e.touches.length === 1) {
-        touchStartY = e.touches[0].clientY;
-      }
-    }, { passive: true });
-
-    wrapper.addEventListener('touchmove', (e) => {
-      if (!this.isLockedIn || touchStartY === null || !e.touches || !e.touches.length) return;
-      const dy = touchStartY - e.touches[0].clientY;
-      touchStartY = e.touches[0].clientY;
-      this.handleElasticDelta(dy * 1.4, containerId, () => e.preventDefault());
-    }, { passive: false });
-
-    wrapper.addEventListener('touchend', () => {
-      touchStartY = null;
-    }, { passive: true });
   },
 
   setDojoMode(mode, containerId) {

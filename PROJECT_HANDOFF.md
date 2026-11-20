@@ -103,10 +103,12 @@ digital-explorer-academy/
 * **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **795 / 795 PASS (100%)**
 * **GitHub Repository:** https://github.com/azreal564335/dea (`main` branch)
 * **Recent Changes:**
-  * **Scroll-Down-to-Lock-In Flow & `overflow-anchor: none` Sticky Header Shrink:**
-    * Structured the Typing Dojo into 3 scrollable sections: **Top Stage/Level Selector** (`.dojo-top-stage-section`), **Middle Single-Card 3-Column Typing Cockpit** (`.dojo-cockpit-card`, `471px` tall), and **Bottom Speed Chart & Finger Legend** (`.dojo-bottom-stats-section`).
-    * Added `overflow-anchor: none` on `html, body, #app-header, .top-nav` so shrinking the sticky header never triggers Chromium scroll-anchoring jump-back.
-    * Verified full 4-step lifecycle in headless Chromium (`1280×760`): (1) starts at top with expanded header; (2) scrolling down (`scrollY >= 80`) or typing a key shrinks `#app-header` to `43px` and snap-locks `.dojo-cockpit-card` at `top: 49px..519px` (`fitsInScreen: true`); (3) gentle scroll pulls apply damped `--elastic-y` (`30px`) resistance while strong pull (`>= 88px`) releases with spring rebound; (4) scrolling back to top re-expands `#app-header`.
+  * **Scrollbar-Coupled Magnetic Center Lock-In (`computeCockpitCenterScrollY` + `checkScrollAutoLock`):**
+    * Coupled the Typing Cockpit's elastic lock-in directly to **`window.scrollY` and the browser's native right-hand scrollbar** (removed `wheel` `preventDefault()` so touchpad, mouse wheel, and dragging the right-hand scrollbar thumb all move the real scrollbar).
+    * **Verified in Real Chromium (`1280×760`):**
+      1. **Magnetic Center Lock:** Scrolling down past the stage selector (`scrollY >= 80`) or typing a key shrinks `#app-header` to `43px` and centers `.dojo-cockpit-card` at `lockedScrollY: 250` (`cockpitTop: 92px`, `cockpitBottom: 562px`, dead-center in the `43px..617px` viewport).
+      2. **Real-Scrollbar Spring Pull-Back:** Moving the native scrollbar `+65px` (`scrollY: 315`) within the `< 105px` magnetic zone applies `--elastic-y: 27px` counter-tension and smoothly springs the native scrollbar back to `scrollY: 250` when released.
+      3. **Real-Scrollbar Escape:** Pulling the native scrollbar `+140px` (`>= 105px`, `scrollY: 390`) breaks free of the magnetic lock (`lockedInAfterEscape: false`) with a spring rebound animation.
   * **Zero-Scroll Single-Screen 3-Column Typing Cockpit & Elastic Lock-In:**
     * **Real Chromium Laptop Viewport Verification (`1280×760`, `617px` innerHeight):** Entire Typing Dojo Cockpit (Mode Bar + Direct-Focus Character Ribbon + `[ Left Hand SVG | Taiwan Keyboard | Right Hand SVG ]`) fits inside `471px` (`fitsInScreen: true`) right beneath the `43px` compact header.
     * **3-Column Side-by-Side SVG Hands (`renderSingleHandSvg`):** Placed Left Hand SVG on the left and Right Hand SVG on the right of the keyboard, saving `~190px` vertically and keeping both hands + keyboard in a single glance.
