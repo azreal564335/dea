@@ -24,6 +24,7 @@ window.AppState = {
   lessonStep: 'learn', // 'learn' | 'lab' | 'quiz'
   currentCardIdx: 0,
   settingsMenuOpen: false,
+  headerCompact: false,
   expandedWorldOverrides: {}, // { [profileId]: { [worldId]: boolean } }
   quizAnswers: {},
   quizMistakes: {}, // { lessonId: number }
@@ -72,8 +73,52 @@ window.AppState = {
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
 
+  evaluateHeaderCompact() {
+    const navEl = document.getElementById('app-header');
+    if (!navEl) return false;
+    const scrollY = typeof window.scrollY === 'number'
+      ? window.scrollY
+      : (typeof window.pageYOffset === 'number' ? window.pageYOffset : 0);
+
+    const mainEl = document.getElementById('app-main');
+    const firstSection = mainEl
+      ? (mainEl.querySelector('.hero-banner, .lesson-title-banner, .daily-quest-card, .card-panel') || mainEl.firstElementChild)
+      : null;
+
+    let shouldCompact = this.headerCompact;
+    let usedRect = false;
+
+    if (firstSection && typeof firstSection.getBoundingClientRect === 'function') {
+      const rect = firstSection.getBoundingClientRect();
+      if (rect && (rect.height > 0 || rect.bottom !== 0 || rect.top !== 0)) {
+        usedRect = true;
+        const headerHeight = navEl.offsetHeight || 68;
+        if (!this.headerCompact && rect.bottom <= headerHeight + 12) {
+          shouldCompact = true;
+        } else if (this.headerCompact && rect.bottom > headerHeight + 36 && scrollY < 80) {
+          shouldCompact = false;
+        }
+      }
+    }
+
+    if (!usedRect) {
+      if (!this.headerCompact && scrollY > 110) {
+        shouldCompact = true;
+      } else if (this.headerCompact && scrollY < 60) {
+        shouldCompact = false;
+      }
+    }
+
+    if (shouldCompact !== this.headerCompact) {
+      this.headerCompact = shouldCompact;
+    }
+    navEl.classList.toggle('is-compact', this.headerCompact);
+    return this.headerCompact;
+  },
+
   init() {
     this.currentView = 'map';
+    this.headerCompact = false;
     let hasSavedDarkMode = false;
     let shouldPersistPreset = false;
     try {
@@ -134,6 +179,9 @@ window.AppState = {
     }
     if (!this._listenersBound) {
       this._listenersBound = true;
+      window.addEventListener('scroll', () => {
+        this.evaluateHeaderCompact();
+      }, { passive: true });
       document.addEventListener('click', (e) => {
         if (!this.settingsMenuOpen) return;
         const wrap = document.querySelector('.settings-dropdown-wrap');
@@ -523,6 +571,7 @@ window.AppState = {
   navigate(view, lessonId) {
     this.currentView = view;
     this.settingsMenuOpen = false;
+    this.headerCompact = false;
     this.stopReadAloud();
     if (lessonId) {
       this.currentLessonId = lessonId;
@@ -536,11 +585,14 @@ window.AppState = {
 
   setLessonStep(step) {
     this.lessonStep = step;
+    this.headerCompact = false;
     if (step === 'learn') {
       this.currentCardIdx = 0;
     }
     this.stopReadAloud();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    const navEl = document.getElementById('app-header');
+    if (navEl) navEl.classList.remove('is-compact');
     this.renderMain();
   },
 
@@ -613,6 +665,7 @@ window.AppState = {
   renderHeader() {
     const navEl = document.getElementById('app-header');
     if (!navEl) return;
+    navEl.classList.toggle('is-compact', !!this.headerCompact);
     const p = this.getProfile();
     const safeName = this.escapeHtml(p.name);
     const completedCount = Object.keys(p.completedLessons).length;
@@ -633,27 +686,27 @@ window.AppState = {
       <nav class="nav-tabs" aria-label="主導覽列">
         <button class="nav-tab ${this.currentView === 'map' || this.currentView === 'lesson' ? 'active' : ''}"
                 onclick="window.AppState.navigate('map')">
-          🗺️ 探險地圖 (${completedCount}/${totalLessons})
+          🗺️ <span class="nav-tab-text">探險地圖</span><span class="nav-tab-count"> (${completedCount}/${totalLessons})</span>
         </button>
         <button class="nav-tab ${this.currentView === 'dojo' ? 'active' : ''}"
                 onclick="window.AppState.navigate('dojo')">
-          🎹 中英打字道館 (${totalDrills}關)
+          🎹 <span class="nav-tab-text">中英打字道館</span><span class="nav-tab-count"> (${totalDrills}關)</span>
         </button>
         <button class="nav-tab ${this.currentView === 'vocab' ? 'active' : ''}"
                 onclick="window.AppState.navigate('vocab')">
-          🔤 電腦英文單字卡
+          🔤 <span class="nav-tab-text">電腦英文單字卡</span>
         </button>
         <button class="nav-tab ${this.currentView === 'badges' ? 'active' : ''}"
                 onclick="window.AppState.navigate('badges')">
-          🏆 徽章櫃 Badges
+          🏆 <span class="nav-tab-text">徽章櫃</span><span class="nav-tab-count"> Badges</span>
         </button>
         <button class="nav-tab ${this.currentView === 'certificate' ? 'active' : ''}"
                 onclick="window.AppState.navigate('certificate')">
-          🎓 榮譽證書
+          🎓 <span class="nav-tab-text">榮譽證書</span>
         </button>
         <button class="nav-tab ${this.currentView === 'parent' ? 'active' : ''}"
                 onclick="window.AppState.navigate('parent')">
-          👨‍👩‍👧 家長儀表板
+          👨‍👩‍👧 <span class="nav-tab-text">家長儀表板</span>
         </button>
       </nav>
 
@@ -672,7 +725,7 @@ window.AppState = {
                   aria-haspopup="true"
                   aria-expanded="${this.settingsMenuOpen ? 'true' : 'false'}"
                   aria-label="開啟設定選單">
-            ⚙️ 設定
+            ⚙️ <span class="settings-btn-label">設定</span>
           </button>
           <div class="settings-menu ${this.settingsMenuOpen ? 'open' : ''}" role="menu" aria-label="學習設定選單">
             <button class="settings-menu-item" type="button" role="menuitem"

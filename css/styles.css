@@ -2941,5 +2941,103 @@ body.dark-mode .skeleton-island-static {
   color: #7dd3fc;
 }
 
+/* ============================================================================
+   14. COMPACT SINGLE-ROW TOP HEADER ON SCROLL (.top-header.is-compact)
+   ============================================================================ */
+.top-header,
+.brand-logo,
+.brand-title,
+.brand-subtitle,
+.nav-tab,
+.profile-pill,
+.xp-pill,
+.settings-btn {
+  transition: padding 0.2s ease, font-size 0.2s ease, width 0.2s ease, height 0.2s ease, min-height 0.2s ease, box-shadow 0.2s ease;
+}
 
+.top-header.is-compact {
+  padding: 0.35rem 1rem;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+}
 
+.top-header.is-compact .brand-area {
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.top-header.is-compact .brand-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  font-size: 1.1rem;
+}
+
+.top-header.is-compact .brand-title {
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.top-header.is-compact .brand-subtitle,
+.top-header.is-compact .nav-tab-count,
+.top-header.is-compact .profile-switch-tag,
+.top-header.is-compact .settings-btn-label {
+  display: none !important;
+}
+
+.top-header.is-compact .nav-tabs {
+  gap: 0.35rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.top-header.is-compact .nav-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.top-header.is-compact .nav-tab,
+body.kid-mode-8 .top-header.is-compact .nav-tab {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.85rem;
+  min-height: 36px;
+  white-space: nowrap;
+  gap: 0.3rem;
+}
+
+.top-header.is-compact .nav-right {
+  gap: 0.4rem;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+.top-header.is-compact .profile-pill,
+body.kid-mode-8 .top-header.is-compact .profile-pill {
+  padding: 0.25rem 0.65rem;
+  font-size: 0.82rem;
+  min-height: 34px;
+  white-space: nowrap;
+}
+
+.top-header.is-compact .xp-pill,
+body.kid-mode-8 .top-header.is-compact .xp-pill {
+  padding: 0.25rem 0.65rem;
+  font-size: 0.82rem;
+  min-height: 34px;
+  white-space: nowrap;
+}
+
+.top-header.is-compact .settings-btn,
+body.kid-mode-8 .top-header.is-compact .settings-btn {
+  padding: 0.25rem 0.55rem;
+  font-size: 0.9rem;
+  min-height: 34px;
+}
+
+@media (max-width: 900px) {
+  .top-header.is-compact {
+    flex-wrap: wrap;
+    padding: 0.35rem 0.75rem;
+  }
+}

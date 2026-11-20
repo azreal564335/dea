@@ -841,6 +841,22 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   window.AppState.navigate('dojo');
   assert(!!window.document.querySelector('.dojo-cat-tabs') && !!window.document.querySelector('.dojo-stats-pill'),
     'Typing Dojo uses extracted .dojo-cat-tabs and .dojo-stats-pill classes');
+
+  // 18. Compact Single-Row Top Header on Scroll
+  console.log('\n--- 18. Compact Top Header on Scroll ---');
+  window.AppState.navigate('map');
+  const headerEl = window.document.getElementById('app-header');
+  assert(headerEl && !headerEl.classList.contains('is-compact'), 'Top header starts expanded (not is-compact) at top of page');
+  assert(!!headerEl.querySelector('.nav-tab-count') && !!headerEl.querySelector('.settings-btn-label'),
+    'Header renders .nav-tab-count and .settings-btn-label spans for compact mode');
+  window.scrollY = 220;
+  window.dispatchEvent(new window.Event('scroll'));
+  assert(window.AppState.headerCompact === true && headerEl.classList.contains('is-compact'),
+    'Scrolling past the first section shrinks top header (.top-header.is-compact)');
+  window.scrollY = 10;
+  window.dispatchEvent(new window.Event('scroll'));
+  assert(window.AppState.headerCompact === false && !headerEl.classList.contains('is-compact'),
+    'Scrolling back to top expands top header (removes .is-compact)');
 }
 
 async function main() {
