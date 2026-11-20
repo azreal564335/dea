@@ -2942,9 +2942,10 @@ body.dark-mode .skeleton-island-static {
 }
 
 /* ============================================================================
-   14. COMPACT SINGLE-ROW TOP HEADER ON SCROLL (.top-header.is-compact)
+   14. COMPACT SINGLE-ROW TOP HEADER ON SCROLL (#app-header.is-compact / .top-nav.is-compact)
    ============================================================================ */
-.top-header,
+#app-header,
+.top-nav,
 .brand-logo,
 .brand-title,
 .brand-subtitle,
@@ -2955,51 +2956,64 @@ body.dark-mode .skeleton-island-static {
   transition: padding 0.2s ease, font-size 0.2s ease, width 0.2s ease, height 0.2s ease, min-height 0.2s ease, box-shadow 0.2s ease;
 }
 
-.top-header.is-compact {
+#app-header.is-compact,
+.top-nav.is-compact {
   padding: 0.28rem 0.9rem;
   gap: 0.45rem;
   flex-wrap: nowrap;
   box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
 }
 
-.top-header.is-compact .brand-area {
+#app-header.is-compact .brand-area,
+.top-nav.is-compact .brand-area {
   gap: 0.45rem;
   flex-shrink: 0;
 }
 
-.top-header.is-compact .brand-logo {
+#app-header.is-compact .brand-logo,
+.top-nav.is-compact .brand-logo {
   width: 28px;
   height: 28px;
   border-radius: 8px;
   font-size: 0.95rem;
 }
 
-.top-header.is-compact .brand-title {
+#app-header.is-compact .brand-title,
+.top-nav.is-compact .brand-title {
   font-size: 0.92rem;
   white-space: nowrap;
 }
 
-.top-header.is-compact .brand-subtitle,
-.top-header.is-compact .nav-tab-extra,
-.top-header.is-compact .nav-tab-count,
-.top-header.is-compact .profile-switch-tag,
-.top-header.is-compact .settings-btn-label {
+#app-header.is-compact .brand-subtitle,
+#app-header.is-compact .nav-tab-extra,
+#app-header.is-compact .nav-tab-count,
+#app-header.is-compact .profile-switch-tag,
+#app-header.is-compact .settings-btn-label,
+.top-nav.is-compact .brand-subtitle,
+.top-nav.is-compact .nav-tab-extra,
+.top-nav.is-compact .nav-tab-count,
+.top-nav.is-compact .profile-switch-tag,
+.top-nav.is-compact .settings-btn-label {
   display: none !important;
 }
 
-.top-header.is-compact .nav-tabs {
+#app-header.is-compact .nav-tabs,
+.top-nav.is-compact .nav-tabs {
   gap: 0.3rem;
   flex-wrap: nowrap;
   overflow-x: auto;
   scrollbar-width: none;
 }
 
-.top-header.is-compact .nav-tabs::-webkit-scrollbar {
+#app-header.is-compact .nav-tabs::-webkit-scrollbar,
+.top-nav.is-compact .nav-tabs::-webkit-scrollbar {
   display: none;
 }
 
-.top-header.is-compact .nav-tab,
-body.kid-mode-8 .top-header.is-compact .nav-tab {
+#app-header.is-compact .nav-tab,
+body.kid-mode-8 #app-header.is-compact .nav-tab,
+.top-nav.is-compact .nav-tab,
+body.kid-mode-8 .top-nav.is-compact .nav-tab {
   padding: 0.22rem 0.6rem;
   font-size: 0.82rem;
   min-height: 32px;
@@ -3007,37 +3021,45 @@ body.kid-mode-8 .top-header.is-compact .nav-tab {
   gap: 0.25rem;
 }
 
-.top-header.is-compact .nav-right {
+#app-header.is-compact .nav-right,
+.top-nav.is-compact .nav-right {
   gap: 0.35rem;
   flex-wrap: nowrap;
   flex-shrink: 0;
 }
 
-.top-header.is-compact .profile-pill,
-body.kid-mode-8 .top-header.is-compact .profile-pill {
+#app-header.is-compact .profile-pill,
+body.kid-mode-8 #app-header.is-compact .profile-pill,
+.top-nav.is-compact .profile-pill,
+body.kid-mode-8 .top-nav.is-compact .profile-pill {
   padding: 0.2rem 0.55rem;
   font-size: 0.8rem;
   min-height: 32px;
   white-space: nowrap;
 }
 
-.top-header.is-compact .xp-pill,
-body.kid-mode-8 .top-header.is-compact .xp-pill {
+#app-header.is-compact .xp-pill,
+body.kid-mode-8 #app-header.is-compact .xp-pill,
+.top-nav.is-compact .xp-pill,
+body.kid-mode-8 .top-nav.is-compact .xp-pill {
   padding: 0.2rem 0.55rem;
   font-size: 0.8rem;
   min-height: 32px;
   white-space: nowrap;
 }
 
-.top-header.is-compact .settings-btn,
-body.kid-mode-8 .top-header.is-compact .settings-btn {
+#app-header.is-compact .settings-btn,
+body.kid-mode-8 #app-header.is-compact .settings-btn,
+.top-nav.is-compact .settings-btn,
+body.kid-mode-8 .top-nav.is-compact .settings-btn {
   padding: 0.2rem 0.45rem;
   font-size: 0.85rem;
   min-height: 32px;
 }
 
 @media (max-width: 900px) {
-  .top-header.is-compact {
+  #app-header.is-compact,
+  .top-nav.is-compact {
     flex-wrap: wrap;
     padding: 0.3rem 0.65rem;
   }

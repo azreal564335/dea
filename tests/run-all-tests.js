@@ -849,10 +849,18 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   assert(headerEl && !headerEl.classList.contains('is-compact'), 'Top header starts expanded (not is-compact) at top of page');
   assert(!!headerEl.querySelector('.nav-tab-count') && !!headerEl.querySelector('.nav-tab-extra') && !!headerEl.querySelector('.settings-btn-label'),
     'Header renders .nav-tab-extra, .nav-tab-count, and .settings-btn-label spans for compact mode');
+  const subEl = headerEl.querySelector('.brand-subtitle');
+  const extraEl = headerEl.querySelector('.nav-tab-extra');
+  assert(window.getComputedStyle(subEl).display !== 'none' && window.getComputedStyle(extraEl).display !== 'none',
+    'Before scroll: .brand-subtitle and .nav-tab-extra are visible in computed styles');
   window.scrollY = 120;
   window.dispatchEvent(new window.Event('scroll'));
   assert(window.AppState.headerCompact === true && headerEl.classList.contains('is-compact'),
-    'Scrolling past the first section shrinks top header (.top-header.is-compact)');
+    'Scrolling past the first section shrinks top header (#app-header.is-compact)');
+  assert(window.getComputedStyle(subEl).display === 'none' && window.getComputedStyle(extraEl).display === 'none',
+    'After scroll: #app-header.is-compact CSS rules hide .brand-subtitle and .nav-tab-extra in computed styles');
+  assert(window.getComputedStyle(headerEl.querySelector('.nav-tab')).minHeight === '32px',
+    'After scroll: #app-header.is-compact shrinks .nav-tab min-height to 32px');
   window.scrollY = 10;
   window.dispatchEvent(new window.Event('scroll'));
   assert(window.AppState.headerCompact === false && !headerEl.classList.contains('is-compact'),
