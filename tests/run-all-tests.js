@@ -108,6 +108,7 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
 
   // 2. Test Top Navigation Tabs
   console.log('\n--- Testing Top Navigation Tabs ---');
+  assert(window.AppState.currentView === 'map', 'App opens by default on Explorer Map');
   const tabs = ['map', 'dojo', 'vocab', 'certificate', 'parent'];
   for (const tab of tabs) {
     window.AppState.navigate(tab);
@@ -116,14 +117,18 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
     assert(mainEl && mainEl.children.length > 0, `Content rendered for tab: '${tab}'`);
   }
 
-  // 3. Test Profile Switching
-  console.log('\n--- Testing Profile Switching ---');
+  // 3. Test Profile Switching & Default Preset (kid-8 on Explorer Map)
+  console.log('\n--- Testing Profile Switching & Default Preset ---');
   window.AppState.navigate('map');
-  assert(window.AppState.activeProfileId === 'kid-10', 'Default active profile is kid-10');
+  assert(window.AppState.activeProfileId === 'kid-8', 'Default active profile is kid-8 (8yo)');
+  const presetStorage = JSON.parse(window.localStorage.getItem('digital_explorer_academy_v1') || '{}');
+  assert(presetStorage.activeProfileId === 'kid-8' && presetStorage.profiles && presetStorage.profiles['kid-8'], 'localStorage is automatically checked and preset with default kid-8 user');
   window.AppState.switchProfile();
-  assert(window.AppState.activeProfileId === 'kid-8', 'Profile switched to kid-8');
+  assert(window.AppState.activeProfileId === 'kid-10', 'Profile switched to kid-10');
   window.AppState.switchProfile();
-  assert(window.AppState.activeProfileId === 'kid-10', 'Profile switched back to kid-10');
+  assert(window.AppState.activeProfileId === 'kid-8', 'Profile switched back to kid-8');
+  // Switch to kid-10 for the remaining test suite progression
+  window.AppState.switchProfile();
 
   // 4. Test Profile Renaming via Custom UIModal
   console.log('\n--- Testing Profile Renaming via Custom UIModal ---');

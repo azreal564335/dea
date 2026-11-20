@@ -13,9 +13,9 @@
 const STORAGE_KEY = 'digital_explorer_academy_v1';
 
 window.AppState = {
-  activeProfileId: 'kid-10',
+  activeProfileId: 'kid-8',
   showEnglishSubtitles: true,
-  zhuyinFont: false,
+  zhuyinFont: true,
   soundEnabled: true,
   darkMode: false,
   speakingCardKey: null,
@@ -73,33 +73,53 @@ window.AppState = {
   },
 
   init() {
+    this.currentView = 'map';
     let hasSavedDarkMode = false;
+    let shouldPersistPreset = false;
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.profiles) this.profiles = parsed.profiles;
-        if (parsed.activeProfileId) this.activeProfileId = parsed.activeProfileId;
-        if (typeof parsed.showEnglishSubtitles === 'boolean') {
+        if (parsed && parsed.profiles && typeof parsed.profiles === 'object') {
+          if (parsed.profiles['kid-10']) {
+            this.profiles['kid-10'] = { ...this.profiles['kid-10'], ...this.sanitizeProfile(parsed.profiles['kid-10'], this.profiles['kid-10']) };
+          }
+          if (parsed.profiles['kid-8']) {
+            this.profiles['kid-8'] = { ...this.profiles['kid-8'], ...this.sanitizeProfile(parsed.profiles['kid-8'], this.profiles['kid-8']) };
+          }
+        } else {
+          shouldPersistPreset = true;
+        }
+        if (parsed && (parsed.activeProfileId === 'kid-8' || parsed.activeProfileId === 'kid-10')) {
+          this.activeProfileId = parsed.activeProfileId;
+        } else {
+          this.activeProfileId = 'kid-8';
+          shouldPersistPreset = true;
+        }
+        if (parsed && typeof parsed.showEnglishSubtitles === 'boolean') {
           this.showEnglishSubtitles = parsed.showEnglishSubtitles;
         }
-        if (typeof parsed.zhuyinFont === 'boolean') {
+        if (parsed && typeof parsed.zhuyinFont === 'boolean') {
           this.zhuyinFont = parsed.zhuyinFont;
         } else {
           this.zhuyinFont = this.activeProfileId === 'kid-8';
         }
-        if (typeof parsed.darkMode === 'boolean') {
+        if (parsed && typeof parsed.darkMode === 'boolean') {
           this.darkMode = parsed.darkMode;
           hasSavedDarkMode = true;
         }
-        if (typeof parsed.soundEnabled === 'boolean') {
+        if (parsed && typeof parsed.soundEnabled === 'boolean') {
           this.soundEnabled = parsed.soundEnabled;
         }
       } else {
-        this.zhuyinFont = this.activeProfileId === 'kid-8';
+        this.activeProfileId = 'kid-8';
+        this.zhuyinFont = true;
+        shouldPersistPreset = true;
       }
     } catch (e) {
       console.warn('Could not read localStorage:', e);
+      this.activeProfileId = 'kid-8';
+      this.zhuyinFont = true;
     }
     if (!hasSavedDarkMode) {
       this.darkMode = typeof window.matchMedia === 'function' &&
@@ -108,6 +128,9 @@ window.AppState = {
     const activeProf = this.getProfile();
     if (typeof activeProf.soundEnabled === 'boolean') {
       this.soundEnabled = activeProf.soundEnabled;
+    }
+    if (shouldPersistPreset) {
+      this.save();
     }
     if (!this._listenersBound) {
       this._listenersBound = true;

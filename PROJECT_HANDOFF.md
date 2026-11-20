@@ -60,7 +60,7 @@ digital-explorer-academy/
 │   ├── simulators.js        # Interactive labs (Win11, Shortcuts, Browser, Search, Scam, AI Studios)
 │   └── app.js               # Multi-kid profiles, World Map, Vocab audio, Certificate, Parent Guide
 ├── scripts/build-bundle.js  # Bundles everything into standalone `digital_explorer_academy.html`
-└── tests/run-all-tests.js   # Automated JSDOM test suite (773 assertions)
+└── tests/run-all-tests.js   # Automated JSDOM test suite (775 assertions)
 ```
 
 ---
@@ -100,11 +100,13 @@ digital-explorer-academy/
 ## 5. 📊 Current Status & Changelog
 
 * **Last Updated:** 2026-11-19
-* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **773 / 773 PASS (100%)**
+* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **775 / 775 PASS (100%)**
 * **GitHub Repository:** https://github.com/azreal564335/dea (`main` branch)
 * **Recent Changes:**
+  * **Default Explorer Map & 8-Year-Old Profile Preset (`kid-8`):**
+    * `AppState.init()` now always opens on the **Explorer Map (`currentView = 'map'`)**, checks `localStorage` (`digital_explorer_academy_v1`), sanitizes/repairs any saved profiles, and presets the default active user to **`kid-8` (`8歲小探險家 🦊`)** with Zhuyin font and big-tap mode enabled on first visit.
   * **Complete 13-Item UI Overhaul (Batches 1–4):**
-    * **Test Gate:** `npm run build && npm test` passed **773 / 773** assertions (**0 failures**).
+    * **Test Gate:** `npm run build && npm test` passed **775 / 775** assertions (**0 failures**).
     * **Batch 1 — Navigation Makeover:** Collapsible world sections with SVG circular progress rings (`renderProgressRing`, only first unfinished world expanded by default); prominent top-of-map `▶️ 繼續 Continue` button (`.continue-btn`) and all-done banner (`.continue-congrats`); header `⚙️` settings dropdown (`.settings-menu`) consolidating Rename, Zhuyin font, Bilingual, Sound, and Dark Mode while keeping profile & XP pills visible; and 3-step lesson progress bar (`.lesson-steps`: `學習 Learn` / `實驗 Lab` / `測驗 Quiz`) with `← 上一步` / `下一步 →` navigation.
     * **Batch 2 — Delight & Accessibility:** Lesson completion celebration (`triggerLessonCelebration` with 40-piece CSS confetti, Web Audio ascending chime via `playSuccessSound` + `🔈 音效 Sound` toggle, and `.xp-flyup` `+N XP` animation, all respecting `prefers-reduced-motion`); 8-year-old enlarged tap targets (`body.kid-mode-8` with `min-height: 56px`); per-card `🔊 朗讀 Read` button (`.read-aloud-btn`) using `zh-TW` Web Speech API (`simpleBody` for `kid-8`); and persistent `🌙 深色模式 Dark` (`body.dark-mode`).
     * **Batch 3 — Content Presentation:** Single-card learn carousel (`.learn-carousel` with `◀`/`▶`, `.carousel-dots`, `"1 / N"` counter, keyboard arrows, touch swipe, and automatic read-aloud stop); `🏆 徽章櫃 Badges` view (`renderBadgeCabinet` with 7 World Badges + 6 Special Badges derived from progress); and per-world `--world-color` theming across world cards and lesson views.
