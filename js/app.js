@@ -87,7 +87,7 @@ window.AppState = {
 
     const mainEl = document.getElementById('app-main');
     const firstSection = mainEl
-      ? (mainEl.querySelector('.hero-banner, .lesson-title-banner, .daily-quest-card') || mainEl.firstElementChild)
+      ? (mainEl.querySelector('.hero-banner, .lesson-title-banner, .daily-quest-card, .dojo-top-stage-section') || mainEl.firstElementChild)
       : null;
 
     let shouldCompact = this.headerCompact;
@@ -103,13 +103,7 @@ window.AppState = {
       }
     }
 
-    const isDojoCockpitLocked = this.currentView === 'dojo' &&
-      window.TypingDojo &&
-      window.TypingDojo.isLockedIn;
-
-    if (isDojoCockpitLocked) {
-      shouldCompact = true;
-    } else if (!this.headerCompact && (scrollY > 72 || firstSectionLeftTop)) {
+    if (!this.headerCompact && (scrollY > 72 || firstSectionLeftTop)) {
       shouldCompact = true;
     } else if (this.headerCompact && scrollY < 32 && !firstSectionLeftTop) {
       shouldCompact = false;
@@ -577,7 +571,7 @@ window.AppState = {
   navigate(view, lessonId) {
     this.currentView = view;
     this.settingsMenuOpen = false;
-    this.headerCompact = (view === 'dojo' && !!(window.TypingDojo && window.TypingDojo.isLockedIn));
+    this.headerCompact = false;
     this.stopReadAloud();
     if (lessonId) {
       this.currentLessonId = lessonId;

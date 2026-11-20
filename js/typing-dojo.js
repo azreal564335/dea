@@ -33,7 +33,7 @@ window.TypingDojo = {
   dojoMode: 'drill', // 'drill' | 'meteor'
   selectorDrawerOpen: false,
   statsDrawerOpen: false,
-  isLockedIn: true,
+  isLockedIn: false,
   elasticPullY: 0,
   elasticResistanceThreshold: 88,
   _elasticResetTimer: null,
@@ -168,7 +168,11 @@ window.TypingDojo = {
   focusInput(containerId) {
     const inputEl = document.getElementById(`${containerId}-input`);
     if (inputEl) {
-      inputEl.focus();
+      try {
+        inputEl.focus({ preventScroll: true });
+      } catch (e) {
+        inputEl.focus();
+      }
       const len = inputEl.value.length;
       if (typeof inputEl.setSelectionRange === 'function') {
         inputEl.setSelectionRange(len, len);
@@ -195,19 +199,27 @@ window.TypingDojo = {
   toggleLockIn(containerId, forceVal) {
     this.isLockedIn = typeof forceVal === 'boolean' ? forceVal : !this.isLockedIn;
     this.elasticPullY = 0;
-    const wrapper = document.querySelector(`#${containerId} .dojo-wrapper`);
+    const wrapper = document.querySelector(`#${containerId} .dojo-cockpit-card`) || document.querySelector(`#${containerId} .dojo-wrapper`);
     if (wrapper) {
       wrapper.classList.toggle('is-locked-in', this.isLockedIn);
       wrapper.style.setProperty('--elastic-y', '0px');
     }
+    const FullWrap = document.querySelector(`#${containerId} .dojo-wrapper`);
+    if (FullWrap) {
+      FullWrap.classList.toggle('is-locked-in', this.isLockedIn);
+      FullWrap.style.setProperty('--elastic-y', '0px');
+    }
     const badge = document.getElementById(`${containerId}-lock-btn`);
     if (badge) {
       badge.classList.toggle('active', this.isLockedIn);
-      badge.innerHTML = this.isLockedIn ? '🔒 專注鎖定中 (滾輪彈力解鎖)' : '🔓 已解鎖捲動 (點擊鎖定座艙)';
+      badge.innerHTML = this.isLockedIn ? '🔒 座艙已鎖定 (滾輪彈力解鎖)' : '🔓 捲動至打字區或打字自動鎖定';
     }
     if (this.isLockedIn) {
+      this._lockCooldownUntil = 0;
       this.snapToCockpit(containerId);
       this.focusInput(containerId);
+    } else {
+      this._lockCooldownUntil = Date.now() + 900;
     }
     if (window.AppState && typeof window.AppState.evaluateHeaderCompact === 'function') {
       window.AppState.evaluateHeaderCompact();
@@ -215,50 +227,92 @@ window.TypingDojo = {
   },
 
   snapToCockpit(containerId) {
-    const wrapper = document.querySelector(`#${containerId} .dojo-wrapper`);
-    if (!wrapper) return;
-    if (typeof wrapper.getBoundingClientRect === 'function') {
-      const rect = wrapper.getBoundingClientRect();
-      const headerEl = document.getElementById('app-header');
-      const headerH = headerEl ? (headerEl.offsetHeight || 44) : 44;
-      if (Math.abs(rect.top - headerH) > 28 && (rect.height > 0 || rect.top !== 0)) {
-        const targetY = Math.max(0, (window.scrollY || 0) + rect.top - headerH - 6);
-        window.scrollTo({ top: targetY, behavior: 'smooth' });
+    const cockpit = document.querySelector(`#${containerId} .dojo-cockpit-card`) || document.querySelector(`#${containerId} .dojo-wrapper`);
+    if (!cockpit) return;
+    const navEl = document.getElementById('app-header');
+    if (navEl && window.AppState) {
+      window.AppState.headerCompact = true;
+      navEl.classList.add('is-compact');
+    }
+    if (typeof cockpit.getBoundingClientRect === 'function') {
+      const rect = cockpit.getBoundingClientRect();
+      const headerH = navEl ? (navEl.offsetHeight || 44) : 44;
+      if (Math.abs(rect.top - headerH) > 10 && (rect.height > 0 || rect.top !== 0)) {
+        const curScroll = typeof window.scrollY === 'number' ? window.scrollY : 0;
+        const targetY = Math.max(80, Math.round(curScroll + rect.top - headerH - 6));
+        window.scrollTo({ top: targetY, behavior: 'auto' });
       }
+    }
+  },
+
+  checkScrollAutoLock(containerId) {
+    if (this.dojoMode !== 'drill') return;
+    if (this.isLockedIn) return;
+    if (this._lockCooldownUntil && Date.now() < this._lockCooldownUntil) return;
+    const topSec = document.querySelector(`#${containerId} .dojo-top-stage-section`);
+    const cockpit = document.querySelector(`#${containerId} .dojo-cockpit-card`);
+    if (!topSec || !cockpit || typeof topSec.getBoundingClientRect !== 'function') return;
+    const topRect = topSec.getBoundingClientRect();
+    const cockRect = cockpit.getBoundingClientRect();
+    const scrollY = typeof window.scrollY === 'number' ? window.scrollY : 0;
+    // As soon as the user scrolls down past 80px (leaving the top stage section) and the cockpit is in view, snap & lock!
+    if ((topRect.height > 0 || topRect.bottom !== 0) && (scrollY >= 80 || topRect.top < 20) && cockRect.bottom > 240) {
+      this.toggleLockIn(containerId, true);
     }
   },
 
   handleElasticDelta(deltaY, containerId, preventDefaultFn) {
     const wrapper = document.querySelector(`#${containerId} .dojo-wrapper`);
+    const cockpit = document.querySelector(`#${containerId} .dojo-cockpit-card`) || wrapper;
     if (!wrapper || !this.isLockedIn) return false;
 
     if (typeof preventDefaultFn === 'function') {
       preventDefaultFn();
     }
 
-    // Damped spring accumulation (0.35x resistance)
+    // Damped spring accumulation (0.38x resistance)
     this.elasticPullY = Math.max(-130, Math.min(130, this.elasticPullY - deltaY * 0.38));
     wrapper.classList.add('is-elastic-pulling');
     wrapper.style.setProperty('--elastic-y', `${Math.round(this.elasticPullY)}px`);
+    if (cockpit && cockpit !== wrapper) {
+      cockpit.classList.add('is-elastic-pulling');
+      cockpit.style.setProperty('--elastic-y', `${Math.round(this.elasticPullY)}px`);
+    }
 
     if (this._elasticResetTimer) clearTimeout(this._elasticResetTimer);
 
     // If pulled beyond elastic threshold, release the lock with spring rebound!
     if (Math.abs(this.elasticPullY) >= this.elasticResistanceThreshold) {
+      const pullDirection = deltaY;
       this.isLockedIn = false;
+      this._lockCooldownUntil = Date.now() + 1100;
       this.elasticPullY = 0;
       wrapper.classList.remove('is-elastic-pulling', 'is-locked-in');
       wrapper.classList.add('is-elastic-released');
       wrapper.style.setProperty('--elastic-y', '0px');
+      if (cockpit && cockpit !== wrapper) {
+        cockpit.classList.remove('is-elastic-pulling', 'is-locked-in');
+        cockpit.classList.add('is-elastic-released');
+        cockpit.style.setProperty('--elastic-y', '0px');
+      }
       const badge = document.getElementById(`${containerId}-lock-btn`);
       if (badge) {
         badge.classList.remove('active');
-        badge.innerHTML = '🔓 已解鎖捲動 (點擊鎖定座艙)';
+        badge.innerHTML = '🔓 捲動至打字區或打字自動鎖定';
+      }
+      // On release, smoothly nudge scroll in the user's pull direction
+      if (typeof window.scrollBy === 'function' && pullDirection !== 0) {
+        try {
+          window.scrollBy({ top: pullDirection > 0 ? 180 : -220, behavior: 'smooth' });
+        } catch (e) {}
       }
       if (window.AppState && typeof window.AppState.evaluateHeaderCompact === 'function') {
         window.AppState.evaluateHeaderCompact();
       }
-      setTimeout(() => wrapper.classList.remove('is-elastic-released'), 420);
+      setTimeout(() => {
+        wrapper.classList.remove('is-elastic-released');
+        if (cockpit && cockpit !== wrapper) cockpit.classList.remove('is-elastic-released');
+      }, 420);
       return true;
     }
 
@@ -267,6 +321,10 @@ window.TypingDojo = {
       this.elasticPullY = 0;
       wrapper.classList.remove('is-elastic-pulling');
       wrapper.style.setProperty('--elastic-y', '0px');
+      if (cockpit && cockpit !== wrapper) {
+        cockpit.classList.remove('is-elastic-pulling');
+        cockpit.style.setProperty('--elastic-y', '0px');
+      }
     }, 180);
     return false;
   },
@@ -275,6 +333,15 @@ window.TypingDojo = {
     const wrapper = document.querySelector(`#${containerId} .dojo-wrapper`);
     if (!wrapper || wrapper._elasticBound) return;
     wrapper._elasticBound = true;
+
+    if (!this._windowScrollLockBound) {
+      this._windowScrollLockBound = true;
+      window.addEventListener('scroll', () => {
+        if (window.AppState && window.AppState.currentView === 'dojo') {
+          this.checkScrollAutoLock('standalone-dojo-mount');
+        }
+      }, { passive: true });
+    }
 
     wrapper.addEventListener('wheel', (e) => {
       if (!this.isLockedIn) return;
@@ -358,45 +425,8 @@ window.TypingDojo = {
 
     container.innerHTML = `
       <div class="dojo-wrapper ${this.isLockedIn ? 'is-locked-in' : ''}" id="${containerId}-wrapper" style="--elastic-y: 0px;">
-        <!-- Compact Single-Row Cockpit Top Bar -->
-        <div class="dojo-mode-bar">
-          <div class="dojo-mode-tabs" role="tablist" aria-label="打字訓練模式切換">
-            <button class="dojo-mode-btn ${this.dojoMode === 'drill' ? 'active' : ''}"
-                    type="button"
-                    onclick="window.TypingDojo.setDojoMode('drill', '${containerId}')">
-              📖 闖關練習
-            </button>
-            <button class="dojo-mode-btn ${this.dojoMode === 'meteor' ? 'active' : ''}"
-                    type="button"
-                    onclick="window.TypingDojo.setDojoMode('meteor', '${containerId}')">
-              🌧️ 流星雨遊戲
-            </button>
-            <button class="dojo-selector-toggle-btn"
-                    type="button"
-                    onclick="window.TypingDojo.toggleSelectorDrawer('${containerId}')"
-                    aria-label="展開或收合關卡選單">
-              🗂️ ${category.badge}・${this.escapeHtml(drill.name)} ▾
-            </button>
-          </div>
-          <div class="dojo-hud-pills">
-            <button class="dojo-lock-pill ${this.isLockedIn ? 'active' : ''}"
-                    id="${containerId}-lock-btn"
-                    type="button"
-                    onclick="window.TypingDojo.toggleLockIn('${containerId}')"
-                    title="鎖定打字座艙畫面，上下滾動超過彈力門檻自動解鎖">
-              ${this.isLockedIn ? '🔒 專注鎖定中 (滾輪彈力解鎖)' : '🔓 已解鎖捲動 (點擊鎖定座艙)'}
-            </button>
-            <span class="dojo-streak-pill ${this.comboStreak >= 5 ? 'hot' : ''}" id="${containerId}-streak">
-              🔥 連擊 x${this.comboStreak}
-            </span>
-            <span class="dojo-target-pill">
-              🎯 目標 ${targetCpm} 字/分
-            </span>
-          </div>
-        </div>
-
-        <!-- Collapsible Stage & Drill Selector Drawer (kept in DOM for tests, collapsed by default for single-screen fit) -->
-        <div class="dojo-selector-drawer ${this.selectorDrawerOpen ? 'is-open' : ''}" id="${containerId}-selector-drawer">
+        <!-- SECTION 1 (TOP): Stage Tabs & Level Selector (Scrolling past this shrinks #app-header and locks in the cockpit!) -->
+        <div class="dojo-top-stage-section" id="${containerId}-selector-drawer">
           <div class="dojo-cat-tabs">
             ${window.TYPING_DATA.categories.map(cat => `
               <button class="step-tab ${cat.id === category.id ? 'active' : ''}"
@@ -425,91 +455,117 @@ window.TypingDojo = {
           </div>
         </div>
 
-        ${this.dojoMode === 'meteor' ? this.renderMeteorGameHtml(containerId, category) : `
-        <!-- Target Display Area (Monkeytype Direct-Focus Stage) -->
-        <div class="typing-target-box" onclick="window.TypingDojo.focusInput('${containerId}')">
-          <div class="typing-tip-bar">
-            <span class="typing-tip-text">💡 <strong>${this.escapeHtml(drill.name)}：</strong>${drill.tip}</span>
-            <span id="${containerId}-stats" class="dojo-stats-pill">
-              速度：${cpm} 字/分 ｜ 準確度：${accuracy}%
-            </span>
-          </div>
-
-          ${drill.zhuyinDisplay ? `
-            <div class="dojo-zhuyin-target">
-              🇹🇼 對應注音目標：${drill.zhuyinDisplay}
-            </div>
-          ` : ''}
-
-          ${drill.zhuyinBreakdown ? `
-            <div class="dojo-breakdown-row">
-              ${drill.zhuyinBreakdown.map(item => `
-                <div class="dojo-breakdown-chip">
-                  <strong class="dojo-breakdown-char">${item.char}</strong>
-                  <span class="dojo-breakdown-py">${item.py}</span>
-                </div>
-              `).join('')}
-            </div>
-          ` : ''}
-
-          <div id="${containerId}-zy-steps" class="dojo-zy-step-bar">
-            ${this.renderZhuyinStepPillsHtml(nextExpectedChar, zhuyinSeq)}
-          </div>
-
-          <div class="typing-chars-display" id="${containerId}-chars" title="點擊此處直接開始打字">
-            ${charsHtml}
-          </div>
-
-          <div class="dojo-input-row ${drill.mode === 'chinese-real' ? 'ime-mode' : 'direct-mode'}">
-            <input type="text"
-                   id="${containerId}-input"
-                   class="typing-input-field"
-                   value="${this.escapeHtml(this.typedText)}"
-                   placeholder="${drill.mode === 'chinese-real' ? '請切換成「中 (微軟注音)」在這裡打字...' : '直接按鍵盤開始打字！(請確認右下角為「英」模式)'}"
-                   autocomplete="off"
-                   autocorrect="off"
-                   autocapitalize="off"
-                   spellcheck="false" />
-          </div>
-
-          <div class="dojo-hint-bar">
-            <div id="${containerId}-key-hint" class="dojo-key-hint">
-              ${this.formatKeyHintText(nextExpectedChar, keyInfo, customHint, zhuyinSeq)}
-            </div>
-            <div class="flex-row-gap-sm">
-              <button class="btn-secondary btn-compact"
+        <!-- SECTION 2 (MIDDLE): Single-Card 3-Column Typing Cockpit (Fits 100% on 1 Laptop Screen with Elastic Lock-In) -->
+        <div class="dojo-cockpit-card ${this.isLockedIn ? 'is-locked-in' : ''}" id="${containerId}-cockpit">
+          <div class="dojo-mode-bar">
+            <div class="dojo-mode-tabs" role="tablist" aria-label="打字訓練模式切換">
+              <button class="dojo-mode-btn ${this.dojoMode === 'drill' ? 'active' : ''}"
                       type="button"
-                      onclick="event.stopPropagation(); window.TypingDojo.resetDrill('${containerId}')">
-                🔄 重練
+                      onclick="window.TypingDojo.setDojoMode('drill', '${containerId}')">
+                📖 闖關練習
               </button>
-              <button class="btn-primary btn-compact"
+              <button class="dojo-mode-btn ${this.dojoMode === 'meteor' ? 'active' : ''}"
                       type="button"
-                      onclick="event.stopPropagation(); window.TypingDojo.nextDrill('${containerId}')">
-                ⏭️ 下一關
+                      onclick="window.TypingDojo.setDojoMode('meteor', '${containerId}')">
+                🌧️ 流星雨遊戲
               </button>
             </div>
+            <div class="dojo-hud-pills">
+              <button class="dojo-lock-pill ${this.isLockedIn ? 'active' : ''}"
+                      id="${containerId}-lock-btn"
+                      type="button"
+                      onclick="window.TypingDojo.toggleLockIn('${containerId}')"
+                      title="鎖定打字座艙畫面，上下滾動超過彈力門檻自動解鎖">
+                ${this.isLockedIn ? '🔒 座艙已鎖定 (滾輪彈力解鎖)' : '🔓 捲動至打字區或打字自動鎖定'}
+              </button>
+              <span class="dojo-streak-pill ${this.comboStreak >= 5 ? 'hot' : ''}" id="${containerId}-streak">
+                🔥 連擊 x${this.comboStreak}
+              </span>
+              <span class="dojo-target-pill">
+                🎯 目標 ${targetCpm} 字/分
+              </span>
+            </div>
           </div>
 
-          <div id="${containerId}-result-card">
-            ${this.isCompleted ? this.renderResultCardHtml(containerId, drill) : ''}
+          ${this.dojoMode === 'meteor' ? this.renderMeteorGameHtml(containerId, category) : `
+          <!-- Target Display Area (Monkeytype Direct-Focus Stage) -->
+          <div class="typing-target-box" onclick="window.TypingDojo.focusInput('${containerId}')">
+            <div class="typing-tip-bar">
+              <span class="typing-tip-text">💡 <strong>${this.escapeHtml(drill.name)}：</strong>${drill.tip}</span>
+              <span id="${containerId}-stats" class="dojo-stats-pill">
+                速度：${cpm} 字/分 ｜ 準確度：${accuracy}%
+              </span>
+            </div>
+
+            ${drill.zhuyinDisplay ? `
+              <div class="dojo-zhuyin-target">
+                🇹🇼 對應注音目標：${drill.zhuyinDisplay}
+              </div>
+            ` : ''}
+
+            ${drill.zhuyinBreakdown ? `
+              <div class="dojo-breakdown-row">
+                ${drill.zhuyinBreakdown.map(item => `
+                  <div class="dojo-breakdown-chip">
+                    <strong class="dojo-breakdown-char">${item.char}</strong>
+                    <span class="dojo-breakdown-py">${item.py}</span>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            <div id="${containerId}-zy-steps" class="dojo-zy-step-bar">
+              ${this.renderZhuyinStepPillsHtml(nextExpectedChar, zhuyinSeq)}
+            </div>
+
+            <div class="typing-chars-display" id="${containerId}-chars" title="點擊此處直接開始打字">
+              ${charsHtml}
+            </div>
+
+            <div class="dojo-input-row ${drill.mode === 'chinese-real' ? 'ime-mode' : 'direct-mode'}">
+              <input type="text"
+                     id="${containerId}-input"
+                     class="typing-input-field"
+                     value="${this.escapeHtml(this.typedText)}"
+                     placeholder="${drill.mode === 'chinese-real' ? '請切換成「中 (微軟注音)」在這裡打字...' : '直接按鍵盤開始打字！(請確認右下角為「英」模式)'}"
+                     autocomplete="off"
+                     autocorrect="off"
+                     autocapitalize="off"
+                     spellcheck="false" />
+            </div>
+
+            <div class="dojo-hint-bar">
+              <div id="${containerId}-key-hint" class="dojo-key-hint">
+                ${this.formatKeyHintText(nextExpectedChar, keyInfo, customHint, zhuyinSeq)}
+              </div>
+              <div class="flex-row-gap-sm">
+                <button class="btn-secondary btn-compact"
+                        type="button"
+                        onclick="event.stopPropagation(); window.TypingDojo.resetDrill('${containerId}')">
+                  🔄 重練
+                </button>
+                <button class="btn-primary btn-compact"
+                        type="button"
+                        onclick="event.stopPropagation(); window.TypingDojo.nextDrill('${containerId}')">
+                  ⏭️ 下一關
+                </button>
+              </div>
+            </div>
+
+            <div id="${containerId}-result-card">
+              ${this.isCompleted ? this.renderResultCardHtml(containerId, drill) : ''}
+            </div>
           </div>
+
+          <!-- 3-Column Cockpit: Left Hand SVG | Taiwan Keyboard | Right Hand SVG -->
+          <div class="taiwan-keyboard" id="${containerId}-keyboard">
+            ${this.renderKeyboardHtml(nextExpectedChar, zhuyinSeq)}
+          </div>
+          `}
         </div>
 
-        <!-- 3-Column Cockpit: Left Hand SVG | Taiwan Keyboard | Right Hand SVG -->
-        <div class="taiwan-keyboard" id="${containerId}-keyboard">
-          ${this.renderKeyboardHtml(nextExpectedChar, zhuyinSeq)}
-        </div>
-        `}
-
-        <!-- Collapsible Speed Curve & Finger Legend Drawer -->
-        <div class="dojo-bottom-drawer-bar">
-          <button class="dojo-drawer-toggle-btn"
-                  type="button"
-                  onclick="window.TypingDojo.toggleStatsDrawer('${containerId}')">
-            📈 查看速度成長曲線與十指顏色對照表 ▾
-          </button>
-        </div>
-        <div class="dojo-stats-drawer ${this.statsDrawerOpen ? 'is-open' : ''}" id="${containerId}-stats-drawer">
+        <!-- SECTION 3 (BOTTOM): Speed Growth Curve & 10-Finger Color Legend -->
+        <div class="dojo-bottom-stats-section" id="${containerId}-stats-drawer">
           ${this.renderFingerLegendHtml(keyInfo ? keyInfo.finger : null)}
           ${this.renderHistoryChart()}
         </div>
@@ -520,7 +576,11 @@ window.TypingDojo = {
 
     const inputEl = document.getElementById(`${containerId}-input`);
     if (inputEl) {
-      inputEl.focus();
+      try {
+        inputEl.focus({ preventScroll: true });
+      } catch (e) {
+        inputEl.focus();
+      }
       const len = inputEl.value.length;
       inputEl.setSelectionRange(len, len);
 
@@ -619,6 +679,9 @@ window.TypingDojo = {
 
     if (!this.startTime && val.length > 0) {
       this.startTime = Date.now();
+    }
+    if (!this.isLockedIn && val.length > 0 && val.length < drill.text.length) {
+      this.toggleLockIn(containerId, true);
     }
 
     // Track combo streak & missed keys on newly typed character

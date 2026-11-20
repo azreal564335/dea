@@ -2944,6 +2944,13 @@ body.dark-mode .skeleton-island-static {
 /* ============================================================================
    14. COMPACT SINGLE-ROW TOP HEADER ON SCROLL (#app-header.is-compact / .top-nav.is-compact)
    ============================================================================ */
+html,
+body,
+#app-header,
+.top-nav {
+  overflow-anchor: none;
+}
+
 #app-header,
 .top-nav,
 .brand-logo,
@@ -3098,25 +3105,64 @@ body.kid-mode-8 .top-nav.is-compact .settings-btn {
 /* Elastic Lock-In Cockpit Container */
 .dojo-wrapper {
   position: relative;
+}
+
+.dojo-top-stage-section {
+  margin-bottom: 0.55rem;
+  padding: 0.45rem 0.6rem;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+}
+
+.dojo-top-stage-section .dojo-cat-tabs {
+  margin-bottom: 0.4rem !important;
+  gap: 0.35rem !important;
+}
+
+.dojo-top-stage-section .step-tab {
+  padding: 0.25rem 0.65rem !important;
+  font-size: 0.8rem !important;
+  min-height: 30px !important;
+}
+
+.dojo-top-stage-section .drill-selector-grid {
+  margin-bottom: 0 !important;
+  gap: 0.35rem !important;
+}
+
+.dojo-top-stage-section .drill-btn {
+  padding: 0.35rem 0.6rem !important;
+  font-size: 0.8rem !important;
+  min-height: 34px !important;
+}
+
+.dojo-cockpit-card {
+  position: relative;
   transform: translateY(var(--elastic-y, 0px));
   transition: transform 0.36s cubic-bezier(0.22, 1.35, 0.36, 1), box-shadow 0.25s ease, border-color 0.25s ease;
-  border: 2px solid transparent;
-  border-radius: 14px;
-  padding: 0.25rem 0.35rem;
+  border: 2px solid var(--border-light);
+  border-radius: 16px;
+  padding: 0.45rem 0.55rem;
+  margin-bottom: 0.65rem;
+  background: var(--bg-surface);
 }
 
-.dojo-wrapper.is-locked-in {
-  border-color: rgba(56, 189, 248, 0.45);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.14), 0 10px 28px rgba(15, 23, 42, 0.12);
+.dojo-cockpit-card.is-locked-in,
+.dojo-wrapper.is-locked-in .dojo-cockpit-card {
+  border-color: rgba(56, 189, 248, 0.55);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.16), 0 12px 30px rgba(15, 23, 42, 0.16);
 }
 
-.dojo-wrapper.is-elastic-pulling {
+.dojo-cockpit-card.is-elastic-pulling,
+.dojo-wrapper.is-elastic-pulling .dojo-cockpit-card {
   transition: transform 0.05s linear;
   border-color: #f59e0b;
-  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.22);
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.24);
 }
 
-.dojo-wrapper.is-elastic-released {
+.dojo-cockpit-card.is-elastic-released,
+.dojo-wrapper.is-elastic-released .dojo-cockpit-card {
   animation: dojoElasticRelease 0.42s cubic-bezier(0.18, 1.4, 0.35, 1);
 }
 
@@ -3216,38 +3262,12 @@ body.kid-mode-8 .top-nav.is-compact .settings-btn {
   transform: scale(1.04);
 }
 
-/* Collapsible Selector & Stats Drawers (hidden by default so cockpit fits on 1 laptop screen) */
-.dojo-selector-drawer,
-.dojo-stats-drawer {
-  display: none;
-  margin-bottom: 0.4rem;
-  padding: 0.45rem;
+.dojo-bottom-stats-section {
+  margin-top: 0.5rem;
+  padding: 0.55rem 0.75rem;
   background: var(--bg-subtle);
   border: 1px solid var(--border-light);
   border-radius: 12px;
-}
-
-.dojo-selector-drawer.is-open,
-.dojo-stats-drawer.is-open {
-  display: block;
-}
-
-.dojo-bottom-drawer-bar {
-  display: flex;
-  justify-content: center;
-  margin-top: 0.25rem;
-}
-
-.dojo-drawer-toggle-btn {
-  background: transparent;
-  border: 1px dashed var(--border-strong);
-  color: var(--text-secondary);
-  font-size: 0.75rem;
-  font-weight: 800;
-  padding: 0.15rem 0.75rem;
-  min-height: 24px !important;
-  border-radius: 999px;
-  cursor: pointer;
 }
 
 /* Compact Target Display Box */
@@ -3660,6 +3680,9 @@ body.dark-mode .taiwan-keyboard .kb-key-arrow {
 }
 
 body.dark-mode .dojo-mode-bar,
+body.dark-mode .dojo-top-stage-section,
+body.dark-mode .dojo-cockpit-card,
+body.dark-mode .dojo-bottom-stats-section,
 body.dark-mode .dojo-selector-drawer,
 body.dark-mode .dojo-stats-drawer {
   background: #1e293b;

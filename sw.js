@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dea-v6';
+const CACHE_NAME = 'dea-v7';
 const ASSETS = [
   '/',
   '/index.html',
