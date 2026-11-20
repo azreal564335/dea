@@ -2,13 +2,14 @@
  * ============================================================================
  * 🎹 TYPING DOJO ENGINE (js/typing-dojo.js)
  * ============================================================================
- * Renders the interactive Windows 11 Keyboard with both English letters
- * and Traditional Chinese Zhuyin (注音符號), color-coded finger guides,
- * 2D SVG Left & Right Virtual Hands (TypingClub style), Direct-Focus Stage
- * with Smooth Caret & Combo Streak (Monkeytype style), Multi-Key Zhuyin
- * Syllable Step Badges (BopoType style), Web Audio Key Clicks & Live Key
- * Flash, Stage Clear 1-3 Star Result Card with Weak-Key Heatmap (Keybr style),
- * and the "🌧️ 注音/英打流星雨 (Typing Meteor Shower)" Mini-Game!
+ * Renders the single-screen laptop cockpit Typing Dojo:
+ * - Compact Single-Row Stage & Drill Bar (with collapsible selector drawer)
+ * - Direct-Focus Typing Stage with Smooth Caret, Combo Streak & Elastic Lock-In
+ * - 3-Column Cockpit: [ Left Hand SVG ]  [ Taiwan Keyboard ]  [ Right Hand SVG ]
+ * - Multi-Key Zhuyin Syllable Step Badges (① ② ③) for Chinese drills
+ * - Web Audio Key Clicks & Live Key Flash (.pressed-correct / .pressed-wrong)
+ * - Stage Clear 1-3 Star Result Card with Weak-Key Heatmap
+ * - "🌧️ 注音/英打流星雨 (Typing Meteor Shower)" Mini-Game
  *
  * IME & SANDBOX COMPATIBILITY:
  * In-place DOM updates on typing keystrokes without re-rendering container.innerHTML,
@@ -30,6 +31,12 @@ window.TypingDojo = {
   currentCategoryId: 'home-row',
   currentDrillId: 'hr-1',
   dojoMode: 'drill', // 'drill' | 'meteor'
+  selectorDrawerOpen: false,
+  statsDrawerOpen: false,
+  isLockedIn: true,
+  elasticPullY: 0,
+  elasticResistanceThreshold: 88,
+  _elasticResetTimer: null,
   typedText: '',
   startTime: null,
   isCompleted: false,
@@ -169,6 +176,130 @@ window.TypingDojo = {
     }
   },
 
+  toggleSelectorDrawer(containerId) {
+    this.selectorDrawerOpen = !this.selectorDrawerOpen;
+    const drawer = document.getElementById(`${containerId}-selector-drawer`);
+    if (drawer) {
+      drawer.classList.toggle('is-open', this.selectorDrawerOpen);
+    }
+  },
+
+  toggleStatsDrawer(containerId) {
+    this.statsDrawerOpen = !this.statsDrawerOpen;
+    const drawer = document.getElementById(`${containerId}-stats-drawer`);
+    if (drawer) {
+      drawer.classList.toggle('is-open', this.statsDrawerOpen);
+    }
+  },
+
+  toggleLockIn(containerId, forceVal) {
+    this.isLockedIn = typeof forceVal === 'boolean' ? forceVal : !this.isLockedIn;
+    this.elasticPullY = 0;
+    const wrapper = document.querySelector(`#${containerId} .dojo-wrapper`);
+    if (wrapper) {
+      wrapper.classList.toggle('is-locked-in', this.isLockedIn);
+      wrapper.style.setProperty('--elastic-y', '0px');
+    }
+    const badge = document.getElementById(`${containerId}-lock-btn`);
+    if (badge) {
+      badge.classList.toggle('active', this.isLockedIn);
+      badge.innerHTML = this.isLockedIn ? '🔒 專注鎖定中 (滾輪彈力解鎖)' : '🔓 已解鎖捲動 (點擊鎖定座艙)';
+    }
+    if (this.isLockedIn) {
+      this.snapToCockpit(containerId);
+      this.focusInput(containerId);
+    }
+    if (window.AppState && typeof window.AppState.evaluateHeaderCompact === 'function') {
+      window.AppState.evaluateHeaderCompact();
+    }
+  },
+
+  snapToCockpit(containerId) {
+    const wrapper = document.querySelector(`#${containerId} .dojo-wrapper`);
+    if (!wrapper) return;
+    if (typeof wrapper.getBoundingClientRect === 'function') {
+      const rect = wrapper.getBoundingClientRect();
+      const headerEl = document.getElementById('app-header');
+      const headerH = headerEl ? (headerEl.offsetHeight || 44) : 44;
+      if (Math.abs(rect.top - headerH) > 28 && (rect.height > 0 || rect.top !== 0)) {
+        const targetY = Math.max(0, (window.scrollY || 0) + rect.top - headerH - 6);
+        window.scrollTo({ top: targetY, behavior: 'smooth' });
+      }
+    }
+  },
+
+  handleElasticDelta(deltaY, containerId, preventDefaultFn) {
+    const wrapper = document.querySelector(`#${containerId} .dojo-wrapper`);
+    if (!wrapper || !this.isLockedIn) return false;
+
+    if (typeof preventDefaultFn === 'function') {
+      preventDefaultFn();
+    }
+
+    // Damped spring accumulation (0.35x resistance)
+    this.elasticPullY = Math.max(-130, Math.min(130, this.elasticPullY - deltaY * 0.38));
+    wrapper.classList.add('is-elastic-pulling');
+    wrapper.style.setProperty('--elastic-y', `${Math.round(this.elasticPullY)}px`);
+
+    if (this._elasticResetTimer) clearTimeout(this._elasticResetTimer);
+
+    // If pulled beyond elastic threshold, release the lock with spring rebound!
+    if (Math.abs(this.elasticPullY) >= this.elasticResistanceThreshold) {
+      this.isLockedIn = false;
+      this.elasticPullY = 0;
+      wrapper.classList.remove('is-elastic-pulling', 'is-locked-in');
+      wrapper.classList.add('is-elastic-released');
+      wrapper.style.setProperty('--elastic-y', '0px');
+      const badge = document.getElementById(`${containerId}-lock-btn`);
+      if (badge) {
+        badge.classList.remove('active');
+        badge.innerHTML = '🔓 已解鎖捲動 (點擊鎖定座艙)';
+      }
+      if (window.AppState && typeof window.AppState.evaluateHeaderCompact === 'function') {
+        window.AppState.evaluateHeaderCompact();
+      }
+      setTimeout(() => wrapper.classList.remove('is-elastic-released'), 420);
+      return true;
+    }
+
+    // Otherwise snap back elastically when user stops pulling
+    this._elasticResetTimer = setTimeout(() => {
+      this.elasticPullY = 0;
+      wrapper.classList.remove('is-elastic-pulling');
+      wrapper.style.setProperty('--elastic-y', '0px');
+    }, 180);
+    return false;
+  },
+
+  bindElasticLockIn(containerId) {
+    const wrapper = document.querySelector(`#${containerId} .dojo-wrapper`);
+    if (!wrapper || wrapper._elasticBound) return;
+    wrapper._elasticBound = true;
+
+    wrapper.addEventListener('wheel', (e) => {
+      if (!this.isLockedIn) return;
+      this.handleElasticDelta(e.deltaY || 0, containerId, () => e.preventDefault());
+    }, { passive: false });
+
+    let touchStartY = null;
+    wrapper.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches.length === 1) {
+        touchStartY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    wrapper.addEventListener('touchmove', (e) => {
+      if (!this.isLockedIn || touchStartY === null || !e.touches || !e.touches.length) return;
+      const dy = touchStartY - e.touches[0].clientY;
+      touchStartY = e.touches[0].clientY;
+      this.handleElasticDelta(dy * 1.4, containerId, () => e.preventDefault());
+    }, { passive: false });
+
+    wrapper.addEventListener('touchend', () => {
+      touchStartY = null;
+    }, { passive: true });
+  },
+
   setDojoMode(mode, containerId) {
     this.stopMeteorGame();
     this.dojoMode = mode === 'meteor' ? 'meteor' : 'drill';
@@ -226,65 +357,79 @@ window.TypingDojo = {
     const targetCpm = Math.round((drill.targetCpm || 40) * (isSimple ? 0.75 : 1));
 
     container.innerHTML = `
-      <div class="dojo-wrapper">
-        <!-- Mode Switcher: Lesson Drills vs Meteor Shower Mini-Game -->
+      <div class="dojo-wrapper ${this.isLockedIn ? 'is-locked-in' : ''}" id="${containerId}-wrapper" style="--elastic-y: 0px;">
+        <!-- Compact Single-Row Cockpit Top Bar -->
         <div class="dojo-mode-bar">
           <div class="dojo-mode-tabs" role="tablist" aria-label="打字訓練模式切換">
             <button class="dojo-mode-btn ${this.dojoMode === 'drill' ? 'active' : ''}"
                     type="button"
                     onclick="window.TypingDojo.setDojoMode('drill', '${containerId}')">
-              📖 闖關盲打練習 (Lesson Drills)
+              📖 闖關練習
             </button>
             <button class="dojo-mode-btn ${this.dojoMode === 'meteor' ? 'active' : ''}"
                     type="button"
                     onclick="window.TypingDojo.setDojoMode('meteor', '${containerId}')">
-              🌧️ 流星雨小遊戲 (Meteor Game)
+              🌧️ 流星雨遊戲
+            </button>
+            <button class="dojo-selector-toggle-btn"
+                    type="button"
+                    onclick="window.TypingDojo.toggleSelectorDrawer('${containerId}')"
+                    aria-label="展開或收合關卡選單">
+              🗂️ ${category.badge}・${this.escapeHtml(drill.name)} ▾
             </button>
           </div>
           <div class="dojo-hud-pills">
+            <button class="dojo-lock-pill ${this.isLockedIn ? 'active' : ''}"
+                    id="${containerId}-lock-btn"
+                    type="button"
+                    onclick="window.TypingDojo.toggleLockIn('${containerId}')"
+                    title="鎖定打字座艙畫面，上下滾動超過彈力門檻自動解鎖">
+              ${this.isLockedIn ? '🔒 專注鎖定中 (滾輪彈力解鎖)' : '🔓 已解鎖捲動 (點擊鎖定座艙)'}
+            </button>
             <span class="dojo-streak-pill ${this.comboStreak >= 5 ? 'hot' : ''}" id="${containerId}-streak">
               🔥 連擊 x${this.comboStreak}
             </span>
             <span class="dojo-target-pill">
-              🎯 目標：${targetCpm} 字/分
+              🎯 目標 ${targetCpm} 字/分
             </span>
           </div>
         </div>
 
-        <!-- Category Tabs -->
-        <div class="dojo-cat-tabs">
-          ${window.TYPING_DATA.categories.map(cat => `
-            <button class="step-tab ${cat.id === category.id ? 'active' : ''}"
-                    onclick="window.TypingDojo.selectCategory('${cat.id}', '${containerId}')">
-              ${cat.badge} ${cat.title.split('(')[0]}
-            </button>
-          `).join('')}
+        <!-- Collapsible Stage & Drill Selector Drawer (kept in DOM for tests, collapsed by default for single-screen fit) -->
+        <div class="dojo-selector-drawer ${this.selectorDrawerOpen ? 'is-open' : ''}" id="${containerId}-selector-drawer">
+          <div class="dojo-cat-tabs">
+            ${window.TYPING_DATA.categories.map(cat => `
+              <button class="step-tab ${cat.id === category.id ? 'active' : ''}"
+                      onclick="window.TypingDojo.selectCategory('${cat.id}', '${containerId}')">
+                ${cat.badge} ${cat.title.split('(')[0]}
+              </button>
+            `).join('')}
+          </div>
+
+          <div class="drill-selector-grid" id="${containerId}-drill-grid">
+            ${category.drills.map(d => {
+              const comp = completedDrills[d.id];
+              const isDone = !!comp;
+              const stars = (comp && comp.stars) ? '⭐'.repeat(comp.stars) : (isDone ? '⭐⭐⭐' : '⚪');
+              const isActive = d.id === drill.id;
+              return `
+                <button class="drill-btn ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}"
+                        onclick="window.TypingDojo.selectDrill('${d.id}', '${containerId}')">
+                  <div class="drill-btn-row">
+                    <span>${d.name}</span>
+                    <span>${stars}</span>
+                  </div>
+                </button>
+              `;
+            }).join('')}
+          </div>
         </div>
 
         ${this.dojoMode === 'meteor' ? this.renderMeteorGameHtml(containerId, category) : `
-        <!-- Drill Selector within Category -->
-        <div class="drill-selector-grid" id="${containerId}-drill-grid">
-          ${category.drills.map(d => {
-            const comp = completedDrills[d.id];
-            const isDone = !!comp;
-            const stars = (comp && comp.stars) ? '⭐'.repeat(comp.stars) : (isDone ? '⭐⭐⭐' : '⚪');
-            const isActive = d.id === drill.id;
-            return `
-              <button class="drill-btn ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}"
-                      onclick="window.TypingDojo.selectDrill('${d.id}', '${containerId}')">
-                <div class="drill-btn-row">
-                  <span>${d.name}</span>
-                  <span>${stars}</span>
-                </div>
-              </button>
-            `;
-          }).join('')}
-        </div>
-
         <!-- Target Display Area (Monkeytype Direct-Focus Stage) -->
         <div class="typing-target-box" onclick="window.TypingDojo.focusInput('${containerId}')">
           <div class="typing-tip-bar">
-            <span>💡 <strong>本關秘訣：</strong>${drill.tip}</span>
+            <span class="typing-tip-text">💡 <strong>${this.escapeHtml(drill.name)}：</strong>${drill.tip}</span>
             <span id="${containerId}-stats" class="dojo-stats-pill">
               速度：${cpm} 字/分 ｜ 準確度：${accuracy}%
             </span>
@@ -333,11 +478,13 @@ window.TypingDojo = {
             </div>
             <div class="flex-row-gap-sm">
               <button class="btn-secondary btn-compact"
-                      onclick="window.TypingDojo.resetDrill('${containerId}')">
-                🔄 重新練習本關
+                      type="button"
+                      onclick="event.stopPropagation(); window.TypingDojo.resetDrill('${containerId}')">
+                🔄 重練
               </button>
               <button class="btn-primary btn-compact"
-                      onclick="window.TypingDojo.nextDrill('${containerId}')">
+                      type="button"
+                      onclick="event.stopPropagation(); window.TypingDojo.nextDrill('${containerId}')">
                 ⏭️ 下一關
               </button>
             </div>
@@ -348,15 +495,28 @@ window.TypingDojo = {
           </div>
         </div>
 
-        <!-- Visual Taiwan Keyboard + 2D SVG Virtual Hands (TypingClub style) -->
+        <!-- 3-Column Cockpit: Left Hand SVG | Taiwan Keyboard | Right Hand SVG -->
         <div class="taiwan-keyboard" id="${containerId}-keyboard">
           ${this.renderKeyboardHtml(nextExpectedChar, zhuyinSeq)}
         </div>
         `}
 
-        ${this.renderHistoryChart()}
+        <!-- Collapsible Speed Curve & Finger Legend Drawer -->
+        <div class="dojo-bottom-drawer-bar">
+          <button class="dojo-drawer-toggle-btn"
+                  type="button"
+                  onclick="window.TypingDojo.toggleStatsDrawer('${containerId}')">
+            📈 查看速度成長曲線與十指顏色對照表 ▾
+          </button>
+        </div>
+        <div class="dojo-stats-drawer ${this.statsDrawerOpen ? 'is-open' : ''}" id="${containerId}-stats-drawer">
+          ${this.renderFingerLegendHtml(keyInfo ? keyInfo.finger : null)}
+          ${this.renderHistoryChart()}
+        </div>
       </div>
     `;
+
+    this.bindElasticLockIn(containerId);
 
     const inputEl = document.getElementById(`${containerId}-input`);
     if (inputEl) {
@@ -589,7 +749,7 @@ window.TypingDojo = {
       resultEl.innerHTML = this.isCompleted ? this.renderResultCardHtml(containerId, drill) : '';
     }
 
-    // Update keyboard target highlight & virtual SVG hands
+    // Update keyboard target highlight & side-by-side virtual SVG hands
     if (keyboardEl) {
       keyboardEl.innerHTML = this.renderKeyboardHtml(nextExpectedChar, zhuyinSeq);
     }
@@ -630,53 +790,111 @@ window.TypingDojo = {
     const activeFinger = primaryKeyInfo ? primaryKeyInfo.finger : null;
     const badgeNums = ['', '①', '②', '③', '④', '⑤'];
 
+    const activeCallout = primaryKeyInfo
+      ? `🖐️ 請用【 ${primaryKeyInfo.hand} 】按下「${primaryKeyInfo.key === ' ' ? 'Space 空白鍵' : primaryKeyInfo.key.toUpperCase() + ' / ' + primaryKeyInfo.zhuyin}」`
+      : '🖐️ 雙手輕放在基準鍵 A S D F 與 J K L ; 上（F 與 J 有定位小凸點）';
+
     return `
       <div class="kb-guide-caption">
-        💻 台灣注音雙語鍵盤導引（黃色發光鍵 ＝ 下一個要按的鍵；F 與 J 底下有藍色定位凸點！）
+        <span>💻 台灣注音雙語鍵盤座艙</span>
+        <span class="dojo-hands-callout">${activeCallout}</span>
       </div>
-      ${window.TYPING_DATA.keyboardLayout.map((row, rIdx) => `
-        <div class="kb-row" style="padding-left:${rIdx * 14}px;">
-          ${rIdx === 3 ? `<div class="kb-key kb-key-wide kb-key-shift">Shift (切換中/英)</div>` : ''}
-          ${row.map(k => {
-            const zyStep = seqMap[k.key] || 0;
-            const isTarget = (nextExpectedChar && nextExpectedChar.toLowerCase() === k.key) || zyStep > 0;
-            const isFlashed = this.lastFlashKey === k.key;
-            const flashClass = isFlashed ? (this.lastFlashOk ? 'pressed-correct' : 'pressed-wrong') : '';
-            const missedCount = (this.missedKeys && this.missedKeys[k.key]) || 0;
-            const weakClass = missedCount > 0 ? 'weak-key' : '';
-            const fColor = this.getFingerColor(k.finger);
+
+      <!-- 3-Column Cockpit: Left Hand SVG | Keyboard Rows | Right Hand SVG -->
+      <div class="dojo-cockpit-row dojo-hands-svg" role="region" aria-label="左右手與鍵盤並列座艙">
+        ${this.renderSingleHandSvg('left', activeFinger)}
+
+        <div class="kb-rows-center">
+          ${window.TYPING_DATA.keyboardLayout.map((row, rIdx) => `
+            <div class="kb-row" style="padding-left:${rIdx * 10}px;">
+              ${rIdx === 3 ? `<div class="kb-key kb-key-wide kb-key-shift">Shift (中/英)</div>` : ''}
+              ${row.map(k => {
+                const zyStep = seqMap[k.key] || 0;
+                const isTarget = (nextExpectedChar && nextExpectedChar.toLowerCase() === k.key) || zyStep > 0;
+                const isFlashed = this.lastFlashKey === k.key;
+                const flashClass = isFlashed ? (this.lastFlashOk ? 'pressed-correct' : 'pressed-wrong') : '';
+                const missedCount = (this.missedKeys && this.missedKeys[k.key]) || 0;
+                const weakClass = missedCount > 0 ? 'weak-key' : '';
+                const fColor = this.getFingerColor(k.finger);
+                return `
+                  <div class="kb-key ${k.home ? 'home-key' : ''} ${k.bump ? 'bump-key' : ''} ${isTarget ? 'highlight-target' : ''} ${flashClass} ${weakClass}"
+                       style="border-bottom: 4px solid ${fColor};"
+                       data-key="${k.key}">
+                    ${zyStep > 0 ? `<span class="kb-step-badge">${badgeNums[zyStep] || zyStep}</span>` : ''}
+                    <div class="kb-key-top">
+                      <span>${k.key.toUpperCase()}</span>
+                      <span class="kb-key-sub">${k.sub || ''}</span>
+                    </div>
+                    <div class="kb-key-zy">${k.zhuyin}</div>
+                  </div>
+                `;
+              }).join('')}
+              ${rIdx === 2 ? `<div class="kb-key kb-key-wide kb-key-enter">Enter ↵</div>` : ''}
+              ${rIdx === 3 ? `<div class="kb-key kb-key-wide kb-key-shift">Shift</div>` : ''}
+            </div>
+          `).join('')}
+          <div class="kb-row">
+            <div class="kb-key kb-key-wide kb-key-mod">Ctrl</div>
+            <div class="kb-key kb-key-wide kb-key-mod">Win ⊞</div>
+            <div class="kb-key kb-key-wide kb-key-mod">Alt</div>
+            <div class="kb-key kb-key-space ${(nextExpectedChar === ' ' || seqMap[' ']) ? 'highlight-target' : ''}">
+              ${seqMap[' '] ? `<span class="kb-step-badge">${badgeNums[seqMap[' ']] || seqMap[' ']}</span>` : ''}
+              <span>Space 空白鍵（大拇指 / 注音一聲）</span>
+            </div>
+            <div class="kb-key kb-key-wide kb-key-arrow">↓ 選字鍵</div>
+          </div>
+        </div>
+
+        ${this.renderSingleHandSvg('right', activeFinger)}
+      </div>
+    `;
+  },
+
+  renderSingleHandSvg(side, activeFinger) {
+    const isLeft = side === 'left';
+    const fingers = isLeft
+      ? [
+          { code: 'L5', home: 'A', x: 10, y: 40, h: 52, color: '#ef4444' },
+          { code: 'L4', home: 'S', x: 34, y: 24, h: 68, color: '#f97316' },
+          { code: 'L3', home: 'D', x: 58, y: 16, h: 76, color: '#eab308' },
+          { code: 'L2', home: 'F•', x: 82, y: 26, h: 66, color: '#10b981' },
+          { code: 'THUMB', home: '␣', x: 106, y: 62, h: 42, color: '#64748b' }
+        ]
+      : [
+          { code: 'THUMB', home: '␣', x: 10, y: 62, h: 42, color: '#64748b' },
+          { code: 'R2', home: 'J•', x: 34, y: 26, h: 66, color: '#06b6d4' },
+          { code: 'R3', home: 'K', x: 58, y: 16, h: 76, color: '#3b82f6' },
+          { code: 'R4', home: 'L', x: 82, y: 24, h: 68, color: '#ec4899' },
+          { code: 'R5', home: ';', x: 106, y: 40, h: 52, color: '#14b8a6' }
+        ];
+
+    return `
+      <div class="dojo-side-hand dojo-side-hand-${side}" aria-label="${isLeft ? '左手' : '右手'}指法圖">
+        <svg viewBox="0 0 136 146" class="dojo-hand-unit-svg" role="img">
+          <rect x="${isLeft ? 8 : 28}" y="86" width="100" height="50" rx="24" class="hand-palm" />
+          <text x="${isLeft ? 58 : 78}" y="116" text-anchor="middle" class="hand-palm-label">${isLeft ? '左手 Left' : '右手 Right'}</text>
+          ${fingers.map((f, idx) => {
+            const isActive = activeFinger && f.code === activeFinger;
+            const yPos = isActive ? Math.max(4, f.y - 9) : f.y;
             return `
-              <div class="kb-key ${k.home ? 'home-key' : ''} ${k.bump ? 'bump-key' : ''} ${isTarget ? 'highlight-target' : ''} ${flashClass} ${weakClass}"
-                   style="border-bottom: 4px solid ${fColor};"
-                   data-key="${k.key}">
-                ${zyStep > 0 ? `<span class="kb-step-badge">${badgeNums[zyStep] || zyStep}</span>` : ''}
-                <div class="kb-key-top">
-                  <span>${k.key.toUpperCase()}</span>
-                  <span class="kb-key-sub">${k.sub || ''}</span>
-                </div>
-                <div class="kb-key-zy">${k.zhuyin}</div>
-              </div>
+              <g class="svg-finger ${isActive ? 'is-active' : ''}" data-finger="${f.code}" data-idx="${idx}">
+                ${isActive ? `<circle cx="${f.x + 10}" cy="${yPos + 10}" r="15" fill="${f.color}" opacity="0.3" class="finger-pulse-ring" />` : ''}
+                <rect x="${f.x}" y="${yPos}" width="20" height="${f.h}" rx="10"
+                      fill="${f.color}"
+                      opacity="${isActive ? '1' : '0.45'}"
+                      stroke="${isActive ? '#0f172a' : '#ffffff'}"
+                      stroke-width="${isActive ? '2.5' : '1.5'}" />
+                <text x="${f.x + 10}" y="${yPos + 15}" text-anchor="middle" class="finger-home-text">${f.home}</text>
+              </g>
             `;
           }).join('')}
-          ${rIdx === 2 ? `<div class="kb-key kb-key-wide kb-key-enter">Enter ↵ (確認)</div>` : ''}
-          ${rIdx === 3 ? `<div class="kb-key kb-key-wide kb-key-shift">Shift (中/英)</div>` : ''}
-        </div>
-      `).join('')}
-      <div class="kb-row">
-        <div class="kb-key kb-key-wide kb-key-mod">Ctrl</div>
-        <div class="kb-key kb-key-wide kb-key-mod">Win ⊞</div>
-        <div class="kb-key kb-key-wide kb-key-mod">Alt</div>
-        <div class="kb-key kb-key-space ${(nextExpectedChar === ' ' || seqMap[' ']) ? 'highlight-target' : ''}">
-          ${seqMap[' '] ? `<span class="kb-step-badge">${badgeNums[seqMap[' ']] || seqMap[' ']}</span>` : ''}
-          <span>Space 空白鍵（大拇指 / 注音一聲）</span>
-        </div>
-        <div class="kb-key kb-key-wide kb-key-arrow">↓ 選字方向鍵</div>
+        </svg>
       </div>
+    `;
+  },
 
-      <!-- 2D SVG Virtual Left & Right Hands (TypingClub style) -->
-      ${this.renderVirtualHandsSvg(activeFinger, primaryKeyInfo)}
-
-      <!-- Finger Color Legend -->
+  renderFingerLegendHtml(activeFinger) {
+    return `
       <div class="finger-legend">
         <span class="finger-badge ${activeFinger === 'L5' ? 'active-finger-badge' : ''}" style="background:var(--finger-L5)">左手小指 (A/Q/Z/1)</span>
         <span class="finger-badge ${activeFinger === 'L4' ? 'active-finger-badge' : ''}" style="background:var(--finger-L4)">左手無名指 (S/W/X/2)</span>
@@ -686,56 +904,6 @@ window.TypingDojo = {
         <span class="finger-badge ${activeFinger === 'R3' ? 'active-finger-badge' : ''}" style="background:var(--finger-R3)">右手中指 (K/I/8/,)</span>
         <span class="finger-badge ${activeFinger === 'R4' ? 'active-finger-badge' : ''}" style="background:var(--finger-R4)">右手無名指 (L/O/9/.)</span>
         <span class="finger-badge ${activeFinger === 'R5' ? 'active-finger-badge' : ''}" style="background:var(--finger-R5)">右手小指 (;/P/0//)</span>
-      </div>
-    `;
-  },
-
-  renderVirtualHandsSvg(activeFinger, keyInfo) {
-    const fingers = [
-      // Left Hand (L5..L2 + L_THUMB)
-      { code: 'L5', label: '左小指', home: 'A', x: 34, y: 42, h: 52, color: '#ef4444', side: 'left' },
-      { code: 'L4', label: '左無名指', home: 'S', x: 64, y: 26, h: 68, color: '#f97316', side: 'left' },
-      { code: 'L3', label: '左中指', home: 'D', x: 94, y: 18, h: 76, color: '#eab308', side: 'left' },
-      { code: 'L2', label: '左食指', home: 'F•', x: 124, y: 28, h: 66, color: '#10b981', side: 'left', bump: true },
-      { code: 'THUMB', label: '左拇指', home: 'Space', x: 156, y: 66, h: 44, color: '#64748b', side: 'left' },
-      // Right Hand (R_THUMB + R2..R5)
-      { code: 'THUMB', label: '右拇指', home: 'Space', x: 256, y: 66, h: 44, color: '#64748b', side: 'right' },
-      { code: 'R2', label: '右食指', home: 'J•', x: 288, y: 28, h: 66, color: '#06b6d4', side: 'right', bump: true },
-      { code: 'R3', label: '右中指', home: 'K', x: 318, y: 18, h: 76, color: '#3b82f6', side: 'right' },
-      { code: 'R4', label: '右無名指', home: 'L', x: 348, y: 26, h: 68, color: '#ec4899', side: 'right' },
-      { code: 'R5', label: '右小指', home: ';', x: 378, y: 42, h: 52, color: '#14b8a6', side: 'right' }
-    ];
-
-    const activeCallout = keyInfo
-      ? `🖐️ 請動動【 ${keyInfo.hand} 】按下「${keyInfo.key === ' ' ? 'Space 空白鍵' : keyInfo.key.toUpperCase() + ' / ' + keyInfo.zhuyin}」`
-      : '🖐️ 雙手輕放在基準鍵 A S D F 與 J K L ; 上';
-
-    return `
-      <div class="dojo-hands-panel" aria-label="雙手指法視覺導引">
-        <div class="dojo-hands-callout">${activeCallout}</div>
-        <svg class="dojo-hands-svg" viewBox="0 0 434 155" role="img" aria-label="左右手十指鍵盤位置圖">
-          <!-- Left & Right Palms -->
-          <rect x="30" y="88" width="122" height="54" rx="26" class="hand-palm" />
-          <rect x="284" y="88" width="122" height="54" rx="26" class="hand-palm" />
-          <text x="91" y="121" text-anchor="middle" class="hand-palm-label">左手 Left</text>
-          <text x="345" y="121" text-anchor="middle" class="hand-palm-label">右手 Right</text>
-
-          ${fingers.map((f, idx) => {
-            const isActive = activeFinger && f.code === activeFinger;
-            const yPos = isActive ? Math.max(4, f.y - 10) : f.y;
-            return `
-              <g class="svg-finger ${isActive ? 'is-active' : ''}" data-finger="${f.code}" data-idx="${idx}">
-                ${isActive ? `<circle cx="${f.x + 11}" cy="${yPos + 10}" r="18" fill="${f.color}" opacity="0.28" class="finger-pulse-ring" />` : ''}
-                <rect x="${f.x}" y="${yPos}" width="22" height="${f.h}" rx="11"
-                      fill="${f.color}"
-                      opacity="${isActive ? '1' : '0.45'}"
-                      stroke="${isActive ? '#0f172a' : '#ffffff'}"
-                      stroke-width="${isActive ? '3' : '1.5'}" />
-                <text x="${f.x + 11}" y="${yPos + 16}" text-anchor="middle" class="finger-home-text">${f.home}</text>
-              </g>
-            `;
-          }).join('')}
-        </svg>
       </div>
     `;
   },
@@ -930,6 +1098,7 @@ window.TypingDojo = {
   selectDrill(drillId, containerId) {
     this.stopMeteorGame();
     this.currentDrillId = drillId;
+    this.selectorDrawerOpen = false;
     this.resetStateOnly();
     this.render(containerId);
   },

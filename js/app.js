@@ -103,7 +103,13 @@ window.AppState = {
       }
     }
 
-    if (!this.headerCompact && (scrollY > 72 || firstSectionLeftTop)) {
+    const isDojoCockpitLocked = this.currentView === 'dojo' &&
+      window.TypingDojo &&
+      window.TypingDojo.isLockedIn;
+
+    if (isDojoCockpitLocked) {
+      shouldCompact = true;
+    } else if (!this.headerCompact && (scrollY > 72 || firstSectionLeftTop)) {
       shouldCompact = true;
     } else if (this.headerCompact && scrollY < 32 && !firstSectionLeftTop) {
       shouldCompact = false;
@@ -571,7 +577,7 @@ window.AppState = {
   navigate(view, lessonId) {
     this.currentView = view;
     this.settingsMenuOpen = false;
-    this.headerCompact = false;
+    this.headerCompact = (view === 'dojo' && !!(window.TypingDojo && window.TypingDojo.isLockedIn));
     this.stopReadAloud();
     if (lessonId) {
       this.currentLessonId = lessonId;
@@ -1321,14 +1327,10 @@ window.AppState = {
       : 22;
 
     mainEl.innerHTML = `
-      <div class="card-panel">
-        <div class="view-page-header">
-          <div>
-            <h1 class="view-page-title">🎹 老鷹變獵鷹：中英盲打與注音特訓道館 (共 ${totalDrills} 關)</h1>
-            <p class="view-page-sub mb-0">
-              從最基礎的 <code>fff jjj</code>、<code>as asd</code>、<code>aaa bbb ccc</code>，一路練到「微軟注音四聲」與「Shift 中英切換」！每天練 10 分鐘，手指就會長出記憶喔！
-            </p>
-          </div>
+      <div class="card-panel dojo-page-card">
+        <div class="dojo-page-header">
+          <h1 class="dojo-page-title">🎹 老鷹變獵鷹：中英盲打與注音特訓道館 (共 ${totalDrills} 關)</h1>
+          <span class="dojo-page-sub">雙手放 F / J 凸點・眼睛看螢幕・專注鎖定座艙模式</span>
         </div>
         <div id="standalone-dojo-mount"></div>
       </div>

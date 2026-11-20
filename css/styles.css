@@ -3066,58 +3066,144 @@ body.kid-mode-8 .top-nav.is-compact .settings-btn {
 }
 
 /* ============================================================================
-   15. TYPING DOJO V2: SVG HANDS, DIRECT STAGE, ZHUYIN STEPS, RESULT & METEORS
+   15. TYPING DOJO V2: SINGLE-SCREEN 3-COLUMN COCKPIT & ELASTIC LOCK-IN
    ============================================================================ */
+.dojo-page-card {
+  padding: 0.45rem 0.85rem !important;
+  margin-top: 0.35rem !important;
+}
+
+.dojo-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.25rem;
+}
+
+.dojo-page-title {
+  font-size: 0.98rem;
+  font-weight: 900;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.dojo-page-sub {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* Elastic Lock-In Cockpit Container */
+.dojo-wrapper {
+  position: relative;
+  transform: translateY(var(--elastic-y, 0px));
+  transition: transform 0.36s cubic-bezier(0.22, 1.35, 0.36, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  padding: 0.25rem 0.35rem;
+}
+
+.dojo-wrapper.is-locked-in {
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.14), 0 10px 28px rgba(15, 23, 42, 0.12);
+}
+
+.dojo-wrapper.is-elastic-pulling {
+  transition: transform 0.05s linear;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.22);
+}
+
+.dojo-wrapper.is-elastic-released {
+  animation: dojoElasticRelease 0.42s cubic-bezier(0.18, 1.4, 0.35, 1);
+}
+
+@keyframes dojoElasticRelease {
+  0% { transform: scale(0.985); }
+  55% { transform: scale(1.012); }
+  100% { transform: scale(1); }
+}
+
 .dojo-mode-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.45rem;
   flex-wrap: wrap;
-  margin-bottom: 0.85rem;
-  padding: 0.55rem 0.8rem;
+  margin-bottom: 0.3rem;
+  padding: 0.25rem 0.55rem;
   background: var(--bg-subtle);
-  border-radius: 14px;
+  border-radius: 10px;
   border: 1px solid var(--border-light);
 }
 
 .dojo-mode-tabs {
   display: flex;
-  gap: 0.45rem;
+  align-items: center;
+  gap: 0.35rem;
   flex-wrap: wrap;
 }
 
-.dojo-mode-btn {
+.dojo-mode-btn,
+.dojo-selector-toggle-btn {
   border: 2px solid transparent;
   background: #ffffff;
   color: var(--text-secondary);
   font-weight: 800;
-  font-size: 0.9rem;
-  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  padding: 0.18rem 0.65rem;
+  min-height: 28px !important;
   border-radius: 999px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
+.dojo-selector-toggle-btn {
+  border-color: #bae6fd;
+  background: #f0f9ff;
+  color: #0369a1;
+}
+
 .dojo-mode-btn.active {
   background: var(--primary);
   color: #ffffff;
-  box-shadow: 0 3px 10px rgba(2, 132, 199, 0.25);
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
 }
 
 .dojo-hud-pills {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
   flex-wrap: wrap;
+}
+
+.dojo-lock-pill {
+  padding: 0.18rem 0.6rem;
+  min-height: 28px !important;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.76rem;
+  background: #f8fafc;
+  border: 2px solid #cbd5e1;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dojo-lock-pill.active {
+  background: #ecfeff;
+  border-color: #06b6d4;
+  color: #0e7490;
 }
 
 .dojo-streak-pill,
 .dojo-target-pill {
-  padding: 0.3rem 0.75rem;
+  padding: 0.18rem 0.6rem;
   border-radius: 999px;
   font-weight: 800;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   background: #ffffff;
   border: 2px solid var(--border-light);
   color: var(--text-main);
@@ -3130,37 +3216,129 @@ body.kid-mode-8 .top-nav.is-compact .settings-btn {
   transform: scale(1.04);
 }
 
+/* Collapsible Selector & Stats Drawers (hidden by default so cockpit fits on 1 laptop screen) */
+.dojo-selector-drawer,
+.dojo-stats-drawer {
+  display: none;
+  margin-bottom: 0.4rem;
+  padding: 0.45rem;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+}
+
+.dojo-selector-drawer.is-open,
+.dojo-stats-drawer.is-open {
+  display: block;
+}
+
+.dojo-bottom-drawer-bar {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.25rem;
+}
+
+.dojo-drawer-toggle-btn {
+  background: transparent;
+  border: 1px dashed var(--border-strong);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.15rem 0.75rem;
+  min-height: 24px !important;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+/* Compact Target Display Box */
+.typing-target-box {
+  cursor: text;
+  padding: 0.45rem 0.75rem !important;
+  margin-bottom: 0.35rem !important;
+}
+
+.typing-tip-bar {
+  margin-bottom: 0.28rem !important;
+  font-size: 0.8rem !important;
+}
+
+.typing-chars-display {
+  padding: 0.4rem 0.7rem !important;
+  margin-bottom: 0.3rem !important;
+  font-size: 1.28rem !important;
+  line-height: 1.42 !important;
+  min-height: 46px !important;
+}
+
+/* Hide the bulky input box in English/key drills so user types directly on the character ribbon */
+.dojo-input-row.direct-mode {
+  position: relative;
+  height: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+.dojo-input-row.direct-mode .typing-input-field {
+  position: absolute;
+  opacity: 0.01;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  pointer-events: none;
+}
+
+.dojo-input-row.ime-mode {
+  margin-bottom: 0.3rem;
+}
+
+.dojo-input-row.ime-mode .typing-input-field {
+  height: 34px;
+  font-size: 0.9rem;
+  padding: 0.2rem 0.65rem;
+}
+
+.dojo-hint-bar {
+  padding-top: 0.1rem;
+}
+
+.dojo-key-hint {
+  font-size: 0.82rem !important;
+}
+
 /* Zhuyin multi-key step pills */
 .dojo-zy-step-bar {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
 }
 
 .dojo-zy-steps-inner {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  padding: 0.45rem 0.75rem;
+  gap: 0.3rem;
+  padding: 0.22rem 0.55rem;
   background: #eff6ff;
   border: 2px dashed #93c5fd;
-  border-radius: 12px;
+  border-radius: 10px;
 }
 
 .dojo-zy-steps-label {
   font-weight: 800;
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   color: #1e40af;
 }
 
 .dojo-zy-step-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  padding: 0.2rem 0.55rem;
+  gap: 0.22rem;
+  padding: 0.1rem 0.42rem;
   background: #ffffff;
   border: 2px solid #3b82f6;
   border-radius: 999px;
-  font-size: 0.86rem;
+  font-size: 0.78rem;
+  color: #0f172a;
 }
 
 .zy-step-num {
@@ -3173,31 +3351,116 @@ body.kid-mode-8 .top-nav.is-compact .settings-btn {
   font-weight: 800;
 }
 
-/* Direct-Focus Input Row */
-.typing-target-box {
-  cursor: text;
+/* 3-Column Cockpit: Left Hand SVG | Keyboard | Right Hand SVG */
+.taiwan-keyboard {
+  padding: 0.4rem 0.65rem !important;
 }
 
-.dojo-input-row.direct-mode .typing-input-field {
-  height: 38px;
-  font-size: 0.95rem;
-  padding: 0.35rem 0.75rem;
-  background: rgba(248, 250, 252, 0.85);
-  border-style: dashed;
+.kb-guide-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.28rem !important;
+  font-size: 0.78rem !important;
 }
 
-/* Keyboard Step Badges & Live Key Flash */
-.kb-key {
+.dojo-hands-callout {
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: #0284c7;
+}
+
+.dojo-cockpit-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+.dojo-side-hand {
+  width: 118px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 0.25rem 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dojo-hand-unit-svg {
+  width: 100%;
+  height: auto;
+  max-height: 145px;
+  display: block;
+}
+
+.kb-rows-center {
+  flex: 1;
+  min-width: 0;
+}
+
+.taiwan-keyboard .kb-row {
+  gap: 0.24rem !important;
+  margin-bottom: 0.22rem !important;
+}
+
+.taiwan-keyboard .kb-key {
   position: relative;
+  min-width: 40px !important;
+  height: 38px !important;
+  padding: 0.12rem 0.26rem !important;
+  border-radius: 7px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.taiwan-keyboard .kb-key-top {
+  font-size: 0.78rem !important;
+  line-height: 1 !important;
+}
+
+.taiwan-keyboard .kb-key-zy {
+  font-size: 0.74rem !important;
+  line-height: 1 !important;
+}
+
+.taiwan-keyboard .kb-key-wide {
+  min-width: 64px !important;
+  font-size: 0.72rem !important;
+  justify-content: center;
+}
+
+.taiwan-keyboard .kb-key-space {
+  min-width: 200px !important;
+  height: 35px !important;
+  font-size: 0.78rem !important;
+  justify-content: center;
+}
+
+/* Fix dark-mode / light-mode contrast on Ctrl, Win, Alt, and Arrow keys */
+.taiwan-keyboard .kb-key-mod,
+.taiwan-keyboard .kb-key-arrow,
+body.dark-mode .taiwan-keyboard .kb-key-mod,
+body.dark-mode .taiwan-keyboard .kb-key-arrow {
+  background: #e2e8f0 !important;
+  color: #1e293b !important;
+  border-color: #94a3b8 !important;
+  font-weight: 800;
 }
 
 .kb-step-badge {
   position: absolute;
-  top: -7px;
-  right: -6px;
+  top: -6px;
+  right: -5px;
   background: #2563eb;
   color: #ffffff;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 900;
   line-height: 1;
   padding: 2px 5px;
@@ -3221,31 +3484,6 @@ body.kid-mode-8 .top-nav.is-compact .settings-btn {
   box-shadow: inset 0 0 0 2px #f97316;
 }
 
-/* 2D SVG Virtual Hands */
-.dojo-hands-panel {
-  margin-top: 0.9rem;
-  padding: 0.65rem 0.9rem;
-  background: rgba(255, 255, 255, 0.85);
-  border: 2px solid var(--border-light);
-  border-radius: 14px;
-  text-align: center;
-}
-
-.dojo-hands-callout {
-  font-weight: 800;
-  font-size: 0.92rem;
-  color: var(--primary);
-  margin-bottom: 0.35rem;
-}
-
-.dojo-hands-svg {
-  width: 100%;
-  max-width: 440px;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-
 .hand-palm {
   fill: #f1f5f9;
   stroke: #cbd5e1;
@@ -3255,7 +3493,7 @@ body.kid-mode-8 .top-nav.is-compact .settings-btn {
 .hand-palm-label {
   font-size: 11px;
   font-weight: 800;
-  fill: #475569;
+  fill: #334155;
 }
 
 .finger-home-text {
@@ -3271,45 +3509,45 @@ body.kid-mode-8 .top-nav.is-compact .settings-btn {
 
 /* End-of-Drill 1-3 Star Result Card */
 .dojo-result-card {
-  margin-top: 0.85rem;
-  padding: 0.85rem 1.1rem;
+  margin-top: 0.45rem;
+  padding: 0.55rem 0.85rem;
   background: linear-gradient(135deg, #fefce8 0%, #f0fdf4 100%);
   border: 2px solid #86efac;
-  border-radius: 14px;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.3rem;
 }
 
 .dojo-result-header {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.65rem;
   flex-wrap: wrap;
 }
 
 .dojo-result-stars {
-  font-size: 1.65rem;
+  font-size: 1.35rem;
   letter-spacing: 2px;
 }
 
 .dojo-result-title {
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 900;
   color: #166534;
 }
 
 .dojo-result-sub {
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   color: #15803d;
 }
 
 .dojo-result-weak {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #334155;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
   flex-wrap: wrap;
 }
 
@@ -3317,7 +3555,7 @@ body.kid-mode-8 .top-nav.is-compact .settings-btn {
   background: #ffedd5;
   border: 1px solid #fdba74;
   color: #9a3412;
-  padding: 0.1rem 0.5rem;
+  padding: 0.08rem 0.45rem;
   border-radius: 999px;
   font-weight: 800;
 }
@@ -3329,50 +3567,50 @@ body.kid-mode-8 .top-nav.is-compact .settings-btn {
 
 /* Meteor Shower Mini-Game */
 .meteor-game-panel {
-  margin-top: 0.75rem;
+  margin-top: 0.45rem;
   border: 2px solid #38bdf8;
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
   background: #0f172a;
   color: #f8fafc;
 }
 
 .meteor-hud {
-  padding: 0.7rem 1rem;
+  padding: 0.55rem 0.85rem;
   background: #1e293b;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.65rem;
   flex-wrap: wrap;
   border-bottom: 1px solid #334155;
 }
 
 .meteor-sub {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: #94a3b8;
 }
 
 .meteor-stats {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
 }
 
 .meteor-score-pill,
 .meteor-lives-pill {
-  padding: 0.25rem 0.7rem;
+  padding: 0.2rem 0.65rem;
   border-radius: 999px;
   background: #0f172a;
   border: 1px solid #334155;
   font-weight: 800;
-  font-size: 0.88rem;
+  font-size: 0.84rem;
 }
 
 .meteor-stage {
   position: relative;
-  height: 300px;
+  height: 280px;
   background: radial-gradient(circle at 50% 20%, #1e3a8a 0%, #0f172a 75%);
   overflow: hidden;
 }
@@ -3384,19 +3622,19 @@ body.kid-mode-8 .top-nav.is-compact .settings-btn {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   text-align: center;
-  padding: 1.5rem;
+  padding: 1.25rem;
 }
 
 .meteor-start-icon {
-  font-size: 2.6rem;
+  font-size: 2.3rem;
 }
 
 .meteor-item {
   position: absolute;
-  width: 58px;
-  height: 58px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
   background: rgba(15, 23, 42, 0.9);
   border: 3px solid #38bdf8;
@@ -3409,30 +3647,56 @@ body.kid-mode-8 .top-nav.is-compact .settings-btn {
 }
 
 .meteor-key {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 900;
   color: #ffffff;
   line-height: 1.1;
 }
 
 .meteor-zy {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 800;
   color: #fde047;
 }
 
 body.dark-mode .dojo-mode-bar,
-body.dark-mode .dojo-hands-panel {
+body.dark-mode .dojo-selector-drawer,
+body.dark-mode .dojo-stats-drawer {
   background: #1e293b;
   border-color: #334155;
 }
 
+body.dark-mode .dojo-side-hand {
+  background: rgba(15, 23, 42, 0.78);
+  border-color: #334155;
+}
+
+body.dark-mode .hand-palm {
+  fill: #1e293b;
+  stroke: #475569;
+}
+
+body.dark-mode .hand-palm-label {
+  fill: #cbd5e1;
+}
+
+body.dark-mode .dojo-hands-callout {
+  color: #38bdf8;
+}
+
 body.dark-mode .dojo-mode-btn,
 body.dark-mode .dojo-streak-pill,
-body.dark-mode .dojo-target-pill {
+body.dark-mode .dojo-target-pill,
+body.dark-mode .dojo-lock-pill {
   background: #0f172a;
   color: #e2e8f0;
   border-color: #334155;
+}
+
+body.dark-mode .dojo-lock-pill.active {
+  background: #083344;
+  border-color: #06b6d4;
+  color: #67e8f9;
 }
 
 body.dark-mode .dojo-mode-btn.active {
@@ -3449,4 +3713,13 @@ body.dark-mode .dojo-result-sub,
 body.dark-mode .dojo-result-weak,
 body.dark-mode .weak-key-perfect {
   color: #dcfce7;
+}
+
+@media (max-width: 960px) {
+  .dojo-cockpit-row {
+    flex-wrap: wrap;
+  }
+  .dojo-side-hand {
+    width: 105px;
+  }
 }

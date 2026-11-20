@@ -60,7 +60,7 @@ digital-explorer-academy/
 │   ├── simulators.js        # Interactive labs (Win11, Shortcuts, Browser, Search, Scam, AI Studios)
 │   └── app.js               # Multi-kid profiles, World Map, Vocab audio, Certificate, Parent Guide
 ├── scripts/build-bundle.js  # Bundles everything into standalone `digital_explorer_academy.html`
-└── tests/run-all-tests.js   # Automated JSDOM test suite (791 assertions)
+└── tests/run-all-tests.js   # Automated JSDOM test suite (795 assertions)
 ```
 
 ---
@@ -100,11 +100,16 @@ digital-explorer-academy/
 ## 5. 📊 Current Status & Changelog
 
 * **Last Updated:** 2026-11-19
-* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **791 / 791 PASS (100%)**
+* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **795 / 795 PASS (100%)**
 * **GitHub Repository:** https://github.com/azreal564335/dea (`main` branch)
 * **Recent Changes:**
+  * **Zero-Scroll Single-Screen 3-Column Typing Cockpit & Elastic Lock-In:**
+    * **Real Chromium Laptop Viewport Verification (`1280×760`, `617px` innerHeight):** Entire Typing Dojo (Slim Header + Single-Row Stage/Drill Switcher + Direct-Focus Character Ribbon + `[ Left Hand SVG | Taiwan Keyboard | Right Hand SVG ]` + Bottom Stats Drawer Toggle) fits inside `585px` (`allVisibleInOneScreen: true`) with zero scrolling required.
+    * **3-Column Side-by-Side SVG Hands (`renderSingleHandSvg`):** Placed Left Hand SVG on the left and Right Hand SVG on the right of the keyboard, saving `~190px` vertically and keeping both hands + keyboard in a single glance.
+    * **Elastic Lock-In Cockpit (`handleElasticDelta`, `bindElasticLockIn`, `toggleLockIn`):** Enters `🔒 專注鎖定中` mode on Dojo open (auto-compacting the top navbar); small wheel/touch pulls apply a damped spring displacement (`--elastic-y`) and snap back elastically, while pulling beyond the `88px` resistance threshold releases the lock with a spring rebound animation (`.is-elastic-released`).
+    * **True In-Place Typing & Dark-Mode Key Fix:** Hidden bulky `<input>` box during English/Zhuyin-key drills (`direct-mode` `height: 0`) so kids type straight onto the character ribbon, and fixed dark-mode contrast on `Ctrl`, `Win ⊞`, `Alt`, and `↓ 選字鍵`.
   * **Typing Dojo v2 Upgrade (TypingClub + Monkeytype + Keybr + BopoType Style):**
-    * **Test Gate & Real Chromium Validation:** `npm run build && npm test` passed **791 / 791** assertions (**0 failures**), plus real headless Chromium layout & computed-style validation.
+    * **Test Gate & Real Chromium Validation:** `npm run build && npm test` passed **795 / 795** assertions (**0 failures**), plus real headless Chromium layout & computed-style validation.
     * **2D SVG Virtual Left & Right Hands (`renderVirtualHandsSvg`):** Color-coded 10-finger SVG hands below the keyboard that extend and pulse the active finger (`L5`..`R5`, `THUMB`) for the next key.
     * **Direct-Focus Stage & 🔥 Combo Streak:** Click anywhere on `.typing-target-box` to focus, live `🔥 連擊 xN` streak pill, Web Audio mechanical key-tap audio (`playKeyAudio`), and live `.pressed-correct` / `.pressed-wrong` key flash.
     * **Multi-Key Zhuyin Syllable Step Badges (`getZhuyinSequenceForChar`):** In `chinese-real` drills (`zy-4`, `sw-1`, `sw-2`, `zy-5`), decomposes the current Chinese character into its Bopomofo key sequence (e.g. `你` ➔ `① ㄋ S` ➔ `② ㄧ U` ➔ `③ ˇ 3`) and places numbered `.kb-step-badge` markers (`① ② ③`) directly on the virtual keyboard keys.

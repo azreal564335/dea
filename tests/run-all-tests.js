@@ -918,6 +918,25 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
     'Pressing matching key destroys meteor and awards +10 score');
   window.TypingDojo.stopMeteorGame();
   window.TypingDojo.setDojoMode('drill', 'standalone-dojo-mount');
+
+  // 19f. Single-Screen 3-Column Cockpit & Elastic Lock-In
+  const leftHandEl = window.document.querySelector('#standalone-dojo-mount .dojo-side-hand-left');
+  const rightHandEl = window.document.querySelector('#standalone-dojo-mount .dojo-side-hand-right');
+  const kbCenterEl = window.document.querySelector('#standalone-dojo-mount .kb-rows-center');
+  assert(!!leftHandEl && !!rightHandEl && !!kbCenterEl,
+    'Typing Dojo renders 3-column cockpit: Left Hand SVG | Keyboard Rows | Right Hand SVG');
+  window.TypingDojo.toggleLockIn('standalone-dojo-mount', true);
+  const dojoWrap = window.document.querySelector('#standalone-dojo-mount .dojo-wrapper');
+  assert(window.TypingDojo.isLockedIn === true && dojoWrap.classList.contains('is-locked-in'),
+    'Typing Dojo starts in Elastic Lock-In state (.dojo-wrapper.is-locked-in)');
+  // Small wheel pull should resist elastically without releasing lock
+  const releasedSmall = window.TypingDojo.handleElasticDelta(80, 'standalone-dojo-mount');
+  assert(releasedSmall === false && window.TypingDojo.isLockedIn === true && dojoWrap.classList.contains('is-elastic-pulling') && window.TypingDojo.elasticPullY !== 0,
+    'Small scroll delta applies damped elastic spring displacement (--elastic-y) while keeping cockpit locked');
+  // Strong wheel pull beyond threshold releases the lock with elastic rebound
+  const releasedStrong = window.TypingDojo.handleElasticDelta(250, 'standalone-dojo-mount');
+  assert(releasedStrong === true && window.TypingDojo.isLockedIn === false && dojoWrap.classList.contains('is-elastic-released'),
+    'Scrolling past elastic resistance threshold releases lock with spring rebound (.is-elastic-released)');
 }
 
 async function main() {
