@@ -76,37 +76,37 @@ window.AppState = {
   evaluateHeaderCompact() {
     const navEl = document.getElementById('app-header');
     if (!navEl) return false;
-    const scrollY = typeof window.scrollY === 'number'
-      ? window.scrollY
-      : (typeof window.pageYOffset === 'number' ? window.pageYOffset : 0);
+    const docEl = document.documentElement;
+    const bodyEl = document.body;
+    const scrollY = Math.max(
+      typeof window.scrollY === 'number' ? window.scrollY : 0,
+      typeof window.pageYOffset === 'number' ? window.pageYOffset : 0,
+      docEl && typeof docEl.scrollTop === 'number' ? docEl.scrollTop : 0,
+      bodyEl && typeof bodyEl.scrollTop === 'number' ? bodyEl.scrollTop : 0
+    );
 
     const mainEl = document.getElementById('app-main');
     const firstSection = mainEl
-      ? (mainEl.querySelector('.hero-banner, .lesson-title-banner, .daily-quest-card, .card-panel') || mainEl.firstElementChild)
+      ? (mainEl.querySelector('.hero-banner, .lesson-title-banner, .daily-quest-card') || mainEl.firstElementChild)
       : null;
 
     let shouldCompact = this.headerCompact;
-    let usedRect = false;
+    let firstSectionLeftTop = false;
 
     if (firstSection && typeof firstSection.getBoundingClientRect === 'function') {
       const rect = firstSection.getBoundingClientRect();
       if (rect && (rect.height > 0 || rect.bottom !== 0 || rect.top !== 0)) {
-        usedRect = true;
-        const headerHeight = navEl.offsetHeight || 68;
-        if (!this.headerCompact && rect.bottom <= headerHeight + 12) {
-          shouldCompact = true;
-        } else if (this.headerCompact && rect.bottom > headerHeight + 36 && scrollY < 80) {
-          shouldCompact = false;
+        const headerHeight = navEl.offsetHeight || 64;
+        if (rect.bottom <= headerHeight + 16) {
+          firstSectionLeftTop = true;
         }
       }
     }
 
-    if (!usedRect) {
-      if (!this.headerCompact && scrollY > 110) {
-        shouldCompact = true;
-      } else if (this.headerCompact && scrollY < 60) {
-        shouldCompact = false;
-      }
+    if (!this.headerCompact && (scrollY > 72 || firstSectionLeftTop)) {
+      shouldCompact = true;
+    } else if (this.headerCompact && scrollY < 32 && !firstSectionLeftTop) {
+      shouldCompact = false;
     }
 
     if (shouldCompact !== this.headerCompact) {
@@ -686,27 +686,27 @@ window.AppState = {
       <nav class="nav-tabs" aria-label="主導覽列">
         <button class="nav-tab ${this.currentView === 'map' || this.currentView === 'lesson' ? 'active' : ''}"
                 onclick="window.AppState.navigate('map')">
-          🗺️ <span class="nav-tab-text">探險地圖</span><span class="nav-tab-count"> (${completedCount}/${totalLessons})</span>
+          🗺️ <span class="nav-tab-text">探險地圖</span><span class="nav-tab-short">地圖</span><span class="nav-tab-count"> (${completedCount}/${totalLessons})</span>
         </button>
         <button class="nav-tab ${this.currentView === 'dojo' ? 'active' : ''}"
                 onclick="window.AppState.navigate('dojo')">
-          🎹 <span class="nav-tab-text">中英打字道館</span><span class="nav-tab-count"> (${totalDrills}關)</span>
+          🎹 <span class="nav-tab-text">中英打字道館</span><span class="nav-tab-short">打字</span><span class="nav-tab-count"> (${totalDrills}關)</span>
         </button>
         <button class="nav-tab ${this.currentView === 'vocab' ? 'active' : ''}"
                 onclick="window.AppState.navigate('vocab')">
-          🔤 <span class="nav-tab-text">電腦英文單字卡</span>
+          🔤 <span class="nav-tab-text">電腦英文單字卡</span><span class="nav-tab-short">單字</span>
         </button>
         <button class="nav-tab ${this.currentView === 'badges' ? 'active' : ''}"
                 onclick="window.AppState.navigate('badges')">
-          🏆 <span class="nav-tab-text">徽章櫃</span><span class="nav-tab-count"> Badges</span>
+          🏆 <span class="nav-tab-text">徽章櫃</span><span class="nav-tab-short">徽章</span><span class="nav-tab-count"> Badges</span>
         </button>
         <button class="nav-tab ${this.currentView === 'certificate' ? 'active' : ''}"
                 onclick="window.AppState.navigate('certificate')">
-          🎓 <span class="nav-tab-text">榮譽證書</span>
+          🎓 <span class="nav-tab-text">榮譽證書</span><span class="nav-tab-short">證書</span>
         </button>
         <button class="nav-tab ${this.currentView === 'parent' ? 'active' : ''}"
                 onclick="window.AppState.navigate('parent')">
-          👨‍👩‍👧 <span class="nav-tab-text">家長儀表板</span>
+          👨‍👩‍👧 <span class="nav-tab-text">家長儀表板</span><span class="nav-tab-short">家長</span>
         </button>
       </nav>
 
