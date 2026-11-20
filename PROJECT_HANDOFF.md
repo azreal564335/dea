@@ -60,7 +60,7 @@ digital-explorer-academy/
 │   ├── simulators.js        # Interactive labs (Win11, Shortcuts, Browser, Search, Scam, AI Studios)
 │   └── app.js               # Multi-kid profiles, World Map, Vocab audio, Certificate, Parent Guide
 ├── scripts/build-bundle.js  # Bundles everything into standalone `digital_explorer_academy.html`
-└── tests/run-all-tests.js   # Automated JSDOM test suite (782 assertions)
+└── tests/run-all-tests.js   # Automated JSDOM test suite (791 assertions)
 ```
 
 ---
@@ -100,15 +100,22 @@ digital-explorer-academy/
 ## 5. 📊 Current Status & Changelog
 
 * **Last Updated:** 2026-11-19
-* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **782 / 782 PASS (100%)**
+* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **791 / 791 PASS (100%)**
 * **GitHub Repository:** https://github.com/azreal564335/dea (`main` branch)
 * **Recent Changes:**
+  * **Typing Dojo v2 Upgrade (TypingClub + Monkeytype + Keybr + BopoType Style):**
+    * **Test Gate & Real Chromium Validation:** `npm run build && npm test` passed **791 / 791** assertions (**0 failures**), plus real headless Chromium layout & computed-style validation.
+    * **2D SVG Virtual Left & Right Hands (`renderVirtualHandsSvg`):** Color-coded 10-finger SVG hands below the keyboard that extend and pulse the active finger (`L5`..`R5`, `THUMB`) for the next key.
+    * **Direct-Focus Stage & 🔥 Combo Streak:** Click anywhere on `.typing-target-box` to focus, live `🔥 連擊 xN` streak pill, Web Audio mechanical key-tap audio (`playKeyAudio`), and live `.pressed-correct` / `.pressed-wrong` key flash.
+    * **Multi-Key Zhuyin Syllable Step Badges (`getZhuyinSequenceForChar`):** In `chinese-real` drills (`zy-4`, `sw-1`, `sw-2`, `zy-5`), decomposes the current Chinese character into its Bopomofo key sequence (e.g. `你` ➔ `① ㄋ S` ➔ `② ㄧ U` ➔ `③ ˇ 3`) and places numbered `.kb-step-badge` markers (`① ② ③`) directly on the virtual keyboard keys.
+    * **Stage Clear 1–3 Star Result Card & Weak-Key Heatmap:** End-of-drill summary card with 1–3 stars (scaled `0.75x` for `kid-8`), missed-key chips (`.weak-key-chip` + `.weak-key` border on keyboard), and `Enter` shortcut for next drill.
+    * **🌧️ Typing Meteor Shower Mini-Game (`startMeteorGame`):** Arcade mode inside the Typing Dojo where kids shoot falling English/Zhuyin meteors from the current stage before they hit the island (slower speed in `kid-8` mode).
   * **Compact Single-Row Top Header on Scroll (`#app-header.is-compact` / `.top-nav.is-compact`):**
     * Added `evaluateHeaderCompact()` in `js/app.js` and `#app-header.is-compact` / `.top-nav.is-compact` in `css/styles.css` (verified in headless Chromium: shrinks header height from `205px` → `43px` and tab height from `56px` → `32px`).
   * **Default Explorer Map & 8-Year-Old Profile Preset (`kid-8`):**
     * `AppState.init()` now always opens on the **Explorer Map (`currentView = 'map'`)**, checks `localStorage` (`digital_explorer_academy_v1`), sanitizes/repairs any saved profiles, and presets the default active user to **`kid-8` (`8歲小探險家 🦊`)** with Zhuyin font and big-tap mode enabled on first visit.
   * **Complete 13-Item UI Overhaul (Batches 1–4):**
-    * **Test Gate:** `npm run build && npm test` passed **782 / 782** assertions (**0 failures**).
+    * **Test Gate:** `npm run build && npm test` passed **791 / 791** assertions (**0 failures**).
     * **Batch 1 — Navigation Makeover:** Collapsible world sections with SVG circular progress rings (`renderProgressRing`, only first unfinished world expanded by default); prominent top-of-map `▶️ 繼續 Continue` button (`.continue-btn`) and all-done banner (`.continue-congrats`); header `⚙️` settings dropdown (`.settings-menu`) consolidating Rename, Zhuyin font, Bilingual, Sound, and Dark Mode while keeping profile & XP pills visible; and 3-step lesson progress bar (`.lesson-steps`: `學習 Learn` / `實驗 Lab` / `測驗 Quiz`) with `← 上一步` / `下一步 →` navigation.
     * **Batch 2 — Delight & Accessibility:** Lesson completion celebration (`triggerLessonCelebration` with 40-piece CSS confetti, Web Audio ascending chime via `playSuccessSound` + `🔈 音效 Sound` toggle, and `.xp-flyup` `+N XP` animation, all respecting `prefers-reduced-motion`); 8-year-old enlarged tap targets (`body.kid-mode-8` with `min-height: 56px`); per-card `🔊 朗讀 Read` button (`.read-aloud-btn`) using `zh-TW` Web Speech API (`simpleBody` for `kid-8`); and persistent `🌙 深色模式 Dark` (`body.dark-mode`).
     * **Batch 3 — Content Presentation:** Single-card learn carousel (`.learn-carousel` with `◀`/`▶`, `.carousel-dots`, `"1 / N"` counter, keyboard arrows, touch swipe, and automatic read-aloud stop); `🏆 徽章櫃 Badges` view (`renderBadgeCabinet` with 7 World Badges + 6 Special Badges derived from progress); and per-world `--world-color` theming across world cards and lesson views.

@@ -865,6 +865,59 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   window.dispatchEvent(new window.Event('scroll'));
   assert(window.AppState.headerCompact === false && !headerEl.classList.contains('is-compact'),
     'Scrolling back to top expands top header (removes .is-compact)');
+
+  // 19. Typing Dojo v2: 2D SVG Hands, Combo Streak, Zhuyin Syllable Step Badges, Result Card & Meteor Mini-Game
+  console.log('\n--- 19. Typing Dojo v2 Upgrade ---');
+  window.AppState.navigate('dojo');
+  window.TypingDojo.setDojoMode('drill', 'standalone-dojo-mount');
+  window.TypingDojo.selectDrill('hr-1', 'standalone-dojo-mount');
+
+  // 19a. 2D SVG Virtual Hands
+  const handsSvg = window.document.querySelector('#standalone-dojo-mount .dojo-hands-svg');
+  const activeSvgFinger = window.document.querySelector('#standalone-dojo-mount .svg-finger.is-active');
+  assert(!!handsSvg && window.document.querySelectorAll('#standalone-dojo-mount .svg-finger').length === 10,
+    'Typing Dojo renders 2D SVG virtual hands with 10 fingers');
+  assert(!!activeSvgFinger && activeSvgFinger.getAttribute('data-finger') === 'L2',
+    'For drill hr-1 ("fff..."), Left Index finger (L2) is highlighted active on SVG virtual hand');
+
+  // 19b. Combo streak, live key flash & missed-key tracking
+  const hr1Input = window.document.getElementById('standalone-dojo-mount-input');
+  hr1Input.value = 'f';
+  hr1Input.dispatchEvent(new window.Event('input', { bubbles: true }));
+  assert(window.TypingDojo.comboStreak === 1 && window.document.querySelector('#standalone-dojo-mount .kb-key[data-key="f"].pressed-correct'),
+    'Correct keystroke increments comboStreak and flashes .kb-key.pressed-correct');
+  hr1Input.value = 'fx';
+  hr1Input.dispatchEvent(new window.Event('input', { bubbles: true }));
+  assert(window.TypingDojo.comboStreak === 0 && window.TypingDojo.missedKeys['f'] === 1 && window.document.querySelector('#standalone-dojo-mount .kb-key[data-key="f"].weak-key'),
+    'Typo resets comboStreak, records missed key in missedKeys, and highlights .weak-key on keyboard');
+
+  // 19c. Stage Clear 1-3 Star Result Card & Weak-Key Heatmap
+  const { drill: hr1Drill } = window.TypingDojo.findDrill('hr-1');
+  hr1Input.value = hr1Drill.text;
+  hr1Input.dispatchEvent(new window.Event('input', { bubbles: true }));
+  const resultCard = window.document.querySelector('#standalone-dojo-mount .dojo-result-card');
+  assert(!!resultCard && !!resultCard.querySelector('.dojo-result-stars') && !!resultCard.querySelector('.weak-key-chip'),
+    'Drill completion renders Stage Clear 1-3 star result card with weak-key analysis chip');
+
+  // 19d. Multi-Key Zhuyin Syllable Step Badges in chinese-real mode (zy-4: "你好...")
+  window.TypingDojo.selectDrill('zy-4', 'standalone-dojo-mount');
+  const zyPills = window.document.querySelectorAll('#standalone-dojo-mount .dojo-zy-step-pill');
+  const kbStepBadges = window.document.querySelectorAll('#standalone-dojo-mount .kb-step-badge');
+  assert(zyPills.length === 3 && kbStepBadges.length === 3,
+    'Chinese drill zy-4 ("你" = ㄋㄧˇ -> S, U, 3) renders 3 Zhuyin step pills and 3 numbered .kb-step-badge markers on keyboard');
+
+  // 19e. Meteor Shower Mini-Game mode
+  window.TypingDojo.startMeteorGame('standalone-dojo-mount');
+  assert(window.TypingDojo.dojoMode === 'meteor' && window.TypingDojo.meteorRunning === true,
+    'Meteor Shower mini-game mode starts and spawns falling meteor');
+  const firstMeteor = window.TypingDojo.meteorItems[0];
+  assert(!!firstMeteor && !!window.document.querySelector('#standalone-dojo-mount .meteor-item'),
+    'Meteor item rendered on .meteor-stage with English key and Zhuyin symbol');
+  const hitResult = window.TypingDojo.handleMeteorKey(firstMeteor.key);
+  assert(hitResult === true && window.TypingDojo.meteorScore === 10,
+    'Pressing matching key destroys meteor and awards +10 score');
+  window.TypingDojo.stopMeteorGame();
+  window.TypingDojo.setDojoMode('drill', 'standalone-dojo-mount');
 }
 
 async function main() {
