@@ -60,7 +60,7 @@ digital-explorer-academy/
 │   ├── simulators.js        # Interactive labs (Win11, Shortcuts, Browser, Search, Scam, AI Studios)
 │   └── app.js               # Multi-kid profiles, World Map, Vocab audio, Certificate, Parent Guide
 ├── scripts/build-bundle.js  # Bundles everything into standalone `digital_explorer_academy.html`
-└── tests/run-all-tests.js   # Automated JSDOM test suite (378 assertions)
+└── tests/run-all-tests.js   # Automated JSDOM test suite (773 assertions)
 ```
 
 ---
@@ -99,10 +99,16 @@ digital-explorer-academy/
 
 ## 5. 📊 Current Status & Changelog
 
-* **Last Updated:** 2026-11-16
-* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **597 / 597 PASS (100%)**
+* **Last Updated:** 2026-11-19
+* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **773 / 773 PASS (100%)**
 * **GitHub Repository:** https://github.com/azreal564335/dea (`main` branch)
 * **Recent Changes:**
+  * **Complete 13-Item UI Overhaul (Batches 1–4):**
+    * **Test Gate:** `npm run build && npm test` passed **773 / 773** assertions (**0 failures**).
+    * **Batch 1 — Navigation Makeover:** Collapsible world sections with SVG circular progress rings (`renderProgressRing`, only first unfinished world expanded by default); prominent top-of-map `▶️ 繼續 Continue` button (`.continue-btn`) and all-done banner (`.continue-congrats`); header `⚙️` settings dropdown (`.settings-menu`) consolidating Rename, Zhuyin font, Bilingual, Sound, and Dark Mode while keeping profile & XP pills visible; and 3-step lesson progress bar (`.lesson-steps`: `學習 Learn` / `實驗 Lab` / `測驗 Quiz`) with `← 上一步` / `下一步 →` navigation.
+    * **Batch 2 — Delight & Accessibility:** Lesson completion celebration (`triggerLessonCelebration` with 40-piece CSS confetti, Web Audio ascending chime via `playSuccessSound` + `🔈 音效 Sound` toggle, and `.xp-flyup` `+N XP` animation, all respecting `prefers-reduced-motion`); 8-year-old enlarged tap targets (`body.kid-mode-8` with `min-height: 56px`); per-card `🔊 朗讀 Read` button (`.read-aloud-btn`) using `zh-TW` Web Speech API (`simpleBody` for `kid-8`); and persistent `🌙 深色模式 Dark` (`body.dark-mode`).
+    * **Batch 3 — Content Presentation:** Single-card learn carousel (`.learn-carousel` with `◀`/`▶`, `.carousel-dots`, `"1 / N"` counter, keyboard arrows, touch swipe, and automatic read-aloud stop); `🏆 徽章櫃 Badges` view (`renderBadgeCabinet` with 7 World Badges + 6 Special Badges derived from progress); and per-world `--world-color` theming across world cards and lesson views.
+    * **Batch 4 — Polish:** Extracted static inline `style="..."` attributes into reusable CSS classes across `js/app.js`, `js/typing-dojo.js`, and `js/simulators.js`; added shimmering loading skeletons (`.skeleton`, `.skeleton-island`, `.skeleton-sim`) for the 3D island mount and simulator container (`prefers-reduced-motion` safe).
   * **Annotated Screenshot-Style UI Location Guides (World 5 & World 6):**
     * Added `renderCardVisual(visualType)` in `js/app.js` and `.slide-visual-diagram` styling in `css/styles.css` rendering 11 self-contained annotated SVG UI mockups with numbered callout badges (`① ② ③ ④`) and bilingual captions inside `data/curriculum.js` lesson cards (`w5-l1`..`w5-l4`, `w6-l1`..`w6-l4`).
     * Covers Roblox Studio 3D Viewport & `F` focus, `Home` Ribbon (`Part`/`Move`/`Scale`/`Rotate`), `Explorer` + `Properties` `Anchored ✅`, `Obby` parts & `Toolbox` Checkpoints, `Explorer` `+` ➔ `Script` & `Debounce`, `File` ➔ `Publish to Roblox` ➔ `Private`/`Friends`, `Lobby`/Unanchor, `ProximityPrompt`, `ClickDetector`, and `Model` ➔ `Create` ➔ `Weld` + `VehicleSeat`.
@@ -139,7 +145,7 @@ digital-explorer-academy/
   * Fixed `TypingDojo` IME composition (`compositionstart`/`compositionend`) so Microsoft Bopomofo candidate selection is never interrupted.
   * Maintained strict generic laptop rules (zero hardware brand names).
   * Organized `G-Agent-folder` into `01`–`05` subfolders and initialized `PROJECT_HANDOFF.md`.
-* **Latest Update (Full Improvement Plan + Bopomofo Font + 8yo Simpler Mode):**
+* **Full Improvement Plan + Bopomofo Font + 8yo Simpler Mode:**
   * **Test Gate:** `npm run build && npm test` passed **661 / 661** assertions (**0 failures**).
   * **P0 Security & Hygiene:** Added `escapeHtml()` XSS protection across header/certificate, schema validation (`sanitizeProfile`) in `importProgress()`, and excluded `.agents/` & `PROJECT.md` via `.gitignore`.
   * **P1 Learning Quality & 8yo Support:** Expanded all 26 lessons to have `>= 2` cards and `>= 3` quiz questions; added deterministic quiz option shuffling (`getShuffledQuizOrder`), 1–3 star calculation based on mistakes (`quizMistakes`), Daily Quest banner (`getDailyQuest`), Typing Dojo SVG progress chart (`drillHistory`) + `0.75x` CPM scaling for 8yo, real-world Roblox Studio checklists (`studioChecklist`), `simpleBody` for 8yo, and **Bopomofo/Zhuyin companion font (`Bpmf Iansui`)** auto-enabled for `kid-8` and toggleable in the header.
@@ -150,6 +156,7 @@ digital-explorer-academy/
   * **Added 3D Island 7** in `js/island-scene.js` with quick-jump chip (`🐱 7. Scratch 創意島`) and 8-segment scenic waypoint routing.
   * **Added 3 Interactive Scratch Lessons (`w7-l1`–`w7-l3`)** in `data/curriculum.js`, `js/simulators.js`, and `js/app.js` (X/Y Coordinates Space Dodge, Collision & Score/HP Variables, Clones & Timer + annotated SVG diagrams & 8yo `simpleBody`).
   * **CI & Node Pinning:** Added `.nvmrc` (`24`), `"engines": { "node": ">=22.19.0" }`, and `node-version-file: '.nvmrc'` in `.github/workflows/ci.yml`.
+
 
 ---
 
