@@ -686,27 +686,27 @@ window.AppState = {
       <nav class="nav-tabs" aria-label="主導覽列">
         <button class="nav-tab ${this.currentView === 'map' || this.currentView === 'lesson' ? 'active' : ''}"
                 onclick="window.AppState.navigate('map')">
-          🗺️ <span class="nav-tab-text">探險地圖</span><span class="nav-tab-short">地圖</span><span class="nav-tab-count"> (${completedCount}/${totalLessons})</span>
+          🗺️ <span class="nav-tab-extra">探險</span>地圖<span class="nav-tab-count"> (${completedCount}/${totalLessons})</span>
         </button>
         <button class="nav-tab ${this.currentView === 'dojo' ? 'active' : ''}"
                 onclick="window.AppState.navigate('dojo')">
-          🎹 <span class="nav-tab-text">中英打字道館</span><span class="nav-tab-short">打字</span><span class="nav-tab-count"> (${totalDrills}關)</span>
+          🎹 <span class="nav-tab-extra">中英</span>打字<span class="nav-tab-extra">道館</span><span class="nav-tab-count"> (${totalDrills}關)</span>
         </button>
         <button class="nav-tab ${this.currentView === 'vocab' ? 'active' : ''}"
                 onclick="window.AppState.navigate('vocab')">
-          🔤 <span class="nav-tab-text">電腦英文單字卡</span><span class="nav-tab-short">單字</span>
+          🔤 <span class="nav-tab-extra">電腦英文</span>單字<span class="nav-tab-extra">卡</span>
         </button>
         <button class="nav-tab ${this.currentView === 'badges' ? 'active' : ''}"
                 onclick="window.AppState.navigate('badges')">
-          🏆 <span class="nav-tab-text">徽章櫃</span><span class="nav-tab-short">徽章</span><span class="nav-tab-count"> Badges</span>
+          🏆 徽章<span class="nav-tab-extra">櫃</span><span class="nav-tab-count"> Badges</span>
         </button>
         <button class="nav-tab ${this.currentView === 'certificate' ? 'active' : ''}"
                 onclick="window.AppState.navigate('certificate')">
-          🎓 <span class="nav-tab-text">榮譽證書</span><span class="nav-tab-short">證書</span>
+          🎓 <span class="nav-tab-extra">榮譽</span>證書
         </button>
         <button class="nav-tab ${this.currentView === 'parent' ? 'active' : ''}"
                 onclick="window.AppState.navigate('parent')">
-          👨‍👩‍👧 <span class="nav-tab-text">家長儀表板</span><span class="nav-tab-short">家長</span>
+          👨‍👩‍👧 家長<span class="nav-tab-extra">儀表板</span>
         </button>
       </nav>
 

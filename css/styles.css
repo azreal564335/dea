@@ -2944,10 +2944,6 @@ body.dark-mode .skeleton-island-static {
 /* ============================================================================
    14. COMPACT SINGLE-ROW TOP HEADER ON SCROLL (.top-header.is-compact)
    ============================================================================ */
-.nav-tab-short {
-  display: none;
-}
-
 .top-header,
 .brand-logo,
 .brand-title,
@@ -2984,15 +2980,11 @@ body.dark-mode .skeleton-island-static {
 }
 
 .top-header.is-compact .brand-subtitle,
-.top-header.is-compact .nav-tab-text,
+.top-header.is-compact .nav-tab-extra,
 .top-header.is-compact .nav-tab-count,
 .top-header.is-compact .profile-switch-tag,
 .top-header.is-compact .settings-btn-label {
   display: none !important;
-}
-
-.top-header.is-compact .nav-tab-short {
-  display: inline;
 }
 
 .top-header.is-compact .nav-tabs {
