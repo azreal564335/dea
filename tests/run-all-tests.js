@@ -99,12 +99,12 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   assert(typeof window.Simulators === 'object', 'window.Simulators is available');
   assert(Array.isArray(window.CURRICULUM_WORLDS) && window.CURRICULUM_WORLDS.length === 7, 'All 7 curriculum worlds are loaded');
   assert(Array.isArray(window.CURRICULUM_LESSONS) && window.CURRICULUM_LESSONS.length === 29, 'All 29 curriculum lessons are loaded');
-  assert(Array.isArray(window.TYPING_DATA.categories) && window.TYPING_DATA.categories.length === 6, 'All 6 typing categories loaded');
+  assert(Array.isArray(window.TYPING_DATA.categories) && window.TYPING_DATA.categories.length === 8, 'All 8 typing categories loaded');
 
   // Count total drills
   let drillCount = 0;
   window.TYPING_DATA.categories.forEach(c => drillCount += c.drills.length);
-  assert(drillCount === 22, `Total 22 typing drills defined (found: ${drillCount})`);
+  assert(drillCount === 36, `Total 36 typing drills defined (found: ${drillCount})`);
 
   // 2. Test Top Navigation Tabs
   console.log('\n--- Testing Top Navigation Tabs ---');
@@ -418,8 +418,8 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
     assert(window.AppState.getProfile().xp >= initialXP + lesson.xp, `Awarded +${lesson.xp} XP for lesson ${lesson.id}`);
   }
 
-  // 8. Test All 22 Typing Dojo Drills
-  console.log('\n--- Testing All 22 Typing Dojo Drills in Standalone Dojo ---');
+  // 8. Test All 36 Typing Dojo Drills
+  console.log('\n--- Testing All 36 Typing Dojo Drills in Standalone Dojo ---');
   window.AppState.navigate('dojo');
   assert(window.AppState.currentView === 'dojo', 'Navigated to standalone Dojo');
 
@@ -476,7 +476,7 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   const certEl = window.document.getElementById('app-main');
   assert(certEl.textContent.includes('數位小探險家學院・榮譽證書'), 'Graduation Certificate title rendered');
   assert(certEl.textContent.includes('29 / 29 堂數位課程'), 'All 29/29 lessons reflected on Certificate');
-  assert(certEl.textContent.includes('22 / 22 關中英盲打特訓'), 'All 22/22 typing drills reflected on Certificate');
+  assert(certEl.textContent.includes('36 / 36 關中英盲打特訓'), 'All 36/36 typing drills reflected on Certificate');
   assert(certEl.textContent.includes('傳奇數位魔法師'), 'Awarded highest certification tier: 傳奇數位魔法師');
 
   // 10. Test IslandScene World 7 Navigation & Routing
@@ -937,6 +937,39 @@ async function runTestsForHtml(htmlContent, suiteTitle) {
   const releasedStrong = window.TypingDojo.handleElasticDelta(250, 'standalone-dojo-mount');
   assert(releasedStrong === true && window.TypingDojo.isLockedIn === false && dojoWrap.classList.contains('is-elastic-released'),
     'Scrolling past elastic resistance threshold releases lock with spring rebound (.is-elastic-released)');
+
+  // 19g. New Chinese drills (zy-8, gc-4, ai-1) resolve multi-key Zhuyin step badges via CHAR_ZHUYIN_MAP
+  window.TypingDojo.selectDrill('zy-8', 'standalone-dojo-mount');
+  const zy8Pills = window.document.querySelectorAll('#standalone-dojo-mount .dojo-zy-step-pill');
+  assert(zy8Pills.length >= 3, `New Chinese drill zy-8 ("現" = ㄒㄧㄢˋ) renders ${zy8Pills.length} Zhuyin step pills`);
+  window.TypingDojo.selectDrill('gc-4', 'standalone-dojo-mount');
+  const gc4Input = window.document.getElementById('standalone-dojo-mount-input');
+  gc4Input.value = 'gg wp ';
+  gc4Input.dispatchEvent(new window.Event('input', { bubbles: true }));
+  const gc4Pills = window.document.querySelectorAll('#standalone-dojo-mount .dojo-zy-step-pill');
+  assert(gc4Pills.length >= 3, `New Chinese drill gc-4 ("謝") resolves ${gc4Pills.length} Zhuyin step pills after English prefix`);
+  window.TypingDojo.selectDrill('ai-1', 'standalone-dojo-mount');
+  const ai1Pills = window.document.querySelectorAll('#standalone-dojo-mount .dojo-zy-step-pill');
+  assert(ai1Pills.length >= 3, `New Chinese drill ai-1 ("請" = ㄑㄧㄥˇ) resolves ${ai1Pills.length} Zhuyin step pills`);
+
+  // 19h. Adaptive Weak-Key Drill ("🎯 弱點特訓")
+  assert(!!window.document.querySelector('#standalone-dojo-mount .dojo-weak-drill-btn'),
+    'Weak-key drill button (.dojo-weak-drill-btn) rendered in .dojo-mode-tabs');
+  window.TypingDojo.missedKeys = { q: 4, z: 2 };
+  window.TypingDojo.startWeakKeyDrill('standalone-dojo-mount');
+  assert(window.TypingDojo.currentDrillId === 'custom-weak' && window.TypingDojo.weakDrill !== null,
+    'startWeakKeyDrill activates custom-weak drill');
+  assert(window.TypingDojo.weakDrill.text.includes('q') && window.TypingDojo.weakDrill.text.includes('z') && window.TypingDojo.weakDrill.text.length >= 32 && window.TypingDojo.weakDrill.text.length <= 40,
+    `Adaptive weak-key drill generates 32-40 char drill targeting missed keys ("${window.TypingDojo.weakDrill.text}")`);
+
+  // 19i. Custom School Vocab Drill ("✏️ 自訂生字")
+  assert(!!window.document.querySelector('#standalone-dojo-mount .dojo-custom-drill-btn'),
+    'Custom vocab drill button (.dojo-custom-drill-btn) rendered in .dojo-mode-tabs');
+  window.TypingDojo.setCustomDrillText('快樂 學習 AI', 'standalone-dojo-mount');
+  assert(window.TypingDojo.currentDrillId === 'custom-user' && window.TypingDojo.customDrill && window.TypingDojo.customDrill.mode === 'chinese-real',
+    'setCustomDrillText("快樂 學習 AI") activates custom-user in chinese-real mode');
+  const customPills = window.document.querySelectorAll('#standalone-dojo-mount .dojo-zy-step-pill');
+  assert(customPills.length >= 3, `Custom Chinese drill resolves Zhuyin step pills for "快" (${customPills.length})`);
 }
 
 async function main() {

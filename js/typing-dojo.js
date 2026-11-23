@@ -24,13 +24,24 @@ const CHAR_ZHUYIN_MAP = {
   '筆': 'ㄅㄧˇ', '超': 'ㄔㄠ ', '酷': 'ㄎㄨˋ', '今': 'ㄐㄧㄣ ', '天': 'ㄊㄧㄢ ',
   '氣': 'ㄑㄧˋ', '真': 'ㄓㄣ ', '練': 'ㄌㄧㄢˋ', '習': 'ㄒㄧˊ', '字': 'ㄗˋ',
   '準': 'ㄓㄨㄣˇ', '備': 'ㄅㄟˋ', '探': 'ㄊㄢˋ', '索': 'ㄙㄨㄛˇ', '世': 'ㄕˋ',
-  '界': 'ㄐㄧㄝˋ'
+  '界': 'ㄐㄧㄝˋ',
+  '現': 'ㄒㄧㄢˋ', '在': 'ㄗㄞˋ', '再': 'ㄗㄞˋ', '見': 'ㄐㄧㄢˋ', '跑': 'ㄆㄠˇ',
+  '得': 'ㄉㄜ˙', '快': 'ㄎㄨㄞˋ', '北': 'ㄅㄟˇ', '親': 'ㄑㄧㄣ ', '子': 'ㄗˇ',
+  '公': 'ㄍㄨㄥ ', '園': 'ㄩㄢˊ', '貓': 'ㄇㄠ ', '咪': 'ㄇㄧ ', '教': 'ㄐㄧㄠ ',
+  '學': 'ㄒㄩㄝˊ', '隊': 'ㄉㄨㄟˋ', '友': 'ㄧㄡˇ', '一': 'ㄧ ', '起': 'ㄑㄧˇ',
+  '闖': 'ㄔㄨㄤˇ', '關': 'ㄍㄨㄢ ', '請': 'ㄑㄧㄥˇ', '用': 'ㄩㄥˋ', '簡': 'ㄐㄧㄢˇ',
+  '單': 'ㄉㄢ ', '話': 'ㄏㄨㄚˋ', '步': 'ㄅㄨˋ', '穿': 'ㄔㄨㄢ ', '太': 'ㄊㄞˋ',
+  '空': 'ㄎㄨㄥ ', '衣': 'ㄧ ', '柴': 'ㄔㄞˊ', '犬': 'ㄑㄩㄢˇ', '柔': 'ㄖㄡˊ',
+  '和': 'ㄏㄜˊ', '陽': 'ㄧㄤˊ', '光': 'ㄍㄨㄤ ', '是': 'ㄕˋ', '與': 'ㄩˇ',
+  '數': 'ㄕㄨˋ', '位': 'ㄨㄟˋ', '家': 'ㄐㄧㄚ ', '樂': 'ㄌㄜˋ'
 };
 
 window.TypingDojo = {
   currentCategoryId: 'home-row',
   currentDrillId: 'hr-1',
   dojoMode: 'drill', // 'drill' | 'meteor'
+  weakDrill: null,
+  customDrill: null,
   selectorDrawerOpen: false,
   statsDrawerOpen: false,
   isLockedIn: false,
@@ -72,6 +83,14 @@ window.TypingDojo = {
   },
 
   findDrill(drillId) {
+    if (drillId === 'custom-weak' && this.weakDrill) {
+      const cat = window.TYPING_DATA.categories.find(c => c.id === this.currentCategoryId) || window.TYPING_DATA.categories[0];
+      return { category: cat, drill: this.weakDrill };
+    }
+    if (drillId === 'custom-user' && this.customDrill) {
+      const cat = window.TYPING_DATA.categories.find(c => c.id === this.currentCategoryId) || window.TYPING_DATA.categories[0];
+      return { category: cat, drill: this.customDrill };
+    }
     for (const cat of window.TYPING_DATA.categories) {
       for (const d of cat.drills) {
         if (d.id === drillId) return { category: cat, drill: d };
@@ -539,7 +558,7 @@ window.TypingDojo = {
         <div class="dojo-cockpit-card ${this.isLockedIn ? 'is-locked-in' : ''}" id="${containerId}-cockpit">
           <div class="dojo-mode-bar">
             <div class="dojo-mode-tabs" role="tablist" aria-label="打字訓練模式切換">
-              <button class="dojo-mode-btn ${this.dojoMode === 'drill' ? 'active' : ''}"
+              <button class="dojo-mode-btn ${this.dojoMode === 'drill' && this.currentDrillId !== 'custom-weak' && this.currentDrillId !== 'custom-user' ? 'active' : ''}"
                       type="button"
                       onclick="window.TypingDojo.setDojoMode('drill', '${containerId}')">
                 📖 闖關練習
@@ -548,6 +567,16 @@ window.TypingDojo = {
                       type="button"
                       onclick="window.TypingDojo.setDojoMode('meteor', '${containerId}')">
                 🌧️ 流星雨遊戲
+              </button>
+              <button class="dojo-mode-btn dojo-weak-drill-btn ${this.dojoMode === 'drill' && this.currentDrillId === 'custom-weak' ? 'active' : ''}"
+                      type="button"
+                      onclick="window.TypingDojo.startWeakKeyDrill('${containerId}')">
+                🎯 弱點特訓
+              </button>
+              <button class="dojo-mode-btn dojo-custom-drill-btn ${this.dojoMode === 'drill' && this.currentDrillId === 'custom-user' ? 'active' : ''}"
+                      type="button"
+                      onclick="window.TypingDojo.openCustomDrillPrompt('${containerId}')">
+                ✏️ 自訂生字
               </button>
             </div>
             <div class="dojo-hud-pills">
@@ -1100,6 +1129,26 @@ window.TypingDojo = {
   },
 
   getCategoryKeyPool(catId) {
+    if (this.currentDrillId === 'custom-user' && this.customDrill) {
+      const customChars = new Set();
+      for (const ch of (this.customDrill.text || '')) {
+        const lower = ch.toLowerCase();
+        if (this.findKeyInfo(lower) && lower !== ' ') customChars.add(lower);
+        const seq = this.getZhuyinSequenceForChar(ch, this.customDrill);
+        seq.forEach(s => {
+          if (s.key && s.key !== ' ') customChars.add(s.key);
+        });
+      }
+      if (customChars.size > 0) return Array.from(customChars);
+    }
+    if (this.currentDrillId === 'custom-weak' && this.weakDrill) {
+      const weakChars = new Set();
+      for (const ch of (this.weakDrill.text || '')) {
+        const lower = ch.toLowerCase();
+        if (this.findKeyInfo(lower) && lower !== ' ') weakChars.add(lower);
+      }
+      if (weakChars.size > 0) return Array.from(weakChars);
+    }
     const cat = window.TYPING_DATA.categories.find(c => c.id === catId) || window.TYPING_DATA.categories[0];
     const chars = new Set();
     cat.drills.forEach(d => {
@@ -1114,6 +1163,95 @@ window.TypingDojo = {
       ['a', 's', 'd', 'f', 'j', 'k', 'l', ';'].forEach(k => chars.add(k));
     }
     return Array.from(chars);
+  },
+
+  startWeakKeyDrill(containerId) {
+    this.stopMeteorGame();
+    this.dojoMode = 'drill';
+    const entries = Object.entries(this.missedKeys || {})
+      .filter(([k, cnt]) => cnt > 0 && k && k !== ' ' && this.findKeyInfo(k))
+      .sort((a, b) => b[1] - a[1]);
+
+    const fallbackKeys = ['f', 'j', 'd', 'k', 's', 'l', 'a', ';', 'r', 'u', 'e', 'i'];
+    const targetKeys = entries.length > 0
+      ? entries.slice(0, 6).map(([k]) => k)
+      : fallbackKeys.slice(0, 6);
+
+    // Build 32-40 char adaptive drill repeating target weak keys in 3-4 char rhythm groups
+    const chunks = [];
+    let totalLen = 0;
+    let idx = 0;
+    while (totalLen < 32) {
+      const k1 = targetKeys[idx % targetKeys.length];
+      const k2 = targetKeys[(idx + 1) % targetKeys.length];
+      const chunk = (idx % 2 === 0) ? `${k1}${k1}${k1}` : `${k1}${k2}${k1}${k2}`;
+      chunks.push(chunk);
+      totalLen += chunk.length + 1;
+      idx++;
+    }
+    const drillText = chunks.join(' ').slice(0, 40).trim();
+    const displayKeys = targetKeys.map(k => k.toUpperCase()).join(' ');
+
+    this.weakDrill = {
+      id: 'custom-weak',
+      name: `🎯 弱點特訓 (${displayKeys})`,
+      nameEn: 'Adaptive Weak-Key Booster',
+      tip: entries.length > 0
+        ? `系統偵測到你最常按錯的按鍵是【 ${displayKeys} 】，來把這幾個手指練到百分之百精準吧！`
+        : `目前還沒有失誤紀錄，先用基準鍵與高頻鍵【 ${displayKeys} 】熱身一下！`,
+      mode: 'english',
+      text: drillText,
+      targetCpm: 35
+    };
+
+    this.currentDrillId = 'custom-weak';
+    this.selectorDrawerOpen = false;
+    this.resetStateOnly();
+    this.render(containerId);
+  },
+
+  openCustomDrillPrompt(containerId) {
+    const defaultText = (this.customDrill && this.customDrill.text) ? this.customDrill.text : '快樂 學習 AI';
+    const promptMsg = '請輸入想練習的英文單字或國語生字詞語（支援中英混合，例如：apple banana 或 快樂 學習 AI）：';
+    if (window.UIModal && typeof window.UIModal.prompt === 'function') {
+      const res = window.UIModal.prompt(promptMsg, defaultText, '✏️ 自訂學校生字 / 單字特訓');
+      if (res && typeof res.then === 'function') {
+        res.then((val) => {
+          if (val && String(val).trim()) {
+            this.setCustomDrillText(val, containerId);
+          }
+        });
+      }
+    } else if (typeof window.prompt === 'function') {
+      const val = window.prompt(promptMsg, defaultText);
+      if (val && String(val).trim()) {
+        this.setCustomDrillText(val, containerId);
+      }
+    }
+  },
+
+  setCustomDrillText(rawText, containerId) {
+    const cleanText = String(rawText || '').replace(/\s+/g, ' ').trim();
+    if (!cleanText) return false;
+    this.stopMeteorGame();
+    this.dojoMode = 'drill';
+    const hasChinese = /[\u4e00-\u9fff]/.test(cleanText);
+    this.customDrill = {
+      id: 'custom-user',
+      name: `✏️ 自訂生字特訓`,
+      nameEn: 'Custom Vocabulary Drill',
+      tip: hasChinese
+        ? '這是你自訂的中文生字特訓！請切換為「中 (微軟注音)」打出你的專屬詞彙，也可以切到流星雨遊戲玩喔！'
+        : '這是你自訂的英文單字特訓！照著鍵盤指示一口氣拼完，也可以切到流星雨遊戲玩喔！',
+      mode: hasChinese ? 'chinese-real' : 'english',
+      text: cleanText,
+      targetCpm: hasChinese ? 20 : 35
+    };
+    this.currentDrillId = 'custom-user';
+    this.selectorDrawerOpen = false;
+    this.resetStateOnly();
+    this.render(containerId);
+    return true;
   },
 
   startMeteorGame(containerId) {
@@ -1269,7 +1407,7 @@ window.TypingDojo = {
       c.drills.forEach(d => allDrills.push(d.id));
     });
     const idx = allDrills.indexOf(this.currentDrillId);
-    const nextIdx = (idx + 1) % allDrills.length;
+    const nextIdx = idx === -1 ? 0 : (idx + 1) % allDrills.length;
     this.selectDrill(allDrills[nextIdx], containerId);
   },
 

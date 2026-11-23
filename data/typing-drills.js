@@ -262,6 +262,46 @@ window.TYPING_DATA = {
             { char: '小達人', py: 'ㄒㄧㄠˇ ㄉㄚˊ ㄖㄣˊ (v-u-l-3 2-8-6 b-p-6)' }
           ],
           text: '你好 謝謝 台灣 電腦 小達人'
+        },
+        {
+          id: 'zy-6',
+          name: '第 18 關：中排聲母特訓 (ㄓㄔㄕㄖ ㄗㄘㄙ)',
+          nameEn: 'Level 18: Middle Column Zhuyin Consonants (ㄓㄔㄕㄖ ㄗㄘㄙ)',
+          tip: '鍵盤正中間兩排食指區就是捲舌音「ㄓ(5) ㄔ(t) ㄕ(g) ㄖ(b)」與平舌音「ㄗ(y) ㄘ(h) ㄙ(n)」！用左右食指分別練習！',
+          mode: 'zhuyin-keys',
+          zhuyinDisplay: 'ㄓ ㄔ ㄕ ㄖ   ㄗ ㄘ ㄙ',
+          text: '5 t g b y h n 5tgb yhn',
+          keyHintMap: {
+            '5': 'ㄓ(5)', 't': 'ㄔ(T)', 'g': 'ㄕ(G)', 'b': 'ㄖ(B)',
+            'y': 'ㄗ(Y)', 'h': 'ㄘ(H)', 'n': 'ㄙ(N)'
+          }
+        },
+        {
+          id: 'zy-7',
+          name: '第 19 關：結合韻母雙鍵連擊 (ㄧㄚ ㄨㄚ ㄩㄝ ㄧㄢ ㄨㄥ)',
+          nameEn: 'Level 19: Combined Zhuyin Vowels Double-Key Combos',
+          tip: '介音「ㄧ(u)、ㄨ(j)、ㄩ(m)」加上韻母只要連按兩鍵超順手！試試看：ㄧㄚ(u8)、ㄨㄚ(j8)、ㄩㄝ(m,)、ㄧㄢ(u0)、ㄨㄥ(j/)！',
+          mode: 'zhuyin-keys',
+          zhuyinDisplay: 'ㄧㄚ(u8) ㄨㄚ(j8) ㄩㄝ(m,) ㄧㄢ(u0) ㄨㄥ(j/)',
+          text: 'u8 j8 m, u0 j/ u8 j8 u0 j/',
+          keyHintMap: {
+            'u': 'ㄧ(U)', '8': 'ㄚ(8)', 'j': 'ㄨ(J)', 'm': 'ㄩ(M)',
+            ',': 'ㄝ(,)', '0': 'ㄢ(0)', '/': 'ㄥ(/)'
+          }
+        },
+        {
+          id: 'zy-8',
+          name: '第 20 關：同音字選字小偵探 (在/再、的/得)',
+          nameEn: 'Level 20: Homophone Selection Detective (在/再, 的/得)',
+          tip: '注音相同但意思不同！打完注音遇到同音字時，按下鍵盤的「↓方向鍵」或數字鍵選對的國字！',
+          mode: 'chinese-real',
+          zhuyinBreakdown: [
+            { char: '現在', py: 'ㄒㄧㄢˋ(v-u-0-4) ㄗㄞˋ(y-9-4)' },
+            { char: '再見', py: 'ㄗㄞˋ(y-9-4) ㄐㄧㄢˋ(r-u-0-4)' },
+            { char: '我的', py: 'ㄨㄛˇ(j-i-3) ㄉㄜ˙(2-k-7)' },
+            { char: '跑得快', py: 'ㄆㄠˇ(q-l-3) ㄉㄜ˙(2-k-7) ㄎㄨㄞˋ(d-j-9-4)' }
+          ],
+          text: '現在 再見 我的 跑得快'
         }
       ]
     },
@@ -274,8 +314,8 @@ window.TYPING_DATA = {
       drills: [
         {
           id: 'sw-1',
-          name: '第 18 關：中英切換初體驗 (Shift 鍵魔法)',
-          nameEn: 'Level 18: Switching Between Chinese & English with Shift',
+          name: '第 21 關：中英切換初體驗 (Shift 鍵魔法)',
+          nameEn: 'Level 21: Switching Between Chinese & English with Shift',
           tip: '在微軟注音裡，按一下左邊或右邊的「Shift」鍵，就會從「中」變成「英」，再按一下又變回「中」！試試看打出中英混合詞！',
           mode: 'chinese-real',
           zhuyinBreakdown: [
@@ -286,14 +326,38 @@ window.TYPING_DATA = {
         },
         {
           id: 'sw-2',
-          name: '第 19 關：探險家雙語任務宣言',
-          nameEn: 'Level 19: Explorer Bilingual Mission',
+          name: '第 22 關：探險家雙語任務宣言',
+          nameEn: 'Level 22: Explorer Bilingual Mission',
           tip: '結合中文注音與英文單字，注意大寫字母可以按住 Shift 再按字母，或切換中英後輸入！',
           mode: 'chinese-real',
           zhuyinBreakdown: [
             { char: '我的 Windows 筆電超酷', py: 'ㄨㄛˇ ㄉㄜ˙ [Shift] Windows [Shift] ㄅㄧˇ ㄉㄧㄢˋ ㄔㄠ ㄎㄨˋ' }
           ],
           text: '我的 Windows 筆電超酷'
+        },
+        {
+          id: 'sw-3',
+          name: '第 23 關：英文大寫 Shift 組合技 (Shift + 字母)',
+          nameEn: 'Level 23: English Capitalization Combo (Shift + Letter)',
+          tip: '按住左邊或右邊的 Shift 不放，再輕按英文字母，就能打出漂亮的大寫開頭專有名詞！',
+          mode: 'english',
+          text: 'Taiwan Windows Roblox Scratch Leo'
+        },
+        {
+          id: 'sw-4',
+          name: '第 24 關：黃金關鍵字搜尋實戰 (中英空白鍵搜尋)',
+          nameEn: 'Level 24: Golden Keyword Search Practice',
+          tip: '搜尋引擎最喜歡「關鍵字 + 空白鍵 + 關鍵字」！試試看中英夾雜打出超精準的搜尋詞！',
+          mode: 'chinese-real',
+          zhuyinBreakdown: [
+            { char: '台北', py: 'ㄊㄞˊ ㄅㄟˇ (w-9-6 1-o-3)' },
+            { char: '親子', py: 'ㄑㄧㄣ ㄗˇ (f-u-p-Space y-3)' },
+            { char: '公園', py: 'ㄍㄨㄥ ㄩㄢˊ (e-j-/-Space m-0-6)' },
+            { char: 'Scratch', py: '[按Shift切英] Scratch' },
+            { char: '貓咪', py: 'ㄇㄠ ㄇㄧ (a-l-Space a-u-Space)' },
+            { char: '教學', py: 'ㄐㄧㄠ ㄒㄩㄝˊ (r-u-l-Space v-m-,-6)' }
+          ],
+          text: '台北 親子 公園 Scratch 貓咪 教學'
         }
       ]
     },
@@ -306,24 +370,32 @@ window.TYPING_DATA = {
       drills: [
         {
           id: 'nr-1',
-          name: '第 20 關：數字排探險 (12345 67890)',
-          nameEn: 'Level 20: Number Row Adventure (1-0)',
+          name: '第 25 關：數字排探險 (12345 67890)',
+          nameEn: 'Level 25: Number Row Adventure (1-0)',
           tip: '數字鍵在鍵盤最上面一排！記得按完數字後，手指要回到基準鍵 (A S D F / J K L ;) 喔！',
           mode: 'english',
           text: '12345 67890 2026 100 365'
         },
         {
+          id: 'nr-2',
+          name: '第 26 關：常用符號與算式探險 (! ? @ + =)',
+          nameEn: 'Level 26: Symbols & Math Expressions (! ? =)',
+          tip: '驚嘆號 ! 要按住 Shift+1，問號 ? 按住 Shift+/，加號 + 按住 Shift+=！小心別按錯喔！',
+          mode: 'english',
+          text: '2026 + 100 = 2126! Really? Yes!'
+        },
+        {
           id: 'en-1',
-          name: '第 21 關：英語對話小達人 (Everyday English)',
-          nameEn: 'Level 21: Everyday English Conversation',
+          name: '第 27 關：英語對話小達人 (Everyday English)',
+          nameEn: 'Level 27: Everyday English Conversation',
           tip: '練習打出一整句日常英文問候！問號 ? 要按住 Shift + /，驚嘆號 ! 要按住 Shift + 1。',
           mode: 'english',
           text: 'Hello! How are you? I am fine, thank you!'
         },
         {
           id: 'zy-5',
-          name: '第 22 關：注音短故事挑戰 (小探險家的早晨)',
-          nameEn: 'Level 22: Zhuyin Short Story Challenge',
+          name: '第 28 關：注音短故事挑戰 (小探險家的早晨)',
+          nameEn: 'Level 28: Zhuyin Short Story Challenge',
           tip: '切換成「微軟注音」模式，一口氣打出完整的小故事！注意標點符號可以按 Ctrl + , 或切換全形輸入。',
           mode: 'chinese-real',
           zhuyinBreakdown: [
@@ -331,6 +403,110 @@ window.TYPING_DATA = {
             { char: '我打開筆電練習打字', py: 'ㄨㄛˇ ㄉㄚˇ ㄎㄞ ㄅㄧˇ ㄉㄧㄢˋ ㄌㄧㄢˋ ㄒㄧˊ ㄉㄚˇ ㄗˋ' }
           ],
           text: '今天天氣真好 我打開筆電練習打字 準備探索 AI 世界'
+        }
+      ]
+    },
+    {
+      id: 'game-coder',
+      title: '階段 7：Scratch 與 Roblox 遊戲指令特訓 (Game Coder)',
+      titleEn: 'Stage 7: Scratch & Roblox Game Commands',
+      badge: '🎮 遊戲指令',
+      description: '把 Roblox 與 Scratch 最常用的方向鍵、座標與積木指令練到飛快！',
+      drills: [
+        {
+          id: 'gc-1',
+          name: '第 29 關：遊戲方向鍵與座標 (WASD & X/Y)',
+          nameEn: 'Level 29: Game Movement & X/Y Coordinates',
+          tip: '玩電腦遊戲左手一定放在 W A S D 移動、大拇指放 Space 跳躍！順便記住 x 和 y 座標指令！',
+          mode: 'english',
+          text: 'w a s d space jump x 100 y -50 score 999'
+        },
+        {
+          id: 'gc-2',
+          name: '第 30 關：Scratch 積木魔法英文',
+          nameEn: 'Level 30: Scratch Block Commands in English',
+          tip: '這些都是 Scratch 程式裡最常出現的積木英文關鍵字！打熟了寫程式超快！',
+          mode: 'english',
+          text: 'when green flag clicked forever if touching edge bounce'
+        },
+        {
+          id: 'gc-3',
+          name: '第 31 關：Roblox Studio 創造者密語',
+          nameEn: 'Level 31: Roblox Studio Creator Keywords',
+          tip: '注意大小寫混合的「駝峰命名法 (CamelCase)」！像是 WalkSpeed 的 W 和 S 都是大寫喔！',
+          mode: 'english',
+          text: 'Part Anchored Workspace Script Touched Humanoid WalkSpeed'
+        },
+        {
+          id: 'gc-4',
+          name: '第 32 關：禮貌遊戲聊天室 (雙語好隊友)',
+          nameEn: 'Level 32: Polite Gamer Chat (Bilingual Teamwork)',
+          tip: 'gg (Good Game)、wp (Well Played) 是國際禮貌用語！切換中英給隊友一個溫暖的鼓勵吧！',
+          mode: 'chinese-real',
+          zhuyinBreakdown: [
+            { char: 'gg wp', py: '[英] gg wp' },
+            { char: '謝謝隊友', py: 'ㄒㄧㄝˋ ㄒㄧㄝ˙ ㄉㄨㄟˋ ㄧㄡˇ' },
+            { char: '一起闖關', py: 'ㄧ ㄑㄧˇ ㄔㄨㄤˇ ㄍㄨㄢ' },
+            { char: 'nice try', py: '[按Shift切英] nice try' }
+          ],
+          text: 'gg wp 謝謝隊友 一起闖關 nice try'
+        }
+      ]
+    },
+    {
+      id: 'ai-prompt-dojo',
+      title: '階段 8：AI 小魔法師提示詞特訓 (AI Prompt Master)',
+      titleEn: 'Stage 8: AI Prompt Speed Master',
+      badge: '🤖 AI 咒語',
+      description: '練習打出結構清楚、有禮貌的中英 AI 提示詞 (Prompt)，成為 AI 詠唱小大師！',
+      drills: [
+        {
+          id: 'ai-1',
+          name: '第 33 關：請 AI 一步一步教我',
+          nameEn: 'Level 33: Ask AI to Teach Step-by-Step',
+          tip: '好問題才有好答案！學會快速打出這句超實用的 AI 學習魔法咒語！',
+          mode: 'chinese-real',
+          zhuyinBreakdown: [
+            { char: '請用簡單的話', py: 'ㄑㄧㄥˇ ㄩㄥˋ ㄐㄧㄢˇ ㄉㄢ ㄉㄜ˙ ㄏㄨㄚˋ' },
+            { char: '一步一步教我', py: 'ㄧˊ ㄅㄨˋ ㄧˊ ㄅㄨˋ ㄐㄧㄠ ㄨㄛˇ' }
+          ],
+          text: '請用簡單的話 一步一步教我'
+        },
+        {
+          id: 'ai-2',
+          name: '第 34 關：AI 繪圖五要素雙語咒語',
+          nameEn: 'Level 34: AI Image Generation Bilingual Prompt',
+          tip: '主角 + 動作 + 風格 + 光線！中英切換加入 3D style，讓 AI 畫出超棒的太空柴犬！',
+          mode: 'chinese-real',
+          zhuyinBreakdown: [
+            { char: '穿太空衣的柴犬', py: 'ㄔㄨㄢ ㄊㄞˋ ㄎㄨㄥ ㄧ ㄉㄜ˙ ㄔㄞˊ ㄑㄩㄢˇ' },
+            { char: '3D style', py: '[按Shift切英] 3D style' },
+            { char: '柔和陽光', py: 'ㄖㄡˊ ㄏㄜˊ ㄧㄤˊ ㄍㄨㄤ' }
+          ],
+          text: '穿太空衣的柴犬 3D style 柔和陽光'
+        },
+        {
+          id: 'ai-3',
+          name: '第 35 關：AI 英文小家教對話',
+          nameEn: 'Level 35: Talking to Your AI English Tutor',
+          tip: '練習用完整的英文向 AI 提問！別忘了句尾的問號 ? 要按 Shift + / 喔！',
+          mode: 'english',
+          text: 'Can you teach me 5 English words about space?'
+        },
+        {
+          id: 'ai-4',
+          name: '第 36 關：終極大魔王：小探險家畢業宣言',
+          nameEn: 'Level 36: Grand Finale - Digital Explorer Oath',
+          tip: '最後一關！用最順暢的中英切換打出你的數位小探險家畢業宣言！',
+          mode: 'chinese-real',
+          zhuyinBreakdown: [
+            { char: '我是', py: 'ㄨㄛˇ ㄕˋ' },
+            { char: 'Windows 11', py: '[按Shift切英] Windows 11' },
+            { char: '與', py: 'ㄩˇ' },
+            { char: 'AI', py: '[英] AI' },
+            { char: '數位小探險家', py: 'ㄕㄨˋ ㄨㄟˋ ㄒㄧㄠˇ ㄊㄢˋ ㄒㄧㄢˇ ㄐㄧㄚ' }
+          ],
+          text: '我是 Windows 11 與 AI 數位小探險家'
         }
       ]
     }

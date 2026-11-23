@@ -1318,7 +1318,7 @@ window.AppState = {
   renderStandaloneDojo(mainEl) {
     const totalDrills = (window.TYPING_DATA && window.TYPING_DATA.categories)
       ? window.TYPING_DATA.categories.reduce((sum, c) => sum + c.drills.length, 0)
-      : 22;
+      : 36;
 
     mainEl.innerHTML = `
       <div class="card-panel dojo-page-card">

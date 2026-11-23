@@ -3218,6 +3218,32 @@ body.kid-mode-8 .top-nav.is-compact .settings-btn {
   box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
 }
 
+.dojo-weak-drill-btn {
+  border-color: #fed7aa;
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.dojo-weak-drill-btn.active {
+  background: #ea580c;
+  border-color: #ea580c;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.28);
+}
+
+.dojo-custom-drill-btn {
+  border-color: #ddd6fe;
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+
+.dojo-custom-drill-btn.active {
+  background: #7c3aed;
+  border-color: #7c3aed;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.28);
+}
+
 .dojo-hud-pills {
   display: flex;
   align-items: center;
@@ -3724,6 +3750,30 @@ body.dark-mode .dojo-lock-pill.active {
 
 body.dark-mode .dojo-mode-btn.active {
   background: var(--primary);
+  color: #ffffff;
+}
+
+body.dark-mode .dojo-weak-drill-btn {
+  background: #431407;
+  border-color: #9a3412;
+  color: #fdba74;
+}
+
+body.dark-mode .dojo-weak-drill-btn.active {
+  background: #ea580c;
+  border-color: #ea580c;
+  color: #ffffff;
+}
+
+body.dark-mode .dojo-custom-drill-btn {
+  background: #2e1065;
+  border-color: #6d28d9;
+  color: #ddd6fe;
+}
+
+body.dark-mode .dojo-custom-drill-btn.active {
+  background: #7c3aed;
+  border-color: #7c3aed;
   color: #ffffff;
 }
 
