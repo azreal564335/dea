@@ -60,7 +60,7 @@ digital-explorer-academy/
 │   ├── simulators.js        # Interactive labs (Win11, Shortcuts, Browser, Search, Scam, AI Studios)
 │   └── app.js               # Multi-kid profiles, World Map, Vocab audio, Certificate, Parent Guide
 ├── scripts/build-bundle.js  # Bundles everything into standalone `digital_explorer_academy.html`
-└── tests/run-all-tests.js   # Automated JSDOM test suite (795 assertions)
+└── tests/run-all-tests.js   # Automated JSDOM test suite (930 assertions)
 ```
 
 ---
@@ -109,26 +109,30 @@ digital-explorer-academy/
 - [x] **Default Explorer Map & 8yo Preset (`kid-8`):** `AppState.init()` always opens on Explorer Map (`currentView = 'map'`) and presets `localStorage` (`digital_explorer_academy_v1`) to `kid-8` (`8歲小探險家 🦊`) with Zhuyin font and big-tap mode enabled on first visit.
 - [x] **Compact Single-Row Top Header on Scroll (`#app-header.is-compact`):** Smoothly shrinks header from `205px` → `43px` (`overflow-anchor: none` safe) when scrolling past the first section.
 
-### ✅ Phase 7: Typing Dojo v2 — Single-Screen 3-Column Cockpit & Scrollbar-Coupled Magnetic Lock-In (COMPLETED)
+### ✅ Phase 7: Typing Dojo v2 — Single-Screen 3-Column Cockpit, Scrollbar-Coupled Magnetic Lock-In & 36 Levels (COMPLETED)
 - [x] **3-Column Side-by-Side 2D SVG Virtual Hands (`renderSingleHandSvg`):** `[ 🤚 Left Hand SVG | ⌨️ Taiwan Dual Keyboard | ✋ Right Hand SVG ]` so both hands and all keys fit on a single laptop screen (`471px` tall) without vertical cutoff.
 - [x] **Scrollbar-Coupled Magnetic Center Lock-In (`computeCockpitCenterScrollY` + `checkScrollAutoLock`):** Coupled directly to `window.scrollY` and the browser's native right-hand scrollbar (`lockedScrollY: 250`). Small scrollbar/touchpad moves (`< 105px`) stretch with `--elastic-y` counter-tension and spring the native scrollbar smoothly back to center; larger pulls (`>= 105px`) break free cleanly.
-- [x] **Multi-Key Zhuyin Syllable Step Badges (`① ② ③`):** Decomposes Chinese drill characters into Bopomofo key steps (`getZhuyinSequenceForChar`) and places numbered `.kb-step-badge` markers on the virtual keyboard.
-- [x] **Direct In-Place Typing, 🔥 Combo Streak, Web Audio Key Clicks, 1–3 Star Result Card & Weak-Key Heatmap.**
-- [x] **🌧️ Typing Meteor Shower Mini-Game (`startMeteorGame`):** Arcade mode inside the Typing Dojo for shooting falling English/Zhuyin meteors.
+- [x] **36 Progressive Typing Drills across 8 Stages (`data/typing-drills.js`):** Expanded Stages 4–6 (`zy-6`..`zy-8` middle consonants, combined rhymes, homophones; `sw-3`..`sw-4` Shift caps & golden search keywords; `nr-2` symbols & math) and added **Stage 7 (`🎮 Scratch & Roblox 遊戲指令特訓`, `gc-1`..`gc-4`)** + **Stage 8 (`🤖 AI 小魔法師提示詞特訓`, `ai-1`..`ai-4`)**.
+- [x] **Adaptive Weak-Key Drill (`🎯 弱點特訓`, `startWeakKeyDrill`) & Custom School Vocab Drill (`✏️ 自訂生字`, `openCustomDrillPrompt` / `setCustomDrillText`):** Dynamic practice drills targeting missed keys or parent/kid custom vocabulary (with full `① ② ③ ④` Zhuyin keyboard step badges and Meteor Shower support).
+- [x] **Direct In-Place Typing, 🔥 Combo Streak, Web Audio Key Clicks, 1–3 Star Result Card & Weak-Key Heatmap, and 🌧️ Typing Meteor Shower Mini-Game.**
 
 ---
 
 ## 5. 📊 Current Status & Changelog
 
-* **Last Updated:** 2026-11-19 (End-of-Day Checkpoint)
-* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **795 / 795 PASS (100%)** | ✅ GitHub Actions CI green (`main`) | ✅ Headless Chromium (`1280×760`) verified
-* **Curriculum & Content Totals:** **7 Worlds** · **29 Interactive Lessons** · **22 Typing Drills (6 Stages) + Meteor Shower Mini-Game** · **13 Badges**
-* **GitHub Repository:** https://github.com/azreal564335/dea (`main` branch, PWA Service Worker cache at `dea-v8` network-first)
+* **Last Updated:** 2026-11-23
+* **Latest Build Status:** ✅ `npm run build` succeeded (`dist/digital_explorer_academy.html`) | ✅ `npm test` **930 / 930 PASS (100%)** | ✅ GitHub Actions CI green (`main`) | ✅ Headless Chromium (`1280×760`) verified
+* **Curriculum & Content Totals:** **7 Worlds** · **29 Interactive Lessons** · **36 Typing Drills (8 Stages) + Adaptive Weak-Key + Custom Vocab + Meteor Shower Mini-Game** · **13 Badges**
+* **GitHub Repository:** https://github.com/azreal564335/dea (`main` branch, PWA Service Worker cache at `dea-v9` network-first)
 * **Next Steps / Future Ideas When Resuming:**
-  * Live feedback after testing the Scrollbar-Coupled Magnetic Center Typing Cockpit (`5bbf6b1`) on the kids' Windows 11 laptops.
+  * Live feedback after testing the 36-level Typing Dojo (`Stage 7 Game Coder`, `Stage 8 AI Prompts`, `🎯 弱點特訓`, `✏️ 自訂生字`) on the kids' Windows 11 laptops.
   * Optional: Upgrade Vercel Redis Cloud Sync (`openCloudSyncModal` / `api/progress.js`) from manual `push:code:pin` prompt to a friendly 2-field modal with "Remember Family Code & Auto-Sync on Lesson/Drill Completion".
   * Optional: Additional Scratch lessons on World 7 (`world-7`) or new Roblox/AI mini-projects based on the kids' favorite lessons.
 * **Recent Changes:**
+  * **36-Level / 8-Stage Typing Dojo Expansion + Adaptive Weak-Key & Custom School Vocab Modes:**
+    * **Test Gate & Real Chromium Validation:** `npm run build && npm test` passed **930 / 930** assertions (**0 failures**), plus real headless Chromium verification of all 8 stages, 36 drills, `CHAR_ZHUYIN_MAP` step badges, `custom-weak`, and `custom-user`.
+    * **Added 14 New Drills (`22` ➔ `36` drills across `8` stages):** Bridged Stage 4 Zhuyin (`zy-6` middle consonants `ㄓㄔㄕㄖ ㄗㄘㄙ`, `zy-7` combined rhymes `ㄧㄚ/ㄨㄚ/ㄩㄝ/ㄧㄢ/ㄨㄥ`, `zy-8` homophone candidate selection), Stage 5 Bilingual (`sw-3` Shift + Letter capitalization, `sw-4` golden search keywords), Stage 6 Symbols (`nr-2` math & punctuation), plus **Stage 7 (`game-coder`: `gc-1`..`gc-4` Scratch & Roblox commands)** and **Stage 8 (`ai-prompt-dojo`: `ai-1`..`ai-4` AI prompts & boss challenge)**.
+    * **Added `🎯 弱點特訓` (`startWeakKeyDrill`) & `✏️ 自訂生字` (`openCustomDrillPrompt` / `setCustomDrillText`):** Generates on-the-fly drills from the kid's missed keys or custom school vocabulary words (Chinese or English).
   * **Scrollbar-Coupled Magnetic Center Lock-In (`computeCockpitCenterScrollY` + `checkScrollAutoLock`):**
     * Coupled the Typing Cockpit's elastic lock-in directly to **`window.scrollY` and the browser's native right-hand scrollbar** (removed `wheel` `preventDefault()` so touchpad, mouse wheel, and dragging the right-hand scrollbar thumb all move the real scrollbar).
     * **Verified in Real Chromium (`1280×760`):**
